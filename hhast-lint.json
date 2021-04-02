@@ -1,0 +1,10 @@
+{
+  "roots": ["src/"],
+  "builtinLinters": "all",
+  "overrides": [{
+    "patterns": [ "*" ],
+    "disabledLinters": [
+      "Facebook\\HHAST\\UseStatementWithAsLinter"
+    ]
+  }]
+}

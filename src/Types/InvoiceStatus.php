@@ -2,6 +2,9 @@
 
 namespace Mollie\Api\Types;
 
+// TODO
+// enummá alakítani
+
 class InvoiceStatus
 {
     /**
