@@ -57,7 +57,7 @@ class Customer extends BaseResource {
 
   public function createPayment(
     dict<arraykey, mixed> $options = dict[],
-    dict<arraykey, bool> $filters = dict[]
+    dict<arraykey, mixed> $filters = dict[]
   ): Payment {
     return $this->client->customerPayments->createFor($this, $this->withPresetOptions($options), $filters);
   }
@@ -71,7 +71,7 @@ class Customer extends BaseResource {
 
   public function createSubscription(
     dict<arraykey, mixed> $options = dict[],
-    dict<arraykey, bool> $filters = dict[]
+    dict<arraykey, mixed> $filters = dict[]
   ): Subscription {
     return $this->client->subscriptions->createFor($this, $this->withPresetOptions($options), $filters);
   }
@@ -98,7 +98,7 @@ class Customer extends BaseResource {
 
   public function createMandate(
     dict<arraykey, mixed> $options = dict[],
-    dict<arraykey, bool> $filters = dict[]
+    dict<arraykey, mixed> $filters = dict[]
   ): Mandate {
     return $this->client->mandates->createFor($this, $this->withPresetOptions($options), $filters);
   }

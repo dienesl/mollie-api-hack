@@ -434,15 +434,12 @@ class Order extends BaseResource {
   /**
    * Create a new payment for this Order.
    *
-   * @param $data
-   * @param array $filters
    * @return \Mollie\Api\Resources\BaseResource|\Mollie\Api\Resources\Payment
-   * @throws \Mollie\Api\Exceptions\ApiException
    * TODO
    */
   public function createPayment(
     mixed $data,
-    dict<arraykey, bool> $filters = dict[]
+    dict<arraykey, mixed> $filters = dict[]
   ): BaseResource {
     return $this->client->orderPayments->createFor($this, $data, $filters);
   }
