@@ -1,5 +1,7 @@
 namespace Mollie\Api\Resources;
 
+use type Mollie\Api\Exceptions\ApiException;
+
 class Capture extends BaseResource {
   /**
    * Always 'capture' for this object
@@ -23,13 +25,13 @@ class Capture extends BaseResource {
    * Amount object containing the value and currency
    */
   <<__LateInit>>
-  public dict<arraykey, mixed> $amount;
+  public Amount $amount;
 
   /**
    * Amount object containing the settlement value and currency
    */
   <<__LateInit>>
-  public dict<arraykey, mixed> $settlementAmount;
+  public Amount $settlementAmount;
 
   /**
    * Id of the capture's payment(on the Mollie platform).
@@ -54,4 +56,38 @@ class Capture extends BaseResource {
 
   <<__LateInit>>
   public Links $links;
+
+  public function parseJsonData(
+    dict<string, mixed> $datas
+  ): void {
+    $this->resource = (string)$datas['resource'];
+    $this->id = (string)$datas['id'];
+    $this->mode = (string)$datas['mode'];
+
+    $amount = $datas['amount'];
+    if($amount is KeyedContainer<_, _>) {
+      $this->amount = new Amount(
+        (float)$amount['value'],
+        (string)$amount['currency']
+      );
+    } else {
+      throw new ApiException('Missing amount in datas.');
+    }
+
+    $settlementAmount = $datas['settlementAmount'];
+    if($settlementAmount is KeyedContainer<_, _>) {
+      $this->settlementAmount = new Amount(
+        (float)$settlementAmount['value'],
+        (string)$settlementAmount['currency']
+      );
+    } else {
+      throw new ApiException('Missing settlementAmount in datas.');
+    }
+
+    $this->paymentId = (string)$datas['paymentId'];
+
+    $this->shipmentId = (string)$datas['shipmentId'];
+
+    $this->createdAt = (string)$datas['createdAt'];
+  }
 }

@@ -7,4 +7,8 @@ abstract class BaseResource {
   public function __construct(
     protected MollieApiClient $client
   ) {}
+  
+  abstract public function parseJsonData(
+    dict<string, mixed> $datas
+  ): void;
 }
