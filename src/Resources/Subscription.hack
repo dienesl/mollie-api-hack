@@ -173,7 +173,7 @@ class Subscription extends BaseResource {
 
     return ResourceFactory::createCursorResourceCollection(
       $this->client,
-      $result->_embedded->payments,
+      $result->embedded['payments'] ?? vec[],
       Payment::class,
       $result->links
     );

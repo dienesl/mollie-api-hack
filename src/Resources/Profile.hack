@@ -100,7 +100,7 @@ class Profile extends BaseResource {
 
     return ResourceFactory::createCursorResourceCollection(
       $this->client,
-      $result->_embedded->chargebacks,
+      $result->embedded['chargebacks'] ?? vec[],
       Chargeback::class,
       $result->links
     );
@@ -118,7 +118,7 @@ class Profile extends BaseResource {
 
     return ResourceFactory::createCursorResourceCollection(
       $this->client,
-      $result->_embedded->methods,
+      $result->embedded['methods'] ?? vec[],
       Method::class,
       $result->links
     );
@@ -156,7 +156,7 @@ class Profile extends BaseResource {
 
     return ResourceFactory::createCursorResourceCollection(
       $this->client,
-      $result->_embedded->methods,
+      $result->embedded['methods'] ?? vec[],
       Method::class,
       $result->links
     );
@@ -177,7 +177,7 @@ class Profile extends BaseResource {
 
     return ResourceFactory::createCursorResourceCollection(
       $this->client,
-      $result->_embedded->refunds,
+      $result->embedded['refunds'] ?? vec[],
       Refund::class,
       $result->links
     );

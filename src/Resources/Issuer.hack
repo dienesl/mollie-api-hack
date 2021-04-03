@@ -21,12 +21,6 @@ class Issuer extends BaseResource {
   <<__LateInit>>
   public string $method;
 
-  /**
-   * Object containing a size1x or size2x image
-   *
-   * @var \stdClass
-   * TODO
-   */
   <<__LateInit>>
-  public mixed $image;
+  public Image $image;
 }

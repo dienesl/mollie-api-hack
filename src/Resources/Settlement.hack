@@ -121,7 +121,7 @@ class Settlement extends BaseResource {
 
     return ResourceFactory::createCursorResourceCollection(
       $this->client,
-      $result->_embedded->refunds,
+      $result->embedded['refunds'] ?? vec[],
       Refund::class,
       $result->links
     );
@@ -139,7 +139,7 @@ class Settlement extends BaseResource {
 
     return ResourceFactory::createCursorResourceCollection(
       $this->client,
-      $result->_embedded->chargebacks,
+      $result->embedded['chargebacks'] ?? vec[],
       Chargeback::class,
       $result->links
     );
@@ -160,7 +160,7 @@ class Settlement extends BaseResource {
 
     return ResourceFactory::createCursorResourceCollection(
       $this->client,
-      $result->_embedded->captures,
+      $result->embedded['captures'] ?? vec[],
       Capture::class,
       $result->links
     );

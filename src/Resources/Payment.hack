@@ -14,43 +14,38 @@ use function json_encode;
 use function urlencode;
 
 class Payment extends BaseResource {
+  <<__LateInit>>
   public string $resource;
 
   /**
    * Id of the payment(on the Mollie platform).
    */
+  <<__LateInit>>
   public string $id;
 
   /**
    * Mode of the payment, either "live" or "test" depending on the API Key that was
    * used.
    */
+  <<__LateInit>>
   public string $mode;
 
   /**
    * Amount object containing the value and currency
-   *
-   * @var \stdClass
-   * TODO
    */
-  public mixed $amount;
+  <<__LateInit>>
+  public Amount $amount;
 
   /**
    * The amount that has been settled containing the value and currency
-   *
-   * @var \stdClass
-   * TODO
    */
-  public mixed $settlementAmount;
+  public ?Amount $settlementAmount;
 
   /**
    * The amount of the payment that has been refunded to the consumer, in EURO with
    * 2 decimals. This field will be null if the payment can not be refunded.
-   *
-   * @var \stdClass|null
-   * TODO
    */
-  public mixed $amountRefunded;
+  public ?Amount $amountRefunded;
 
   /**
    * The amount of a refunded payment that can still be refunded, in EURO with 2
@@ -59,25 +54,20 @@ class Payment extends BaseResource {
    * For some payment methods this amount can be higher than the payment amount.
    * This is possible to reimburse the costs for a return shipment to your customer
    * for example.
-   *
-   * @var \stdClass|null
-   * TODO
    */
-  public mixed $amountRemaining;
+  public ?Amount $amountRemaining;
 
   /**
    * The total amount that was charged back for this payment. Only available when the
    * total charged back amount is not zero.
-   *
-   * @var \stdClass|null
-   * TODO
    */
-  public mixed $amountChargedBack;
+  public ?Amount $amountChargedBack;
 
   /**
    * Description of the payment that is shown to the customer during the payment,
    * and possibly on the bank or credit card statement.
    */
+  <<__LateInit>>
   public string $description;
 
   /**
@@ -91,7 +81,7 @@ class Payment extends BaseResource {
   /**
    * The status of the payment.
    */
-  public string $status = PaymentStatus::STATUS_OPEN;
+  public PaymentStatus $status = PaymentStatus::STATUS_OPEN;
 
   /**
    * UTC datetime the payment was created in ISO-8601 format.
@@ -146,6 +136,7 @@ class Payment extends BaseResource {
    *
    * @example pfl_xH2kP6Nc6X
    */
+  <<__LateInit>>
   public string $profileId;
 
   /**
@@ -156,6 +147,7 @@ class Payment extends BaseResource {
   /**
    * Redirect URL set on this payment
    */
+  <<__LateInit>>
   public string $redirectUrl;
 
   /**
@@ -203,6 +195,7 @@ class Payment extends BaseResource {
    * @var \stdClass|mixed|null
    * TODO
    */
+  <<__LateInit>>
   public mixed $metadata;
 
   /**
@@ -212,6 +205,7 @@ class Payment extends BaseResource {
    * @var \stdClass
    * TODO
    */
+  <<__LateInit>>
   public mixed $details;
 
   /**
@@ -219,13 +213,11 @@ class Payment extends BaseResource {
    */
   public ?string $restrictPaymentMethodsToCountry;
 
+  <<__LateInit>>
   public Links $links;
 
-  /**
-   * @var \stdClass[]
-   * TODO
-   */
-  public vec<mixed> $_embedded;
+  <<__LateInit>>
+  public dict<string, vec<dict<string, mixed>>> $embedded;
 
   /**
    * Whether or not this payment can be canceled.
@@ -235,20 +227,14 @@ class Payment extends BaseResource {
   /**
    * The total amount that is already captured for this payment. Only available
    * when this payment supports captures.
-   *
-   * @var \stdClass|null
-   * TODO
    */
-  public mixed $amountCaptured;
+  public ?Amount $amountCaptured;
 
   /**
    * The application fee, if the payment was created with one. Contains amount
    *(the value and currency) and description.
-   *
-   * @var \stdClass|null
-   * TODO
    */
-  public mixed $applicationFee;
+  public ?ApplicationFee $applicationFee;
 
   /**
    * The date and time the payment became authorized, in ISO 8601 format. This
@@ -384,7 +370,7 @@ class Payment extends BaseResource {
    */
   public function getAmountRefunded(): float {
     if($this->amountRefunded !== null) {
-      return(float)$this->amountRefunded->value;
+      return $this->amountRefunded->value;
     }
 
     return .0;
@@ -398,8 +384,8 @@ class Payment extends BaseResource {
    * @return float
    */
   public function getAmountRemaining(): float {
-    if($this->amountRemaining) {
-      return(float)$this->amountRemaining->value;
+    if($this->amountRemaining !== null) {
+      return $this->amountRemaining->value;
     }
 
     return .0;
@@ -424,7 +410,7 @@ class Payment extends BaseResource {
 
     return ResourceFactory::createCursorResourceCollection(
       $this->client,
-      $result->_embedded->refunds,
+      $result->embedded['refunds'] ?? vec[],
       Refund::class,
       $result->links
     );
@@ -458,7 +444,7 @@ class Payment extends BaseResource {
 
     return ResourceFactory::createCursorResourceCollection(
       $this->client,
-      $result->_embedded->captures,
+      $result->embedded['captures'] ?? vec[],
       Capture::class,
       $result->links
     );
@@ -493,7 +479,7 @@ class Payment extends BaseResource {
 
     return ResourceFactory::createCursorResourceCollection(
       $this->client,
-      $result->_embedded->chargebacks,
+      $result->embedded['chargebacks'] ?? vec[],
       Chargeback::class,
       $result->links
     );
@@ -592,7 +578,7 @@ class Payment extends BaseResource {
    */
   public function getAmountCaptured(): float {
     if($this->amountCaptured !== null) {
-      return(float)$this->amountCaptured->value;
+      return $this->amountCaptured->value;
     }
 
     return .0;
@@ -603,7 +589,7 @@ class Payment extends BaseResource {
    */
   public function getSettlementAmount(): float {
     if($this->settlementAmount !== null) {
-      return(float)$this->settlementAmount->value;
+      return $this->settlementAmount->value;
     }
 
     return .0;
@@ -615,7 +601,7 @@ class Payment extends BaseResource {
    */
   public function getApplicationFeeAmount(): float {
     if($this->applicationFee !== null) {
-      return(float)$this->applicationFee->amount->value;
+      return $this->applicationFee->amount->value;
     }
 
     return .0;

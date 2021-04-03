@@ -7,6 +7,10 @@ final class Links {
 
   public ?Link $checkout;
 
+  public ?Link $dashboard;
+
+  public ?Link $documentation;
+
   public ?Link $image;
 
   public ?Link $methods;

@@ -1,6 +1,9 @@
 namespace Mollie\Api\Resources;
 
-use namespace HH\Lib\Dict;
+use namespace HH\Lib\{
+  C,
+  Dict
+};
 use type Mollie\Api\MollieApiClient;
 use type Mollie\Api\Types\OrderStatus;
 use function json_encode;
@@ -181,11 +184,7 @@ class Order extends BaseResource {
    */
   public Links $links;
 
-  /**
-   * @var \stdClass
-   * TODO
-   */
-  public mixed $_embedded;
+  public dict<string, vec<dict<string, mixed>>> $embedded;
 
   /**
    * Is this order created?
@@ -401,7 +400,7 @@ class Order extends BaseResource {
 
     return ResourceFactory::createCursorResourceCollection(
       $this->client,
-      $result->_embedded->refunds,
+      $result->embedded['refunds'] ?? vec[],
       Refund::class,
       $result->links
     );
@@ -452,13 +451,13 @@ class Order extends BaseResource {
    * TODO
    */
   public function payments(): ?PaymentCollection {
-    if(! isset($this->_embedded, $this->_embedded->payments)) {
+    if(!C\contains_key($this->embedded, 'payments')) {
       return null;
     }
 
     return ResourceFactory::createCursorResourceCollection(
       $this->client,
-      $this->_embedded->payments,
+      $this->embedded['payments'],
       Payment::class
     );
   }

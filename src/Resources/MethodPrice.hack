@@ -6,20 +6,20 @@ class MethodPrice extends BaseResource {
    *
    * @example "The Netherlands"
    */
+  <<__LateInit>>
   public string $description;
 
   /**
    * The fixed price per transaction. This excludes the variable amount.
-   *
-   * @var \stdClass An amount object consisting of `value` and `currency`
-   * TODO
    */
-  public mixed $fixed;
+  <<__LateInit>>
+  public Amount $fixed;
 
   /**
    * A string containing the percentage being charged over the payment amount besides the fixed price.
    *
    * @var string An string representing the percentage as a float(for example: "0.1" for 10%)
    */
+  <<__LateInit>>
   public string $variable;
 }

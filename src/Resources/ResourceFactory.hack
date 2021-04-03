@@ -58,7 +58,7 @@ class ResourceFactory {
    */
   public static function createCursorResourceCollection(
     $client,
-    array $input,
+    vec<dict<string, mixed>> $input,
     $resourceClass,
     $_links = null,
     $resourceCollectionClass = null
