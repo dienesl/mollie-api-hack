@@ -8,9 +8,10 @@ use Mollie\Api\Resources\ResourceFactory;
 */
 
 use namespace Mollie\Api\Resources;
+use type Mollie\Api\Exceptions\ApiException;
 use type Mollie\Api\Types\RestMethod;
 
-class OnboardingEndpoint extends CollectionEndpointAbstract<Resources\Onboarding, Resources\OnboardingCollection> {
+class OnboardingEndpoint extends EndpointAbstract<Resources\Onboarding, Resources\OnboardingCollection> {
   <<__Override>>
   protected function setResourcePath(): void {
     $this->resourcePath = 'onboarding/me';
@@ -24,12 +25,13 @@ class OnboardingEndpoint extends CollectionEndpointAbstract<Resources\Onboarding
     return new Resources\Onboarding($this->client);
   }
 
-  <<__Override>>
+  //<<__Override>>
   protected function getResourceCollectionObject(
     int $count,
     Resources\Links $links
   ): Resources\OnboardingCollection {
-    return new Resources\OnboardingCollection($this->client, $count, $links);
+    throw  new ApiException('not implemnted.');
+    //return new Resources\OnboardingCollection($this->client, $count, $links);
   }
 
   /**

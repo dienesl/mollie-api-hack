@@ -5,82 +5,71 @@ use Mollie\Api\Resources\CurrentProfile;
 use Mollie\Api\Resources\Profile;
 use Mollie\Api\Resources\ProfileCollection;
 
-class ProfileEndpoint extends CollectionEndpointAbstract
-{
-  protected $resourcePath = "profiles";
+use namespace Mollie\Api\Resources;
 
-  protected $resourceClass = Profile::class;
+class ProfileEndpoint extends CollectionEndpointAbstract<Resources\Profile, Resources\ProfileCollection> {
+  private classname<Resources\Profile> $resourceClass = Resources\Profile::class;
+
+  <<__Override>>
+  protected function setResourcePath(): void {
+    $this->resourcePath = 'profiles';
+  }
 
   /**
    * Get the object that is used by this API endpoint. Every API endpoint uses one type of object.
-   *
-   * @return Profile
    */
-  protected function getResourceObject()
-  {
-    return new $this->resourceClass($this->client);
+  <<__Override>>
+  protected function getResourceObject(): Resources\Profile {
+    $class = $this->resourceClass;
+    return new $class($this->client);
   }
 
   /**
    * Get the collection object that is used by this API endpoint. Every API endpoint uses one type of collection object.
-   *
-   * @param int $count
-   * @param \stdClass $_links
-   *
-   * @return ProfileCollection
    */
-  protected function getResourceCollectionObject($count, $_links)
-  {
-    return new ProfileCollection($this->client, $count, $_links);
+  <<__Override>>
+  protected function getResourceCollectionObject(
+    int $count,
+    Resources\Links $links
+  ): Resources\ProfileCollection {
+    return new ProfileCollection($this->client, $count, $links);
   }
 
   /**
    * Creates a Profile in Mollie.
-   *
-   * @param array $data An array containing details on the profile.
-   * @param array $filters
-   *
-   * @return \Mollie\Api\Resources\BaseResource|\Mollie\Api\Resources\Profile
-   * @throws ApiException
    */
-  public function create(array $data = [], array $filters = [])
-  {
-    return $this->rest_create($data, $filters);
+  public function create(
+    dict<arraykey, mixed> $data = dict[],
+    dict<arraykey, mixed> $filters = dict[]
+  ): Resources\Profile {
+    return $this->restCreate($data, $filters);
   }
 
   /**
    * Retrieve a Profile from Mollie.
    *
    * Will throw an ApiException if the profile id is invalid or the resource cannot be found.
-   *
-   * @param string $profileId
-   * @param array $parameters
-   *
-   * @return \Mollie\Api\Resources\BaseResource|\Mollie\Api\Resources\Profile
-   * @throws ApiException
    */
-  public function get($profileId, array $parameters = [])
-  {
+  public function get(
+    string $profileId,
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Resources\Profile {
     if($profileId === 'me') {
       return $this->getCurrent($parameters);
     }
 
-    return $this->rest_read($profileId, $parameters);
+    return $this->restRead($profileId, $parameters);
   }
 
   /**
    * Retrieve the current Profile from Mollie.
-   *
-   * @param array $parameters
-   *
-   * @return \Mollie\Api\Resources\BaseResource|\Mollie\Api\Resources\CurrentProfile
-   * @throws ApiException
    */
-  public function getCurrent(array $parameters = [])
-  {
-    $this->resourceClass = CurrentProfile::class;
+  public function getCurrent(
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Resources\Profile {
+    $this->resourceClass = Resources\CurrentProfile::class;
 
-    return $this->rest_read('me', $parameters);
+    return $this->restRead('me', $parameters);
   }
 
   /**
@@ -88,30 +77,22 @@ class ProfileEndpoint extends CollectionEndpointAbstract
    *
    * Will throw a ApiException if the profile id is invalid or the resource cannot be found.
    * Returns with HTTP status No Content(204) if successful.
-   *
-   * @param string $profileId
-   *
-   * @param array $data
-   * @return \Mollie\Api\Resources\BaseResource|\Mollie\Api\Resources\Profile
-   * @throws ApiException
    */
-  public function delete($profileId, array $data = [])
-  {
-    return $this->rest_delete($profileId, $data);
+  public function delete(
+    string $profileId,
+    dict<arraykey, mixed> $data = dict[]
+  ): ?Resources\Profile {
+    return $this->restDelete($profileId, $data);
   }
 
   /**
    * Retrieves a collection of Profiles from Mollie.
-   *
-   * @param string $from The first profile ID you want to include in your list.
-   * @param int $limit
-   * @param array $parameters
-   *
-   * @return \Mollie\Api\Resources\BaseCollection|\Mollie\Api\Resources\ProfileCollection
-   * @throws ApiException
    */
-  public function page($from = null, $limit = null, array $parameters = [])
-  {
-    return $this->rest_list($from, $limit, $parameters);
+  public function page(
+    ?string $from = null,
+    ?int $limit = null,
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Resources\ProfileCollection {
+    return $this->restList($from, $limit, $parameters);
   }
 }

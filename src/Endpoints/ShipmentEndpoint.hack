@@ -1,135 +1,104 @@
 namespace Mollie\Api\Endpoints;
 
-use Mollie\Api\Resources\Order;
-use Mollie\Api\Resources\Shipment;
-use Mollie\Api\Resources\ShipmentCollection;
+use namespace Mollie\Api\Resources;
 
-class ShipmentEndpoint extends CollectionEndpointAbstract
-{
-  protected $resourcePath = "orders_shipments";
+class ShipmentEndpoint extends CollectionEndpointAbstract<Resources\Shipment, Resources\ShipmentCollection> {
+  const string RESOURCE_ID_PREFIX = 'shp_';
 
-  /**
-   * @var string
-   */
-  const RESOURCE_ID_PREFIX = 'shp_';
+  <<__Override>>
+  protected function setResourcePath(): void {
+    $this->resourcePath = 'orders_shipments';
+  }
 
   /**
    * Get the object that is used by this API endpoint. Every API endpoint uses one type of object.
-   *
-   * @return Shipment
    */
-  protected function getResourceObject()
-  {
-    return new Shipment($this->client);
+  <<__Override>>
+  protected function getResourceObject(): Resources\Shipment {
+    return new Resources\Shipment($this->client);
   }
 
   /**
    * Get the collection object that is used by this API endpoint. Every API
    * endpoint uses one type of collection object.
-   *
-   * @param int $count
-   * @param \stdClass $_links
-   *
-   * @return ShipmentCollection
    */
-  protected function getResourceCollectionObject($count, $_links)
-  {
-    return new ShipmentCollection($count, $_links);
+  <<__Override>>
+  protected function getResourceCollectionObject(
+    int $count,
+    Resources\Links $links
+  ): Resources\ShipmentCollection {
+    return new Resources\ShipmentCollection($count, $links);
   }
 
   /**
    * Create a shipment for some order lines. You can provide an empty array for the
    * "lines" option to include all unshipped lines for this order.
-   *
-   * @param Order $order
-   * @param array $options
-   * @param array $filters
-   *
-   * @return Shipment
-   * @throws \Mollie\Api\Exceptions\ApiException
    */
-  public function createFor(Order $order, array $options = [], array $filters = [])
-  {
+  public function createFor(
+    Resources\Order $order,
+    dict<arraykey, mixed> $options = dict[],
+    dict<arraykey, mixed> $filters = dict[]
+  ): Resources\Shipment {
     return $this->createForId($order->id, $options, $filters);
   }
 
   /**
    * Create a shipment for some order lines. You can provide an empty array for the
    * "lines" option to include all unshipped lines for this order.
-   *
-   * @param string $orderId
-   * @param array $options
-   * @param array $filters
-   *
-   * @return Shipment
-   * @throws \Mollie\Api\Exceptions\ApiException
    */
-  public function createForId($orderId, array $options = [], array $filters = [])
-  {
+  public function createForId(
+    string $orderId,
+    dict<arraykey, mixed> $options = dict[],
+    dict<arraykey, mixed> $filters = dict[]
+  ): Resources\Shipment {
     $this->parentId = $orderId;
 
-    return parent::rest_create($options, $filters);
+    return $this->restCreate($options, $filters);
   }
 
   /**
    * Retrieve a single shipment and the order lines shipped by a shipment’s ID.
-   *
-   * @param Order $order
-   * @param string $shipmentId
-   * @param array $parameters
-   *
-   * @return Shipment
-   * @throws \Mollie\Api\Exceptions\ApiException
    */
-  public function getFor(Order $order, $shipmentId, array $parameters = [])
-  {
+  public function getFor(
+    Resources\Order $order,
+    string $shipmentId,
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Resources\Shipment {
     return $this->getForId($order->id, $shipmentId, $parameters);
   }
 
   /**
    * Retrieve a single shipment and the order lines shipped by a shipment’s ID.
-   *
-   * @param string $orderId
-   * @param string $shipmentId
-   * @param array $parameters
-   *
-   * @return \Mollie\Api\Resources\BaseResource|\Mollie\Api\Resources\Shipment
-   * @throws \Mollie\Api\Exceptions\ApiException
    */
-  public function getForId($orderId, $shipmentId, array $parameters = [])
-  {
+  public function getForId(
+    string $orderId,
+    string $shipmentId,
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Resources\Shipment {
     $this->parentId = $orderId;
 
-    return parent::rest_read($shipmentId, $parameters);
+    return $this->restRead($shipmentId, $parameters);
   }
 
   /**
    * Return all shipments for the Order provided.
-   *
-   * @param Order $order
-   * @param array $parameters
-   *
-   * @return ShipmentCollection
-   * @throws \Mollie\Api\Exceptions\ApiException
    */
-  public function listFor(Order $order, array $parameters = [])
-  {
+  public function listFor(
+    Resources\Order $order,
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Resources\ShipmentCollection {
     return $this->listForId($order->id, $parameters);
   }
 
   /**
    * Return all shipments for the provided Order id.
-   *
-   * @param string $orderId
-   * @param array $parameters
-   *
-   * @return \Mollie\Api\Resources\BaseCollection|\Mollie\Api\Resources\ShipmentCollection
-   * @throws \Mollie\Api\Exceptions\ApiException
    */
-  public function listForId($orderId, array $parameters = [])
-  {
+  public function listForId(
+    string $orderId,
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Resources\ShipmentCollection {
     $this->parentId = $orderId;
 
-    return parent::rest_list(null, null, $parameters);
+    return $this->restList(null, null, $parameters);
   }
 }

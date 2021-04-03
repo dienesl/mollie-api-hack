@@ -1,147 +1,112 @@
 namespace Mollie\Api\Endpoints;
 
-use Mollie\Api\Resources\Customer;
-use Mollie\Api\Resources\ResourceFactory;
-use Mollie\Api\Resources\Subscription;
-use Mollie\Api\Resources\SubscriptionCollection;
+use namespace HH\Lib\Dict;
+use namespace Mollie\Api\Resources;
+use type Mollie\Api\Types\RestMethod;
 
-class SubscriptionEndpoint extends CollectionEndpointAbstract
-{
-  protected $resourcePath = "customers_subscriptions";
+class SubscriptionEndpoint extends CollectionEndpointAbstract<Resources\Subscription, Resources\SubscriptionCollection> {
+  <<__Override>>
+  protected function setResourcePath(): void {
+    $this->resourcePath = 'customers_subscriptions';
+  }
 
   /**
    * Get the object that is used by this API endpoint. Every API endpoint uses one type of object.
-   *
-   * @return Subscription
    */
-  protected function getResourceObject()
-  {
-    return new Subscription($this->client);
+  <<__Override>>
+  protected function getResourceObject(): Resources\Subscription {
+    return new Resources\Subscription($this->client);
   }
 
   /**
    * Get the collection object that is used by this API endpoint. Every API endpoint uses one type of collection object.
-   *
-   * @param int $count
-   * @param \stdClass $_links
-   *
-   * @return SubscriptionCollection
    */
-  protected function getResourceCollectionObject($count, $_links)
-  {
-    return new SubscriptionCollection($this->client, $count, $_links);
+  <<__Override>>
+  protected function getResourceCollectionObject(
+    int $count,
+    Resources\Links $links
+  ): Resources\SubscriptionCollection {
+    return new Resources\SubscriptionCollection($this->client, $count, $links);
   }
 
   /**
    * Create a subscription for a Customer
-   *
-   * @param Customer $customer
-   * @param array $options
-   * @param array $filters
-   *
-   * @return Subscription
    */
-  public function createFor(Customer $customer, array $options = [], array $filters = [])
-  {
+  public function createFor(
+    Resources\Customer $customer,
+    dict<arraykey, mixed> $options = dict[],
+    dict<arraykey, mixed> $filters = dict[]
+  ): Resources\Subscription {
     return $this->createForId($customer->id, $options, $filters);
   }
 
   /**
    * Create a subscription for a Customer
-   *
-   * @param string $customerId
-   * @param array $options
-   * @param array $filters
-   *
-   * @return Subscription
    */
-  public function createForId($customerId, array $options = [], array $filters = [])
-  {
+  public function createForId(
+    string $customerId,
+    dict<arraykey, mixed> $options = dict[],
+    dict<arraykey, mixed> $filters = dict[]
+  ): Resources\Subscription {
     $this->parentId = $customerId;
 
-    return parent::rest_create($options, $filters);
+    return $this->restCreate($options, $filters);
   }
 
-  /**
-   * @param Customer $customer
-   * @param string $subscriptionId
-   * @param array $parameters
-   *
-   * @return Subscription
-   */
-  public function getFor(Customer $customer, $subscriptionId, array $parameters = [])
-  {
+  public function getFor(
+    Resources\Customer $customer,
+    string $subscriptionId,
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Resources\Subscription {
     return $this->getForId($customer->id, $subscriptionId, $parameters);
   }
 
-  /**
-   * @param string $customerId
-   * @param string $subscriptionId
-   * @param array $parameters
-   *
-   * @return Subscription
-   */
-  public function getForId($customerId, $subscriptionId, array $parameters = [])
-  {
+  public function getForId(
+    string $customerId,
+    string $subscriptionId,
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Resources\Subscription {
     $this->parentId = $customerId;
 
-    return parent::rest_read($subscriptionId, $parameters);
+    return $this->restRead($subscriptionId, $parameters);
   }
 
-  /**
-   * @param Customer $customer
-   * @param string $from The first resource ID you want to include in your list.
-   * @param int $limit
-   * @param array $parameters
-   *
-   * @return SubscriptionCollection
-   */
-  public function listFor(Customer $customer, $from = null, $limit = null, array $parameters = [])
-  {
+  public function listFor(
+    Resources\Customer $customer,
+    ?string $from = null,
+    ?int $limit = null,
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Resources\SubscriptionCollection {
     return $this->listForId($customer->id, $from, $limit, $parameters);
   }
 
-  /**
-   * @param string $customerId
-   * @param string $from The first resource ID you want to include in your list.
-   * @param int $limit
-   * @param array $parameters
-   *
-   * @return SubscriptionCollection
-   */
-  public function listForId($customerId, $from = null, $limit = null, array $parameters = [])
-  {
+  public function listForId(
+    string $customerId,
+    ?string $from = null,
+    ?int $limit = null,
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Resources\SubscriptionCollection {
     $this->parentId = $customerId;
 
-    return parent::rest_list($from, $limit, $parameters);
+    return $this->restList($from, $limit, $parameters);
   }
 
-  /**
-   * @param Customer $customer
-   * @param string $subscriptionId
-   * @param array $data
-   *
-   * @return null
-   * @throws \Mollie\Api\Exceptions\ApiException
-   */
-  public function cancelFor(Customer $customer, $subscriptionId, array $data = [])
-  {
+  public function cancelFor(
+    Resources\Customer $customer,
+    string $subscriptionId,
+    dict<arraykey, mixed> $data = dict[]
+  ): ?Resources\Subscription {
     return $this->cancelForId($customer->id, $subscriptionId, $data);
   }
 
-  /**
-   * @param string $customerId
-   * @param string $subscriptionId
-   * @param array $data
-   *
-   * @return null
-   * @throws \Mollie\Api\Exceptions\ApiException
-   */
-  public function cancelForId($customerId, $subscriptionId, array $data = [])
-  {
+  public function cancelForId(
+    string $customerId,
+    string $subscriptionId,
+    dict<arraykey, mixed> $data = dict[]
+  ): ?Resources\Subscription {
     $this->parentId = $customerId;
 
-    return parent::rest_delete($subscriptionId, $data);
+    return $this->restDelete($subscriptionId, $data);
   }
 
   /**
@@ -154,19 +119,22 @@ class SubscriptionEndpoint extends CollectionEndpointAbstract
    * @return SubscriptionCollection
    * @throws \Mollie\Api\Exceptions\ApiException
    */
-  public function page($from = null, $limit = null, array $parameters = [])
-  {
-    $filters = array_merge(["from" => $from, "limit" => $limit], $parameters);
+  public function page(
+    ?string $from = null,
+    ?int $limit = null,
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Resources\SubscriptionCollection {
+    $filters = Dict\merge(dict['from' => $from, 'limit' => $limit], $parameters);
 
     $apiPath = 'subscriptions' . $this->buildQueryString($filters);
 
-    $result = $this->client->performHttpCall(self::REST_LIST, $apiPath);
+    $result = $this->client->performHttpCall(RestMethod::LIST, $apiPath);
 
-    /** @var SubscriptionCollection $collection */
-    $collection = $this->getResourceCollectionObject($result->count, $result->_links);
+    $collection = $this->getResourceCollectionObject($result->count, $result->links);
 
+    // TODO
     foreach($result->_embedded->{$collection->getCollectionResourceName()} as $dataResult) {
-      $collection[] = ResourceFactory::createFromApiResult($dataResult, $this->getResourceObject());
+      $collection[] = Resources\ResourceFactory::createFromApiResult($dataResult, $this->getResourceObject());
     }
 
     return $collection;

@@ -1,128 +1,109 @@
 namespace Mollie\Api\Endpoints;
 
-use Mollie\Api\Resources\Method;
-use Mollie\Api\Resources\MethodCollection;
-use Mollie\Api\Resources\Profile;
-use Mollie\Api\Resources\ResourceFactory;
+use namespace HH\Lib\C;
+use namespace Mollie\Api\Resources;
+use type Mollie\Api\Types\RestMethod;
+use function json_encode;
+use function urlencode;
 
-class ProfileMethodEndpoint extends CollectionEndpointAbstract
-{
-  protected $resourcePath = "profiles_methods";
+class ProfileMethodEndpoint extends CollectionEndpointAbstract<Resources\Method, Resources\MethodCollection> {
+  <<__Override>>
+  protected function setResourcePath(): void {
+    $this->resourcePath = 'profiles_methods';
+  }
 
   /**
    * Get the object that is used by this API endpoint. Every API endpoint uses one type of object.
-   *
-   * @return Method
    */
-  protected function getResourceObject()
-  {
-    return new Method($this->client);
+  <<__Override>>
+  protected function getResourceObject(): Resources\Method {
+    return new Resources\Method($this->client);
   }
 
   /**
    * Get the collection object that is used by this API endpoint. Every API endpoint uses one type of collection object.
-   *
-   * @param int $count
-   * @param \stdClass $_links
-   *
-   * @return MethodCollection()
    */
-  protected function getResourceCollectionObject($count, $_links)
-  {
-    return new MethodCollection($count, $_links);
+  <<__Override>>
+  protected function getResourceCollectionObject(
+    int $count,
+    Resources\Links $links
+  ): Resources\MethodCollection {
+    return new Resources\MethodCollection($count, $links);
   }
 
   /**
    * Enable a method for the provided Profile ID.
-   *
-   * @param $profileId
-   * @param $methodId
-   * @param array $data
-   * @return \Mollie\Api\Resources\BaseResource
-   * @throws \Mollie\Api\Exceptions\ApiException
    */
-  public function createForId($profileId, $methodId, array $data = [])
-  {
+  public function createForId(
+    string $profileId,
+    string $methodId,
+    dict<arraykey, mixed> $data = dict[]
+  ): Resources\Method {
     $this->parentId = $profileId;
     $resource = $this->getResourcePath() . '/' . urlencode($methodId);
 
     $body = null;
-    if(count($data) > 0) {
+    if(C\count($data) > 0) {
       $body = json_encode($data);
     }
 
-    $result = $this->client->performHttpCall(self::REST_CREATE, $resource, $body);
+    $result = $this->client->performHttpCall(RestMethod::CREATE, $resource, $body);
 
-    return ResourceFactory::createFromApiResult($result, new Method($this->client));
+    return Resources\ResourceFactory::createFromApiResult($result, new Method($this->client));
   }
 
   /**
    * Enable a method for the provided Profile object.
-   *
-   * @param Profile $profile
-   * @param string $methodId
-   * @param array $data
-   * @return Method
-   * @throws \Mollie\Api\Exceptions\ApiException
    */
-  public function createFor($profile, $methodId, array $data = [])
-  {
+  public function createFor(
+    Resources\Profile $profile,
+    string $methodId,
+    dict<arraykey, mixed> $data = dict[]
+  ): Resources\Method {
     return $this->createForId($profile->id, $methodId, $data);
   }
 
   /**
    * Enable a method for the current profile.
-   *
-   * @param $methodId
-   * @param array $data
-   * @return \Mollie\Api\Resources\BaseResource
-   * @throws \Mollie\Api\Exceptions\ApiException
    */
-  public function createForCurrentProfile($methodId, array $data = [])
-  {
+  public function createForCurrentProfile(
+    string $methodId,
+    dict<arraykey, mixed> $data = dict[]
+  ): Resources\Method {
     return $this->createForId('me', $methodId, $data);
   }
 
   /**
    * Disable a method for the provided Profile ID.
-   *
-   * @param $profileId
-   * @param $methodId
-   * @param array $data
-   * @return \Mollie\Api\Resources\BaseResource
-   * @throws \Mollie\Api\Exceptions\ApiException
    */
-  public function deleteForId($profileId, $methodId, array $data = [])
-  {
+  public function deleteForId(
+    string $profileId,
+    string $methodId,
+    dict<arraykey, mixed> $data = dict[]
+  ): ?Resources\Method {
     $this->parentId = $profileId;
 
-    return $this->rest_delete($methodId, $data);
+    return $this->restDelete($methodId, $data);
   }
 
   /**
    * Disable a method for the provided Profile object.
-   *
-   * @param $profile
-   * @param $methodId
-   * @param array $data
-   * @return \Mollie\Api\Resources\BaseResource
-   * @throws \Mollie\Api\Exceptions\ApiException
    */
-  public function deleteFor($profile, $methodId, array $data = [])
-  {
+  public function deleteFor(
+    Resources\Profile $profile,
+    string $methodId,
+    dict<arraykey, mixed> $data = dict[]
+  ): ?Resources\Method {
     return $this->deleteForId($profile->id, $methodId, $data);
   }
 
   /**
    * Disable a method for the current profile.
-   *
-   * @param $methodId
-   * @param array $data
-   * @return \Mollie\Api\Resources\BaseResource
-   * @throws \Mollie\Api\Exceptions\ApiException
    */
-  public function deleteForCurrentProfile($methodId, array $data)
-  {
+  public function deleteForCurrentProfile(
+    string $methodId,
+    dict<arraykey, mixed> $data
+  ): ?Resources\Method {
     return $this->deleteForId('me', $methodId, $data);
   }
 }

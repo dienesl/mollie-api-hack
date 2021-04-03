@@ -1,44 +1,37 @@
 namespace Mollie\Api\Endpoints;
 
-use Mollie\Api\Resources\BaseCollection;
-use Mollie\Api\Resources\Payment;
-use Mollie\Api\Resources\PaymentCollection;
+use namespace Mollie\Api\Resources;
 
-class SettlementPaymentEndpoint extends CollectionEndpointAbstract
-{
-  protected $resourcePath = "settlements_payments";
-
-  /**
-   * @inheritDoc
-   */
-  protected function getResourceObject()
-  {
-    return new Payment($this->client);
+class SettlementPaymentEndpoint extends CollectionEndpointAbstract<Resources\Payment, Resources\PaymentCollection> {
+  <<__Override>>
+  protected function setResourcePath(): void {
+    $this->resourcePath = 'settlements_payments';
   }
 
-  /**
-   * @inheritDoc
-   */
-  protected function getResourceCollectionObject($count, $_links)
-  {
-    return new PaymentCollection($this->client, $count, $_links);
+  <<__Override>>
+  protected function getResourceObject(): Resources\Payment {
+    return new Resources\Payment($this->client);
+  }
+
+  <<__Override>>
+  protected function getResourceCollectionObject(
+    int $count,
+    Resources\Links $links
+  ): Resources\PaymentCollection {
+    return new Resources\PaymentCollection($this->client, $count, $links);
   }
 
   /**
    * Retrieves a collection of Payments from Mollie.
-   *
-   * @param $settlementId
-   * @param string $from The first payment ID you want to include in your list.
-   * @param int $limit
-   * @param array $parameters
-   *
-   * @return BaseCollection|PaymentCollection
-   * @throws \Mollie\Api\Exceptions\ApiException
    */
-  public function pageForId($settlementId, $from = null, $limit = null, array $parameters = [])
-  {
+  public function pageForId(
+    string $settlementId,
+    ?string $from = null,
+    ?int $limit = null,
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Resources\PaymentCollection {
     $this->parentId = $settlementId;
 
-    return $this->rest_list($from, $limit, $parameters);
+    return $this->restList($from, $limit, $parameters);
   }
 }
