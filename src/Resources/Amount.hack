@@ -5,4 +5,13 @@ final class Amount {
     public float $value,
     public string $currency
   ) {}
+
+  public static function parse(
+    dict<string, mixed> $datas
+  ): this {
+    return new Amount(
+      (float)$datas['value'],
+      (string)$datas['currency']
+    );
+  }
 }

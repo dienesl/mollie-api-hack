@@ -1,34 +1,33 @@
 namespace Mollie\Api\Resources;
 
+use namespace HH\Lib\C;
+use type Mollie\Api\Exceptions\ApiException;
 use type Mollie\Api\MollieApiClient;
 use type Mollie\Api\Types\RefundStatus;
+use function Mollie\Api\Functions\to_dict;
 
 class Refund extends BaseResource {
-  /**
-   * @var string
-   */
+  <<__LateInit>>
   public string $resource;
 
   /**
    * Id of the payment method.
-   *
-   * @var string
    */
+  <<__LateInit>>
   public string $id;
 
   /**
    * The $amount that was refunded.
-   *
-   * @var \stdClass
-   * TODO
    */
-  public mixed $amount;
+  <<__LateInit>>
+  public Amount $amount;
 
   /**
    * UTC datetime the payment was created in ISO-8601 format.
    *
    * @example "2013-12-25T10:30:54+00:00"
    */
+  <<__LateInit>>
   public string $createdAt;
 
   /**
@@ -39,6 +38,7 @@ class Refund extends BaseResource {
   /**
    * The payment id that was refunded.
    */
+  <<__LateInit>>
   public string $paymentId;
 
   /**
@@ -52,25 +52,22 @@ class Refund extends BaseResource {
    * refunded.
    *
    * @var array|object[]|null
-   * TODO
+   * TODO, what is this?
    */
-  public dict<arraykey, mixed> $lines;
+  public mixed $lines;
 
   /**
    * The settlement amount
-   *
-   * @var \stdClass
-   * TODO
    */
-  public mixed $settlementAmount;
+  public ?Amount $settlementAmount;
 
   /**
    * The refund status
-   *
-   * @var string
    */
-  public string $status;
+  <<__LateInit>>
+  public RefundStatus $status;
 
+  <<__LateInit>>
   public Links $links;
 
   /**
@@ -112,9 +109,45 @@ class Refund extends BaseResource {
    * Cancel the refund.
    */
   public function cancel(): void {
-    $this->client->performHttpCallToFullUrl(
-      MollieApiClient::HTTP_DELETE,
-      $this->links->self->href
-    );
+    $selfLink = $this->links->self;
+    if($selfLink !== null) {
+      $this->client->performHttpCallToFullUrl(
+        MollieApiClient::HTTP_DELETE,
+        $selfLink->href
+      );
+    }
+    throw new ApiException('self link is not setted,');
+  }
+
+  <<__Override>>
+  public function parseJsonData(
+    dict<string, mixed> $datas
+  ): void {
+    $this->resource = (string)$datas['resource'];
+    $this->id = (string)$datas['id'];
+
+    $this->amount = to_dict($datas['amount']) |> Amount::parse($$);
+
+    $this->createdAt = (string)$datas['createdAt'];
+
+    if(C\contains_key($datas, 'description') && $datas['description'] !== null) {
+      $this->description = (string)$datas['description'];
+    }
+
+    $this->paymentId = (string)$datas['paymentId'];
+
+    if(C\contains_key($datas, 'orderId') && $datas['orderId'] !== null) {
+      $this->orderId = (string)$datas['orderId'];
+    }
+
+    $this->lines = $datas['lines'];
+
+    if(C\contains_key($datas, 'settlementAmount') && $datas['settlementAmount'] !== null) {
+      $this->settlementAmount = to_dict($datas['settlementAmount']) |> Amount::parse($$);
+    }
+
+    $this->status = RefundStatus::assert((string)$datas['status']);
+
+    $this->links = to_dict($datas['_links']) |> Links::parse($$);
   }
 }

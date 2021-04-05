@@ -1,6 +1,11 @@
 namespace Mollie\Api\Resources;
 
+use function Mollie\Api\Functions\to_dict;
+
 class Issuer extends BaseResource {
+  <<__LateInit>>
+  public string $resource;
+
   /**
    * Id of the issuer.
    */
@@ -23,4 +28,16 @@ class Issuer extends BaseResource {
 
   <<__LateInit>>
   public Image $image;
+
+  <<__Override>>
+  public function parseJsonData(
+    dict<string, mixed> $datas
+  ): void {
+    $this->resource = (string)$datas['resource'];
+    $this->id = (string)$datas['id'];
+    $this->name = (string)$datas['name'];
+    $this->method = (string)$datas['method'];
+
+    $this->image = to_dict($datas['image']) |> Image::parse($$);
+  }
 }

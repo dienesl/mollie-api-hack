@@ -1,24 +1,33 @@
 namespace Mollie\Api\Resources;
 
-use namespace HH\Lib\Dict;
+use namespace HH\Lib\{
+  C,
+  Dict
+};
 use type Mollie\Api\MollieApiClient;
+use function Mollie\Api\Functions\to_dict;
 use function json_encode;
 
 class Customer extends BaseResource {
+  <<__LateInit>>
   public string $resource;
 
   /**
    * Id of the customer.
    */
+  <<__LateInit>>
   public string $id;
 
   /**
    * Either "live" or "test". Indicates this being a test or a live(verified) customer.
    */
+  <<__LateInit>>
   public string $mode;
 
+  <<__LateInit>>
   public string $name;
 
+  <<__LateInit>>
   public string $email;
 
   public ?string $locale;
@@ -29,30 +38,35 @@ class Customer extends BaseResource {
    */
   public mixed $metadata;
 
-  public vec<string> $recentlyUsedMethods;
+  /*
+   * TODO
+   * probably it will vec<string>
+   * i couldn't find it in the docs
+   */
+  public mixed $recentlyUsedMethods;
 
+  <<__LateInit>>
   public string $createdAt;
 
+  <<__LateInit>>
   public Links $links;
 
-  /**
-   * @return Customer
-   */
-  public function update(): this {
-    if($this->links->self !== null) {
+  public function update(): Customer {
+    $selfLink = $this->links->self;
+    if($selfLink === null) {
       return $this;
+    } else {
+      $body = json_encode(dict[
+        'name' => $this->name,
+        'email' => $this->email,
+        'locale' => $this->locale,
+        'metadata' => $this->metadata
+      ]);
+
+      $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_PATCH, $selfLink->href, $body);
+
+      return ResourceFactory::createFromApiResult($result, new Customer($this->client));
     }
-
-    $body = json_encode(dict[
-      'name' => $this->name,
-      'email' => $this->email,
-      'locale' => $this->locale,
-      'metadata' => $this->metadata
-    ]);
-
-    $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_PATCH, $this->links->self->href, $body);
-
-    return ResourceFactory::createFromApiResult($result, new Customer($this->client));
   }
 
   public function createPayment(
@@ -127,12 +141,14 @@ class Customer extends BaseResource {
    * Helper function to check for mandate with status valid
    */
   public function hasValidMandate(): bool {
+    /* TODO
     $mandates = $this->mandates();
     foreach($mandates as $mandate) {
       if($mandate->isValid()) {
         return true;
       }
     }
+    */
 
     return false;
   }
@@ -143,12 +159,14 @@ class Customer extends BaseResource {
   public function hasValidMandateForMethod(
     string $method
   ): bool {
+    /* TODO
     $mandates = $this->mandates();
     foreach($mandates as $mandate) {
       if($mandate->method === $method && $mandate->isValid()) {
         return true;
       }
     }
+    */
 
     return false;
   }
@@ -172,5 +190,32 @@ class Customer extends BaseResource {
     dict<arraykey, mixed> $options
   ): dict<arraykey, mixed> {
     return Dict\merge($this->getPresetOptions(), $options);
+  }
+
+  <<__Override>>
+  public function parseJsonData(
+    dict<string, mixed>$datas
+  ): void {
+    $this->resource = (string)$datas['resource'];
+    $this->id = (string)$datas['id'];
+    $this->mode = (string)$datas['mode'];
+    $this->name = (string)$datas['name'];
+    $this->email = (string)$datas['email'];
+    
+    if(C\contains_key($datas, 'locale')) {
+      $this->locale = (string)$datas['locale'];
+    }
+
+    if(C\contains_key($datas, 'metadata')) {
+      $this->metadata = $datas['metadata'];
+    }
+
+    if(C\contains_key($datas, 'recentlyUsedMethods')) {
+      $this->recentlyUsedMethods = $datas['recentlyUsedMethods'];
+    }
+
+    $this->createdAt = (string)$datas['createdAt'];
+
+    $this->links = to_dict($datas['_links']) |> Links::parse($$);
   }
 }

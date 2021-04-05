@@ -10,6 +10,10 @@ use type Mollie\Api\Types\{
   PaymentStatus,
   SequenceType
 };
+use function Mollie\Api\Functions\{
+  to_dict,
+  to_dict_with_vec_dict
+};
 use function json_encode;
 use function urlencode;
 
@@ -193,20 +197,17 @@ class Payment extends BaseResource {
    * the payment, and given back whenever you retrieve that payment.
    *
    * @var \stdClass|mixed|null
-   * TODO
+   * TODO, what is this?
    */
-  <<__LateInit>>
   public mixed $metadata;
 
   /**
    * Details of a successfully paid payment are set here. For example, the iDEAL
    * payment method will set $details->consumerName and $details->consumerAccount.
-   *
-   * @var \stdClass
-   * TODO
+   * TODO https://docs.mollie.com/reference/v2/payments-api/get-payment
    */
   <<__LateInit>>
-  public mixed $details;
+  public Details $details;
 
   /**
    * Used to restrict the payment methods available to your customer to those from a single country.
@@ -398,22 +399,22 @@ class Payment extends BaseResource {
    * @throws ApiException
    */
   public function refunds(): RefundCollection {
-    if($this->links->refunds === null) {
-      //return new RefundCollection($this->client, 0, null);
+    $refundsLink = $this->links->refunds;
+    if($refundsLink === null) {
       return new RefundCollection($this->client, 0, new Links());
+    } else {
+      $result = $this->client->performHttpCallToFullUrl(
+        MollieApiClient::HTTP_GET,
+        $refundsLink->href
+      );
+
+      return ResourceFactory::createCursorResourceCollection(
+        $this->client,
+        $result->embedded['refunds'] ?? vec[],
+        Refund::class,
+        $result->links
+      );
     }
-
-    $result = $this->client->performHttpCallToFullUrl(
-      MollieApiClient::HTTP_GET,
-      $this->links->refunds->href
-    );
-
-    return ResourceFactory::createCursorResourceCollection(
-      $this->client,
-      $result->embedded['refunds'] ?? vec[],
-      Refund::class,
-      $result->links
-    );
   }
 
   public function getRefund(
@@ -433,21 +434,22 @@ class Payment extends BaseResource {
    * Retrieves all captures associated with this payment
    */
   public function captures(): CaptureCollection {
-    if($this->links->captures === null) {
+    $capturesLink = $this->links->captures;
+    if($capturesLink === null) {
       return new CaptureCollection($this->client, 0, new Links());
+    } else {
+      $result = $this->client->performHttpCallToFullUrl(
+        MollieApiClient::HTTP_GET,
+        $capturesLink->href
+      );
+
+      return ResourceFactory::createCursorResourceCollection(
+        $this->client,
+        $result->embedded['captures'] ?? vec[],
+        Capture::class,
+        $result->links
+      );
     }
-
-    $result = $this->client->performHttpCallToFullUrl(
-      MollieApiClient::HTTP_GET,
-      $this->links->captures->href
-    );
-
-    return ResourceFactory::createCursorResourceCollection(
-      $this->client,
-      $result->embedded['captures'] ?? vec[],
-      Capture::class,
-      $result->links
-    );
   }
 
   public function getCapture(
@@ -463,26 +465,24 @@ class Payment extends BaseResource {
 
   /**
    * Retrieves all chargebacks associated with this payment
-   *
-   * @return ChargebackCollection
-   * @throws ApiException
    */
-  public function chargebacks() {
-    if($this->links->chargebacks === null) {
+  public function chargebacks(): ChargebackCollection {
+    $chargebacksLink = $this->links->chargebacks;
+    if($chargebacksLink === null) {
       return new ChargebackCollection($this->client, 0, new Links());
+    } else {
+      $result = $this->client->performHttpCallToFullUrl(
+        MollieApiClient::HTTP_GET,
+        $chargebacksLink->href
+      );
+
+      return ResourceFactory::createCursorResourceCollection(
+        $this->client,
+        $result->embedded['chargebacks'] ?? vec[],
+        Chargeback::class,
+        $result->links
+      );
     }
-
-    $result = $this->client->performHttpCallToFullUrl(
-      MollieApiClient::HTTP_GET,
-      $this->links->chargebacks->href
-    );
-
-    return ResourceFactory::createCursorResourceCollection(
-      $this->client,
-      $result->embedded['chargebacks'] ?? vec[],
-      Chargeback::class,
-      $result->links
-    );
   }
 
   /**
@@ -504,7 +504,7 @@ class Payment extends BaseResource {
    */
   public function refund(
     dict<arraykey, mixed> $data
-  ): BaseResource {
+  ): Refund {
     $resource = 'payments/' . urlencode($this->id) . '/refunds';
 
     $data = $this->withPresetOptions($data);
@@ -525,27 +525,27 @@ class Payment extends BaseResource {
     );
   }
 
-  // TODO
-  public function update(): this {
-    if($this->links->self === null) {
+  public function update(): Payment {
+    $selfLink = $this->links->self;
+    if($selfLink === null) {
       return $this;
+    } else {
+      $body = json_encode(dict[
+        'description' => $this->description,
+        'redirectUrl' => $this->redirectUrl,
+        'webhookUrl' => $this->webhookUrl,
+        'metadata' => $this->metadata,
+        'restrictPaymentMethodsToCountry' => $this->restrictPaymentMethodsToCountry,
+      ]);
+
+      $result = $this->client->performHttpCallToFullUrl(
+        MollieApiClient::HTTP_PATCH,
+        $selfLink->href,
+        $body
+      );
+
+      return ResourceFactory::createFromApiResult($result, new Payment($this->client));
     }
-
-    $body = json_encode(dict[
-      'description' => $this->description,
-      'redirectUrl' => $this->redirectUrl,
-      'webhookUrl' => $this->webhookUrl,
-      'metadata' => $this->metadata,
-      'restrictPaymentMethodsToCountry' => $this->restrictPaymentMethodsToCountry,
-    ]);
-
-    $result = $this->client->performHttpCallToFullUrl(
-      MollieApiClient::HTTP_PATCH,
-      $this->links->self->href,
-      $body
-    );
-
-    return ResourceFactory::createFromApiResult($result, new Payment($this->client));
   }
 
   /**
@@ -562,9 +562,6 @@ class Payment extends BaseResource {
 
   /**
    * Apply the preset options.
-   *
-   * @param array $options
-   * @return array
    */
   private function withPresetOptions(
     dict<arraykey, mixed> $options
@@ -605,5 +602,140 @@ class Payment extends BaseResource {
     }
 
     return .0;
+  }
+
+  <<__Override>>
+  public function parseJsonData(
+    dict<string, mixed> $datas
+  ): void {
+    $this->resource = (string)$datas['resource'];
+    $this->id = (string)$datas['id'];
+    $this->mode = (string)$datas['mode'];
+
+    $this->amount = to_dict($datas['amount']) |> Amount::parse($$);
+
+    if(C\contains_key($datas, 'settlementAmount') && $datas['settlementAmount'] !== null) {
+      $this->settlementAmount = to_dict($datas['settlementAmount']) |> Amount::parse($$);
+    }
+
+    if(C\contains_key($datas, 'amountRefunded') && $datas['amountRefunded'] !== null) {
+      $this->amountRefunded = to_dict($datas['amountRefunded']) |> Amount::parse($$);
+    }
+
+    if(C\contains_key($datas, 'amountRemaining') && $datas['amountRemaining'] !== null) {
+      $this->amountRemaining = to_dict($datas['amountRemaining']) |> Amount::parse($$);
+    }
+
+    if(C\contains_key($datas, 'amountChargedBack') && $datas['amountChargedBack'] !== null) {
+      $this->amountRemaining = to_dict($datas['amountChargedBack']) |> Amount::parse($$);
+    }
+
+    $this->description = (string)$datas['description'];
+
+    if(C\contains_key($datas, 'method') && $datas['method'] !== null) {
+      $this->method = (string)$datas['method'];
+    }
+
+    if(C\contains_key($datas, 'status') && $datas['status'] !== null) {
+      $this->status = PaymentStatus::assert($datas['status']);
+    }
+
+    if(C\contains_key($datas, 'createdAt') && $datas['createdAt'] !== null) {
+      $this->createdAt = (string)$datas['createdAt'];
+    }
+
+    if(C\contains_key($datas, 'paidAt') && $datas['paidAt'] !== null) {
+      $this->paidAt = (string)$datas['paidAt'];
+    }
+
+    if(C\contains_key($datas, 'canceledAt') && $datas['canceledAt'] !== null) {
+      $this->canceledAt = (string)$datas['canceledAt'];
+    }
+
+    if(C\contains_key($datas, 'expiresAt') && $datas['expiresAt'] !== null) {
+      $this->expiresAt = (string)$datas['expiresAt'];
+    }
+
+    if(C\contains_key($datas, 'failedAt') && $datas['failedAt'] !== null) {
+      $this->failedAt = (string)$datas['failedAt'];
+    }
+
+    if(C\contains_key($datas, 'dueDate') && $datas['dueDate'] !== null) {
+      $this->dueDate = (string)$datas['dueDate'];
+    }
+
+    if(C\contains_key($datas, 'billingEmail') && $datas['billingEmail'] !== null) {
+      $this->billingEmail = (string)$datas['billingEmail'];
+    }
+
+    $this->profileId = (string)$datas['profileId'];
+
+    if(C\contains_key($datas, 'sequenceType') && $datas['sequenceType'] !== null) {
+      $this->sequenceType = (string)$datas['sequenceType'];
+    }
+
+    $this->redirectUrl = (string)$datas['redirectUrl'];
+
+    if(C\contains_key($datas, 'webhookUrl') && $datas['webhookUrl'] !== null) {
+      $this->webhookUrl = (string)$datas['webhookUrl'];
+    }
+
+    if(C\contains_key($datas, 'mandateId') && $datas['mandateId'] !== null) {
+      $this->mandateId = (string)$datas['mandateId'];
+    }
+
+    if(C\contains_key($datas, 'subscriptionId') && $datas['subscriptionId'] !== null) {
+      $this->subscriptionId = (string)$datas['subscriptionId'];
+    }
+
+    if(C\contains_key($datas, 'orderId') && $datas['orderId'] !== null) {
+      $this->orderId = (string)$datas['orderId'];
+    }
+
+    if(C\contains_key($datas, 'settlementId') && $datas['settlementId'] !== null) {
+      $this->settlementId = (string)$datas['settlementId'];
+    }
+
+    if(C\contains_key($datas, 'locale') && $datas['locale'] !== null) {
+      $this->locale = (string)$datas['locale'];
+    }
+
+    $this->metadata = $datas['metadata'];
+
+    $this->details = to_dict($datas['details']) |> Details::parse($$);
+
+    if(C\contains_key($datas, 'restrictPaymentMethodsToCountry') && $datas['restrictPaymentMethodsToCountry'] !== null) {
+      $this->restrictPaymentMethodsToCountry = (string)$datas['restrictPaymentMethodsToCountry'];
+    }
+
+    $this->links = to_dict($datas['_links']) |> Links::parse($$);
+
+    $this->embedded = to_dict_with_vec_dict($datas['_embedded']);
+
+    $this->isCancelable = (bool)$datas['isCancelable'];
+
+    if(C\contains_key($datas, 'amountCaptured') && $datas['amountCaptured'] !== null) {
+      $this->amountCaptured = to_dict($datas['amountCaptured']) |> Amount::parse($$);
+    }
+    
+    if(C\contains_key($datas, 'applicationFee') && $datas['applicationFee'] !== null) {
+      $this->applicationFee = to_dict($datas['applicationFee']) |> ApplicationFee::parse($$);
+    }
+
+    if(C\contains_key($datas, 'authorizedAt') && $datas['authorizedAt'] !== null) {
+      $this->authorizedAt = (string)$datas['authorizedAt'];
+    }
+
+    if(C\contains_key($datas, 'expiredAt') && $datas['expiredAt'] !== null) {
+      $this->expiredAt = (string)$datas['expiredAt'];
+    }
+
+    if(C\contains_key($datas, 'customerId') && $datas['customerId'] !== null) {
+      $this->customerId = (string)$datas['customerId'];
+    }
+
+    if(C\contains_key($datas, 'countryCode') && $datas['countryCode'] !== null) {
+      $this->countryCode = (string)$datas['countryCode'];
+    }
   }
 }

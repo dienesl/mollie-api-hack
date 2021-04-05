@@ -11,13 +11,11 @@ class ResourceFactory {
    *
    * @return BaseResource
    */
-  public static function createFromApiResult(
-    mixed $apiResult,
-    BaseResource $resource
-  ): BaseResource {
-    foreach($apiResult as $property => $value) {
-      $resource->{$property} = $value;
-    }
+  public static function createFromApiResult<T as BaseResource>(
+    dict<string, mixed> $apiResult,
+    T $resource
+  ): T {
+    $resource->parseJsonData($apiResult);
 
     return $resource;
   }

@@ -1,7 +1,5 @@
 namespace Mollie\Api\Resources;
 
-use Mollie\Api\Exceptions\ApiException;
-
 class CurrentProfile extends Profile {
   /**
    * Enable a payment method for this profile.

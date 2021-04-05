@@ -1,5 +1,8 @@
 namespace Mollie\Api\Resources;
 
+use namespace HH\Lib\C;
+use function Mollie\Api\Functions\to_dict;
+
 class MethodPrice extends BaseResource {
   /**
    * The area or product-type where the pricing is applied for, translated in the optional locale passed.
@@ -21,5 +24,22 @@ class MethodPrice extends BaseResource {
    * @var string An string representing the percentage as a float(for example: "0.1" for 10%)
    */
   <<__LateInit>>
-  public string $variable;
+  public float $variable;
+
+  public ?string $feeRegion;
+
+  <<__Override>>
+  public function parseJsonData(
+    dict<string, mixed> $datas
+  ): void {
+    $this->description = (string)$datas['description'];
+
+    $this->fixed = to_dict($datas['fixed']) |> Amount::parse($$);
+
+    $this->variable = (float)$datas['variable'];
+    
+    if(C\contains_key($datas, 'feeRegion')) {
+      $this->feeRegion = (string)$datas['feeRegion'];
+    }
+  }
 }

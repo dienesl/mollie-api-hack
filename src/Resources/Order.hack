@@ -6,9 +6,14 @@ use namespace HH\Lib\{
 };
 use type Mollie\Api\MollieApiClient;
 use type Mollie\Api\Types\OrderStatus;
+use function Mollie\Api\Functions\{
+  to_dict,
+  to_dict_with_vec_dict
+};
 use function json_encode;
 
 class Order extends BaseResource {
+  <<__LateInit>>
   public string $resource;
 
   /**
@@ -16,6 +21,7 @@ class Order extends BaseResource {
    *
    * @example ord_8wmqcHMN4U
    */
+  <<__LateInit>>
   public string $id;
 
   /**
@@ -23,49 +29,44 @@ class Order extends BaseResource {
    *
    * @example pfl_xH2kP6Nc6X
    */
+  <<__LateInit>>
   public string $profileId;
 
   /**
    * Either "live" or "test". Indicates this being a test or a live(verified) order.
    */
+  <<__LateInit>>
   public string $mode;
 
   /**
    * Amount object containing the value and currency
-   *
-   * @var \stdClass
-   * TODO
    */
-  public mixed $amount;
+  <<__LateInit>>
+  public Amount $amount;
 
   /**
    * The total amount captured, thus far.
-   *
-   * @var \stdClass
-   * TODO
    */
-  public mixed $amountCaptured;
+  <<__LateInit>>
+  public Amount $amountCaptured;
 
   /**
    * The total amount refunded, thus far.
-   *
-   * @var \stdClass
-   * TODO
    */
-  public mixed $amountRefunded;
+  <<__LateInit>>
+  public Amount $amountRefunded;
 
   /**
    * The status of the order.
    */
+  <<__LateInit>>
   public OrderStatus $status;
 
   /**
    * The person and the address the order is billed to.
-   *
-   * @var \stdClass
-   * TODO
    */
-  public mixed $billingAddress;
+  <<__LateInit>>
+  public Address $billingAddress;
 
   /**
    * The date of birth of your customer, if available.
@@ -76,26 +77,26 @@ class Order extends BaseResource {
   /**
    * The order number that was used when creating the order.
    */
+  <<__LateInit>>
   public string $orderNumber;
 
   /**
    * The person and the address the order is billed to.
-   *
-   * @var \stdClass
-   * TODO
    */
-  public mixed $shippingAddress;
+  <<__LateInit>>
+  public Address $shippingAddress;
 
   /**
    * The payment method last used when paying for the order.
    *
    * @see Method
    */
-  public string $method;
+  public ?string $method;
 
   /**
    * The locale used for this order.
    */
+  <<__LateInit>>
   public string $locale;
 
   /**
@@ -110,6 +111,7 @@ class Order extends BaseResource {
   /**
    * Can this order be canceled?
    */
+  <<__LateInit>>
   public bool $isCancelable;
 
   /**
@@ -120,6 +122,7 @@ class Order extends BaseResource {
   /**
    * Redirect URL set on this payment
    */
+  <<__LateInit>>
   public string $redirectUrl;
 
   /**
@@ -173,17 +176,16 @@ class Order extends BaseResource {
 
   /**
    * The order lines contain the actual things the customer bought.
-   *
-   * @var array|object[]
-   * TODO
    */
-  public vec<mixed> $lines;
+  public mixed $lines;
 
   /**
    * An object with several URL objects relevant to the customer. Every URL object will contain an href and a type field.
    */
+  <<__LateInit>>
   public Links $links;
 
+  <<__LateInit>>
   public dict<string, vec<dict<string, mixed>>> $embedded;
 
   /**
@@ -310,8 +312,6 @@ class Order extends BaseResource {
   /**
    * Create a shipment for some order lines. You can provide an empty array for the
    * "lines" option to include all unshipped lines for this order.
-   *
-   * @param array $options
    */
   public function createShipment(
     dict<arraykey, mixed> $options
@@ -321,8 +321,6 @@ class Order extends BaseResource {
 
   /**
    * Create a shipment for all unshipped order lines.
-   *
-   * @param array $options
    */
   public function shipAll(
     dict<arraykey, mixed> $options = dict[]
@@ -334,9 +332,6 @@ class Order extends BaseResource {
 
   /**
    * Retrieve a specific shipment for this order.
-   *
-   * @param string $shipmentId
-   * @param array $parameters
    */
   public function getShipment(
     string $shipmentId,
@@ -347,8 +342,6 @@ class Order extends BaseResource {
 
   /**
    * Get all shipments for this order.
-   *
-   * @param array $parameters
    */
   public function shipments(
     dict<arraykey, mixed> $parameters = dict[]
@@ -365,8 +358,6 @@ class Order extends BaseResource {
 
   /**
    * Refund specific order lines.
-   *
-   * @param  array  $data
    */
   public function refund(
     dict<arraykey, mixed> $data
@@ -376,8 +367,6 @@ class Order extends BaseResource {
 
   /**
    * Refund all eligible order lines.
-   *
-   * @param  array  $data
    */
   public function refundAll(
     dict<arraykey, mixed> $data = dict[]
@@ -391,64 +380,58 @@ class Order extends BaseResource {
    * Retrieves all refunds associated with this order
    */
   public function refunds(): RefundCollection {
-    if($this->links->refunds === null) {
+    $refundsLink = $this->links->refunds;
+    if($refundsLink === null) {
       //return new RefundCollection($this->client, 0, null);
       return new RefundCollection($this->client, 0, new Links());
+    } else {
+      $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $refundsLink->href);
+
+      return ResourceFactory::createCursorResourceCollection(
+        $this->client,
+        $result->embedded['refunds'] ?? vec[],
+        Refund::class,
+        $result->links
+      );
     }
-
-    $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $this->links->refunds->href);
-
-    return ResourceFactory::createCursorResourceCollection(
-      $this->client,
-      $result->embedded['refunds'] ?? vec[],
-      Refund::class,
-      $result->links
-    );
   }
 
   /**
    * Saves the order's updated billingAddress and/or shippingAddress.
-   *
-   * @return \Mollie\Api\Resources\BaseResource|\Mollie\Api\Resources\Order
-   * @throws \Mollie\Api\Exceptions\ApiException
    */
-  public function update(): BaseResource {
-    if($this->links->self === null) {
+  public function update(): Order {
+    $selfLink = $this->links->self;
+    if($selfLink === null) {
       return $this;
+    } else {
+      $body = json_encode(dict[
+        "billingAddress" => $this->billingAddress,
+        "shippingAddress" => $this->shippingAddress,
+        "orderNumber" => $this->orderNumber,
+        "redirectUrl" => $this->redirectUrl,
+        "webhookUrl" => $this->webhookUrl,
+      ]);
+
+      $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_PATCH, $selfLink->href, $body);
+
+      return ResourceFactory::createFromApiResult($result, new Order($this->client));
     }
-
-    $body = json_encode(dict[
-      "billingAddress" => $this->billingAddress,
-      "shippingAddress" => $this->shippingAddress,
-      "orderNumber" => $this->orderNumber,
-      "redirectUrl" => $this->redirectUrl,
-      "webhookUrl" => $this->webhookUrl,
-    ]);
-
-    $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_PATCH, $this->links->self->href, $body);
-
-    return ResourceFactory::createFromApiResult($result, new Order($this->client));
   }
 
   /**
    * Create a new payment for this Order.
-   *
-   * @return \Mollie\Api\Resources\BaseResource|\Mollie\Api\Resources\Payment
-   * TODO
+   * TODO, what is $data here?
    */
   public function createPayment(
     mixed $data,
     dict<arraykey, mixed> $filters = dict[]
-  ): BaseResource {
+  ): Payment {
     return $this->client->orderPayments->createFor($this, $data, $filters);
   }
 
   /**
    * Retrieve the payments for this order.
    * Requires the order to be retrieved using the embed payments parameter.
-   *
-   * @return null|\Mollie\Api\Resources\PaymentCollection
-   * TODO
    */
   public function payments(): ?PaymentCollection {
     if(!C\contains_key($this->embedded, 'payments')) {
@@ -468,7 +451,7 @@ class Order extends BaseResource {
   private function getPresetOptions(): dict<arraykey, mixed> {
     $options = dict[];
     if($this->client->usesOAuth()) {
-      $options["testmode"] = $this->mode === "test" ? true : false;
+      $options['testmode'] = $this->mode === 'test' ? true : false;
     }
 
     return $options;
@@ -476,13 +459,82 @@ class Order extends BaseResource {
 
   /**
    * Apply the preset options.
-   *
-   * @param array $options
-   * @return array
    */
   private function withPresetOptions(
     dict<arraykey, mixed> $options
   ): dict<arraykey, mixed> {
     return Dict\merge($this->getPresetOptions(), $options);
+  }
+
+  <<__Override>>
+  public function parseJsonData(
+    dict<string, mixed> $datas
+  ): void {
+    $this->resource = (string)$datas['resource'];
+    $this->id = (string)$datas['id'];
+    $this->profileId = (string)$datas['profileId'];
+    $this->mode = (string)$datas['mode'];
+
+    $this->amount = to_dict($datas['amount']) |> Amount::parse($$);
+    $this->amountCaptured = to_dict($datas['amountCaptured']) |> Amount::parse($$);
+    $this->amountRefunded = to_dict($datas['amountRefunded']) |> Amount::parse($$);
+
+    $this->status = OrderStatus::assert((string)$datas['status']);
+
+    $this->billingAddress = to_dict($datas['billingAddress']) |> Address::parse($$);
+
+    if(C\contains_key($datas, 'consumerDateOfBirth')) {
+      $this->consumerDateOfBirth = (string)$datas['consumerDateOfBirth'];
+    }
+
+    $this->orderNumber = (string)$datas['orderNumber'];
+
+    $this->shippingAddress = to_dict($datas['shippingAddress']) |> Address::parse($$);
+
+    if(C\contains_key($datas, 'method')) {
+      $this->method = (string)$datas['method'];
+    }
+
+    $this->locale = (string)$datas['locale'];
+
+    $this->metadata = $datas['metadata'];
+
+    $this->isCancelable = (bool)$datas['isCancelable'];
+
+    if(C\contains_key($datas, 'webhookUrl')) {
+      $this->webhookUrl = (string)$datas['webhookUrl'];
+    }
+
+    $this->redirectUrl = (string)$datas['redirectUrl'];
+
+    if(C\contains_key($datas, 'createdAt')) {
+      $this->createdAt = (string)$datas['createdAt'];
+    }
+
+    if(C\contains_key($datas, 'expiresAt')) {
+      $this->expiresAt = (string)$datas['expiresAt'];
+    }
+
+    if(C\contains_key($datas, 'expiredAt')) {
+      $this->expiredAt = (string)$datas['expiredAt'];
+    }
+
+    if(C\contains_key($datas, 'paidAt')) {
+      $this->paidAt = (string)$datas['paidAt'];
+    }
+
+    if(C\contains_key($datas, 'authorizedAt')) {
+      $this->authorizedAt = (string)$datas['authorizedAt'];
+    }
+
+    if(C\contains_key($datas, 'canceledAt')) {
+      $this->canceledAt = (string)$datas['canceledAt'];
+    }
+
+    $this->lines = $datas['lines'];
+
+    $this->links = to_dict($datas['_links']) |> Links::parse($$);
+
+    $this->embedded = to_dict_with_vec_dict($datas['_embedded']);
   }
 }

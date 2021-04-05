@@ -1,6 +1,12 @@
 namespace Mollie\Api\Resources;
 
+use namespace HH\Lib\C;
+use function Mollie\Api\Functions\to_dict;
+
 class Organization extends BaseResource {
+  <<__LateInit>>
+  public string $resource;
+
   /**
    * Id of the payment method.
    */
@@ -27,12 +33,9 @@ class Organization extends BaseResource {
 
   /**
    * The address of the organization.
-   *
-   * @var \stdClass
-   * TODO
    */
   <<__LateInit>>
-  public mixed $address;
+  public Address $address;
 
   /**
    * The registration number of the organization at the(local) chamber of
@@ -45,16 +48,39 @@ class Organization extends BaseResource {
    * The VAT number of the organization, if based in the European Union. The VAT
    * number has been checked with the VIES by Mollie.
    */
-  <<__LateInit>>
-  public string $vatNumber;
+  public ?string $vatNumber;
 
   /**
    * The organization’s VAT regulation, if based in the European Union. Either "shifted"
    *(VAT is shifted) or dutch(Dutch VAT rate).
    */
-  <<__LateInit>>
   public ?string $vatRegulation;
 
   <<__LateInit>>
   public Links $links;
+
+  <<__Override>>
+  public function parseJsonData(
+    dict<string, mixed> $datas
+  ): void {
+    $this->resource = (string)$datas['resource'];
+    $this->id = (string)$datas['id'];
+    $this->name = (string)$datas['name'];
+    $this->email = (string)$datas['email'];
+    $this->locale = (string)$datas['locale'];
+
+    $this->address = to_dict($datas['address']) |> Address::parse($$);
+
+    $this->registrationNumber = (string)$datas['registrationNumber'];
+
+    if(C\contains_key($datas, 'vatNumber') && $datas['vatNumber'] !== null) {
+      $this->vatNumber = (string)$datas['vatNumber'];
+    }
+
+    if(C\contains_key($datas, 'vatRegulation') && $datas['vatRegulation'] !== null) {
+      $this->vatRegulation = (string)$datas['vatRegulation'];
+    }
+
+    $this->links = to_dict($datas['_links']) |> Links::parse($$);
+  }
 }

@@ -1,9 +1,15 @@
 namespace Mollie\Api\Resources;
 
-use namespace HH\Lib\Dict;
+use namespace HH\Lib\{
+  C,
+  Dict
+};
 use type Mollie\Api\MollieApiClient;
-use type Mollie\Api\Types\OrderLineStatus;
-use type Mollie\Api\Types\OrderLineType;
+use type Mollie\Api\Types\{
+  OrderLineStatus,
+  OrderLineType
+};
+use function Mollie\Api\Functions\to_dict;
 use function json_encode;
 
 class OrderLine extends BaseResource {
@@ -33,7 +39,7 @@ class OrderLine extends BaseResource {
    * @example physical
    */
   <<__LateInit>>
-  public string $type;
+  public OrderLineType $type;
 
   /**
    * A description of the order line.
@@ -47,7 +53,7 @@ class OrderLine extends BaseResource {
    * The status of the order line.
    */
   <<__LateInit>>
-  public string $status;
+  public OrderLineStatus $status;
 
   /**
    * Can this order line be canceled?
@@ -69,12 +75,9 @@ class OrderLine extends BaseResource {
 
   /**
    * The total amount that is shipped for this order line.
-   *
-   * @var \stdClass
-   * TODO
    */
   <<__LateInit>>
-  public mixed $amountShipped;
+  public Amount $amountShipped;
 
   /**
    * The number of items that are refunded for this order line.
@@ -84,12 +87,9 @@ class OrderLine extends BaseResource {
 
   /**
    * The total amount that is refunded for this order line.
-   *
-   * @var \stdClass
-   * TODO
    */
   <<__LateInit>>
-  public mixed $amountRefunded;
+  public Amount $amountRefunded;
 
   /**
    * The number of items that are canceled in this order line.
@@ -99,12 +99,9 @@ class OrderLine extends BaseResource {
 
   /**
    * The total amount that is canceled in this order line.
-   *
-   * @var \stdClass
-   * TODO
    */
   <<__LateInit>>
-  public mixed $amountCanceled;
+  public Amount $amountCanceled;
 
   /**
    * The number of items that can still be shipped for this order line.
@@ -126,30 +123,20 @@ class OrderLine extends BaseResource {
 
   /**
    * The price of a single item in the order line.
-   *
-   * @var \stdClass
-   * TODO
    */
   <<__LateInit>>
-  public mixed $unitPrice;
+  public Amount $unitPrice;
 
   /**
    * Any discounts applied to the order line.
-   *
-   * @var \stdClass|null
-   * TODO
    */
-  <<__LateInit>>
-  public mixed $discountAmount;
+  public ?Amount $discountAmount;
 
   /**
    * The total amount of the line, including VAT and discounts.
-   *
-   * @var \stdClass
-   * TODO
    */
   <<__LateInit>>
-  public mixed $totalAmount;
+  public Amount $totalAmount;
 
   /**
    * The VAT rate applied to the order line. It is defined as a string
@@ -159,33 +146,27 @@ class OrderLine extends BaseResource {
    * @example "21.00"
    */
   <<__LateInit>>
-  public string $vatRate;
+  public float $vatRate;
 
   /**
    * The amount of value-added tax on the line.
-   *
-   * @var \stdClass
-   * TODO
    */
   <<__LateInit>>
-  public mixed $vatAmount;
+  public Amount $vatAmount;
 
   /**
    * The SKU, EAN, ISBN or UPC of the product sold.
    */
-  <<__LateInit>>
   public ?string $sku;
 
   /**
    * A link pointing to an image of the product sold.
    */
-  <<__LateInit>>
   public ?string $imageUrl;
 
   /**
    * A link pointing to the product page in your web shop of the product sold.
    */
-  <<__LateInit>>
   public ?string $productUrl;
   
   /**
@@ -195,7 +176,6 @@ class OrderLine extends BaseResource {
    * @var \stdClass|mixed|null
    * TODO
    */
-  <<__LateInit>>
   public mixed $metadata;
 
   /**
@@ -213,28 +193,14 @@ class OrderLine extends BaseResource {
    * Get the url pointing to the product page in your web shop of the product sold.
    */
   public function getProductUrl(): ?string {
-    return $this->links->product?->href;
-    /* TODO
-    if(empty($this->_links->productUrl)) {
-      return null;
-    }
-
-    return $this->_links->productUrl;
-    */
+    return $this->links->productUrl?->href;
   }
 
   /**
    * Get the image URL of the product sold.
    */
   public function getImageUrl(): ?string {
-    return $this->links->image?->href;
-    /* TODO
-    if(empty($this->_links->imageUrl)) {
-      return null;
-    }
-
-    return $this->_links->imageUrl;
-    */
+    return $this->links->imageUrl?->href;
   }
 
   /**
@@ -268,8 +234,6 @@ class OrderLine extends BaseResource {
   /**
    *(Deprecated) Is this order line refunded?
    * @deprecated 2018-11-27
-   *
-   * @return bool
    */
   <<__Deprecated('This function has been replaced at 2018-11-27', 10)>>
   public function isRefunded(): bool {
@@ -352,8 +316,6 @@ class OrderLine extends BaseResource {
 
   /**
    * Get sanitized array of order line data
-   *
-   * @return array
    */
   public function getUpdateData(): dict<string, mixed> {
     // Explicitly filter only NULL values to keep "vatRate => 0" intact
@@ -369,5 +331,69 @@ class OrderLine extends BaseResource {
       'vatAmount' => $this->vatAmount,
       'vatRate' => $this->vatRate,
     ], $val ==> $val !== null);
+  }
+
+  <<__Override>>
+  public function parseJsonData(
+    dict<string, mixed> $datas
+  ): void {
+    $this->resource = (string)$datas['resource'];
+    $this->id = (string)$datas['id'];
+    $this->orderId = (string)$datas['orderId'];
+
+    $this->type = OrderLineType::assert((string)$datas['type']);
+
+    $this->name = (string)$datas['name'];
+
+    $this->status = OrderLineStatus::assert((string)$datas['status']);
+
+    $this->isCancelable = (bool)$datas['isCancelable'];
+
+    $this->quantity = (int)$datas['quantity'];
+    $this->quantityShipped = (int)$datas['quantityShipped'];
+
+    $this->amountShipped = to_dict($datas['amountShipped']) |> Amount::parse($$);
+
+    $this->quantityRefunded = (int)$datas['quantityRefunded'];
+
+    $this->amountRefunded = to_dict($datas['amountRefunded']) |> Amount::parse($$);
+
+    $this->quantityCanceled = (int)$datas['quantityCanceled'];
+
+    $this->amountCanceled = to_dict($datas['amountCanceled']) |> Amount::parse($$);
+
+    $this->shippableQuantity = (int)$datas['shippableQuantity'];
+    $this->refundableQuantity = (int)$datas['refundableQuantity'];
+    $this->cancelableQuantity = (int)$datas['cancelableQuantity'];
+
+    $this->unitPrice = to_dict($datas['unitPrice']) |> Amount::parse($$);
+
+    if(C\contains_key($datas, 'discountAmount') && $datas['discountAmount'] !== null) {
+      $this->discountAmount = to_dict($datas['discountAmount']) |> Amount::parse($$);
+    }
+
+    $this->totalAmount = to_dict($datas['totalAmount']) |> Amount::parse($$);
+
+    $this->vatRate = (float)$datas['vatRate'];
+
+    $this->vatAmount = to_dict($datas['vatAmount']) |> Amount::parse($$);
+
+    if(C\contains_key($datas, 'sku') && $datas['sku'] !== null) {
+      $this->sku = (string)$datas['sku'];
+    }
+
+    if(C\contains_key($datas, 'imageUrl') && $datas['imageUrl'] !== null) {
+      $this->imageUrl = (string)$datas['imageUrl'];
+    }
+
+    if(C\contains_key($datas, 'productUrl') && $datas['productUrl'] !== null) {
+      $this->imageUrl = (string)$datas['productUrl'];
+    }
+
+    $this->metadata = $datas['metadata'];
+
+    $this->createdAt = (string)$datas['createdAt'];
+
+    $this->links = to_dict($datas['_links']) |> Links::parse($$);
   }
 }

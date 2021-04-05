@@ -2,37 +2,46 @@ namespace Mollie\Api\Resources;
 
 use type Mollie\Api\MollieApiClient;
 use type Mollie\Api\Types\MandateStatus;
+use function Mollie\Api\Functions\to_dict;
 use function json_encode;
 
 class Mandate extends BaseResource {
+  <<__LateInit>>
   public string $resource;
 
+  <<__LateInit>>
   public string $id;
 
+  <<__LateInit>>
   public MandateStatus $status;
 
+  <<__LateInit>>
   public string $mode;
 
+  <<__LateInit>>
   public string $method;
 
-  /**
-   * @var \stdClass|null
-   * TODO
-   */
-  public mixed $details;
+  <<__LateInit>>
+  public Details $details;
 
+  <<__LateInit>>
   public string $customerId;
 
+  <<__LateInit>>
   public string $createdAt;
 
+  <<__LateInit>>
   public string $mandateReference;
 
   /**
    * Date of signature, for example: 2018-05-07
    */
+  <<__LateInit>>
   public string $signatureDate;
 
+  <<__LateInit>>
   public Links $links; 
+
   public function isValid(): bool {
     return $this->status === MandateStatus::STATUS_VALID;
   }
@@ -47,27 +56,48 @@ class Mandate extends BaseResource {
 
   /**
    * Revoke the mandate
-   *
-   * @return null
    */
   public function revoke(): this {
-    if($this->links->self !== null) {
+    $selfLink = $this->links->self;
+    if($selfLink === null) {
       return $this;
+    } else {
+      $body = null;
+      if($this->client->usesOAuth()) {
+        $body = json_encode(dict[
+          'testmode' => $this->mode === 'test' ? true : false,
+        ]);
+      }
+
+      $result = $this->client->performHttpCallToFullUrl(
+        MollieApiClient::HTTP_DELETE,
+        $selfLink->href,
+        $body
+      );
+
+      return $result;
     }
+  }
 
-    $body = null;
-    if($this->client->usesOAuth()) {
-      $body = json_encode(dict[
-        'testmode' => $this->mode === 'test' ? true : false,
-      ]);
-    }
+  <<__Override>>
+  public function parseJsonData(
+    dict<arraykey, mixed> $datas
+  ): void {
+    $this->resource = (string)$datas['resource'];
+    $this->id = (string)$datas['id'];
 
-    $result = $this->client->performHttpCallToFullUrl(
-      MollieApiClient::HTTP_DELETE,
-      $this->links->self->href,
-      $body
-    );
+    $this->status = MandateStatus::assert((string)$datas['status']);
 
-    return $result;
+    $this->mode = (string)$datas['mode'];
+    $this->method = (string)$datas['method'];
+
+    $this->details = to_dict($datas['details']) |> Details::parse($$);
+
+    $this->customerId = (string)$datas['customerId'];
+    $this->createdAt = (string)$datas['createdAt'];
+    $this->mandateReference = (string)$datas['mandateReference'];
+    $this->signatureDate = (string)$datas['signatureDate'];
+
+    $this->links = to_dict($datas['_links']) |> Links::parse($$);
   }
 }

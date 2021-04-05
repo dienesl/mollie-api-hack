@@ -1,8 +1,10 @@
 namespace Mollie\Api\Resources;
 
+use namespace HH\Lib\C;
 use type Mollie\Api\Exceptions\ApiException;
 use type Mollie\Api\MollieApiClient;
 use type Mollie\Api\Types\ProfileStatus;
+use function Mollie\Api\Functions\to_dict;
 use function json_encode;
 
 class Profile extends BaseResource {
@@ -37,14 +39,9 @@ class Profile extends BaseResource {
   public int $categoryCode;
 
   <<__LateInit>>
-  public string $status;
+  public ProfileStatus $status;
 
-  /**
-   * @var \stdClass
-   * TODO
-   */
-  <<__LateInit>>
-  public mixed $review;
+  public ?Review $review;
 
   /**
    * UTC datetime the profile was created in ISO-8601 format.
@@ -58,70 +55,73 @@ class Profile extends BaseResource {
   public Links $links;
 
   public function isUnverified(): bool {
-    return $this->status == ProfileStatus::STATUS_UNVERIFIED;
+    return $this->status === ProfileStatus::STATUS_UNVERIFIED;
   }
 
   public function isVerified(): bool {
-    return $this->status == ProfileStatus::STATUS_VERIFIED;
+    return $this->status === ProfileStatus::STATUS_VERIFIED;
   }
 
   public function isBlocked(): bool {
-    return $this->status == ProfileStatus::STATUS_BLOCKED;
+    return $this->status === ProfileStatus::STATUS_BLOCKED;
   }
 
-  public function update(): this {
-    if($this->links->self === null) {
+  public function update(): Profile {
+    $selfLink = $this->links->self;
+    if($selfLink === null) {
       return $this;
+    } else {
+      $body = json_encode(dict[
+        'name' => $this->name,
+        'website' => $this->website,
+        'email' => $this->email,
+        'phone' => $this->phone,
+        'categoryCode' => $this->categoryCode,
+        'mode' => $this->mode,
+      ]);
+
+      $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_PATCH, $selfLink->href, $body);
+
+      return ResourceFactory::createFromApiResult($result, new Profile($this->client));
     }
-
-    $body = json_encode(dict[
-      'name' => $this->name,
-      'website' => $this->website,
-      'email' => $this->email,
-      'phone' => $this->phone,
-      'categoryCode' => $this->categoryCode,
-      'mode' => $this->mode,
-    ]);
-
-    $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_PATCH, $this->links->self->href, $body);
-
-    return ResourceFactory::createFromApiResult($result, new Profile($this->client));
   }
 
   /**
    * Retrieves all chargebacks associated with this profile
    */
   public function chargebacks(): ChargebackCollection {
-    if($this->links->chargebacks === null) {
+    $chargebacksLink = $this->links->chargebacks;
+    if($chargebacksLink === null) {
       return new ChargebackCollection($this->client, 0, new Links());
+    } else {
+      $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $chargebacksLink->href);
+
+      return ResourceFactory::createCursorResourceCollection(
+        $this->client,
+        $result->embedded['chargebacks'] ?? vec[],
+        Chargeback::class,
+        $result->links
+      );
     }
-
-    $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $this->links->chargebacks->href);
-
-    return ResourceFactory::createCursorResourceCollection(
-      $this->client,
-      $result->embedded['chargebacks'] ?? vec[],
-      Chargeback::class,
-      $result->links
-    );
   }
 
   /**
    * Retrieves all methods activated on this profile
    */
   public function methods(): MethodCollection {
-    if($this->links->methods === null) {
+    $methodsLink = $this->links->methods;
+    if($methodsLink === null) {
       return new MethodCollection(0, new Links());
+    } else {
+      $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $methodsLink->href);
+
+      return ResourceFactory::createCursorResourceCollection(
+        $this->client,
+        $result->embedded['methods'] ?? vec[],
+        Method::class,
+        $result->links
+      );
     }
-
-    $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $this->links->methods->href);
-
-    return ResourceFactory::createCursorResourceCollection(
-      $this->client,
-      $result->embedded['methods'] ?? vec[],
-      Method::class,
-      $result->links
-    );
   }
 
   /**
@@ -148,38 +148,60 @@ class Profile extends BaseResource {
    * Retrieves all payments associated with this profile
    */
   public function payments(): PaymentCollection {
-    if($this->links->payments === null) {
+    $paymentsLink = $this->links->payments;
+    if($paymentsLink === null) {
       return new PaymentCollection($this->client, 0, new Links());
+    } else {
+      $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $paymentsLink->href);
+
+      return ResourceFactory::createCursorResourceCollection(
+        $this->client,
+        $result->embedded['methods'] ?? vec[],
+        Method::class,
+        $result->links
+      );
     }
-
-    $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $this->links->payments->href);
-
-    return ResourceFactory::createCursorResourceCollection(
-      $this->client,
-      $result->embedded['methods'] ?? vec[],
-      Method::class,
-      $result->links
-    );
   }
 
-  /**
-   * Retrieves all refunds associated with this profile
-   *
-   * @return RefundCollection
-   * @throws ApiException
-   */
   public function refunds(): RefundCollection {
-    if($this->links->refunds === null) {
+    $refundsLink = $this->links->refunds;
+    if($refundsLink === null) {
       return new RefundCollection($this->client, 0, new Links());
+    } else {
+      $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $refundsLink->href);
+
+      return ResourceFactory::createCursorResourceCollection(
+        $this->client,
+        $result->embedded['refunds'] ?? vec[],
+        Refund::class,
+        $result->links
+      );
+    }
+  }
+  
+  <<__Override>>
+  public function parseJsonData(
+    dict<string, mixed> $datas
+  ): void {
+    $this->resource = (string)$datas['resource'];
+    $this->id = (string)$datas['id'];
+    $this->mode = (string)$datas['mode'];
+    $this->name = (string)$datas['name'];
+    $this->website = (string)$datas['website'];
+    $this->email = (string)$datas['email'];
+    $this->phone = (string)$datas['phone'];
+
+    $this->categoryCode = (int)$datas['categoryCode'];
+
+    $this->status = ProfileStatus::assert($datas['status']);
+
+    if(C\contains($datas, 'review')) {
+      $review = to_dict($datas['review']);
+      $this->review = new Review((string)($review['status'] ?? ''));
     }
 
-    $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $this->links->refunds->href);
+    $this->createdAt = (string)$datas['createdAt'];
 
-    return ResourceFactory::createCursorResourceCollection(
-      $this->client,
-      $result->embedded['refunds'] ?? vec[],
-      Refund::class,
-      $result->links
-    );
+    $this->links = to_dict($datas['_links']) |> Links::parse($$);
   }
 }
