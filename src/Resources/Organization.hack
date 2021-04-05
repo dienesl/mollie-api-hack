@@ -61,26 +61,26 @@ class Organization extends BaseResource {
 
   <<__Override>>
   public function assert(
-    dict<string, mixed> $datas
+  dict<string, mixed> $datas
   ): void {
-    $this->resource = (string)$datas['resource'];
-    $this->id = (string)$datas['id'];
-    $this->name = (string)$datas['name'];
-    $this->email = (string)$datas['email'];
-    $this->locale = (string)$datas['locale'];
+  $this->resource = (string)$datas['resource'];
+  $this->id = (string)$datas['id'];
+  $this->name = (string)$datas['name'];
+  $this->email = (string)$datas['email'];
+  $this->locale = (string)$datas['locale'];
 
-    $this->address = to_dict($datas['address']) |> Address::assert($$);
+  $this->address = to_dict($datas['address']) |> Address::assert($$);
 
-    $this->registrationNumber = (string)$datas['registrationNumber'];
+  $this->registrationNumber = (string)$datas['registrationNumber'];
 
-    if(C\contains_key($datas, 'vatNumber') && $datas['vatNumber'] !== null) {
-      $this->vatNumber = (string)$datas['vatNumber'];
-    }
+  if(C\contains_key($datas, 'vatNumber') && $datas['vatNumber'] !== null) {
+    $this->vatNumber = (string)$datas['vatNumber'];
+  }
 
-    if(C\contains_key($datas, 'vatRegulation') && $datas['vatRegulation'] !== null) {
-      $this->vatRegulation = (string)$datas['vatRegulation'];
-    }
+  if(C\contains_key($datas, 'vatRegulation') && $datas['vatRegulation'] !== null) {
+    $this->vatRegulation = (string)$datas['vatRegulation'];
+  }
 
-    $this->links = to_dict($datas['_links']) |> Links::assert($$);
+  $this->links = to_dict($datas['_links']) |> Links::assert($$);
   }
 }

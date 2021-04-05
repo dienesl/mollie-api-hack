@@ -4,34 +4,34 @@ use namespace Mollie\Api\Resources;
 
 class CustomerEndpoint extends CollectionEndpointAbstract<Resources\Customer, Resources\CustomerCollection> {
   protected function setResourcePath(): void {
-    $this->resourcePath = 'customers';
+  $this->resourcePath = 'customers';
   }
 
   /**
    * Get the object that is used by this API endpoint. Every API endpoint uses one type of object.
    */
   protected function getResourceObject(): Resources\Customer {
-    return new Resources\Customer($this->client);
+  return new Resources\Customer($this->client);
   }
 
   /**
    * Get the collection object that is used by this API endpoint. Every API endpoint uses one type of collection object.
    */
   protected function getResourceCollectionObject(
-    int $count,
-    Resources\Links $links
+  int $count,
+  Resources\Links $links
   ): Resources\CustomerCollection {
-    return new Resources\CustomerCollection($this->client, $count, $links);
+  return new Resources\CustomerCollection($this->client, $count, $links);
   }
 
   /**
    * Creates a customer in Mollie.
    */
   public function create(
-    dict<arraykey, mixed> $data = dict[],
-    dict<arraykey, mixed> $filters = dict[]
+  dict<arraykey, mixed> $data = dict[],
+  dict<arraykey, mixed> $filters = dict[]
   ): Resources\Customer {
-    return $this->restCreate($data, $filters);
+  return $this->restCreate($data, $filters);
   }
 
   /**
@@ -40,10 +40,10 @@ class CustomerEndpoint extends CollectionEndpointAbstract<Resources\Customer, Re
    * Will throw a ApiException if the customer id is invalid or the resource cannot be found.
    */
   public function get(
-    string $customerId,
-    dict<arraykey, mixed> $parameters = dict[]
+  string $customerId,
+  dict<arraykey, mixed> $parameters = dict[]
   ): Resources\Customer {
-    return $this->restRead($customerId, $parameters);
+  return $this->restRead($customerId, $parameters);
   }
 
   /**
@@ -53,10 +53,10 @@ class CustomerEndpoint extends CollectionEndpointAbstract<Resources\Customer, Re
    * Returns with HTTP status No Content(204) if successful.
    */
   public function delete(
-    string $customerId,
-    dict<arraykey, mixed> $data = dict[]
+  string $customerId,
+  dict<arraykey, mixed> $data = dict[]
   ): ?Resources\BaseResource {
-    return $this->restDelete($customerId, $data);
+  return $this->restDelete($customerId, $data);
   }
 
   /**
@@ -65,10 +65,10 @@ class CustomerEndpoint extends CollectionEndpointAbstract<Resources\Customer, Re
    * @param string $from The first customer ID you want to include in your list.
    */
   public function page(
-    ?string $from = null,
-    ?int $limit = null,
-    dict<arraykey, mixed> $parameters = dict[]
+  ?string $from = null,
+  ?int $limit = null,
+  dict<arraykey, mixed> $parameters = dict[]
   ): Resources\CustomerCollection {
-    return $this->restList($from, $limit, $parameters);
+  return $this->restList($from, $limit, $parameters);
   }
 }

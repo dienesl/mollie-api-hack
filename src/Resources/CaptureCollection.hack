@@ -2,10 +2,10 @@ namespace Mollie\Api\Resources;
 
 class CaptureCollection extends CursorCollection<Capture> {
   public function getCollectionResourceName(): string {
-    return 'captures';
+  return 'captures';
   }
 
   protected function createResourceObject(): Capture {
-    return new Capture($this->client);
+  return new Capture($this->client);
   }
 }

@@ -31,13 +31,13 @@ class Issuer extends BaseResource {
 
   <<__Override>>
   public function assert(
-    dict<string, mixed> $datas
+  dict<string, mixed> $datas
   ): void {
-    $this->resource = (string)$datas['resource'];
-    $this->id = (string)$datas['id'];
-    $this->name = (string)$datas['name'];
-    $this->method = (string)$datas['method'];
+  $this->resource = (string)$datas['resource'];
+  $this->id = (string)$datas['id'];
+  $this->name = (string)$datas['name'];
+  $this->method = (string)$datas['method'];
 
-    $this->image = to_dict($datas['image']) |> Image::assert($$);
+  $this->image = to_dict($datas['image']) |> Image::assert($$);
   }
 }

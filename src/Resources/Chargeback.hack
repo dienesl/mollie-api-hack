@@ -39,20 +39,20 @@ class Chargeback extends BaseResource {
 
   <<__Override>>
   public function assert(
-    dict<string, mixed> $datas
+  dict<string, mixed> $datas
   ): void {
-    $this->id = (string)$datas['id'];
+  $this->id = (string)$datas['id'];
 
-    $this->amount = to_dict($datas['amount']) |> Amount::assert($$);
+  $this->amount = to_dict($datas['amount']) |> Amount::assert($$);
 
-    if(C\contains_key($datas, 'createdAt') && $datas['createdAt'] !== null) {
-      $this->createdAt = (string)$datas['createdAt'];
-    }
-    
-    $this->paymentId = (string)$datas['paymentId'];
+  if(C\contains_key($datas, 'createdAt') && $datas['createdAt'] !== null) {
+    $this->createdAt = (string)$datas['createdAt'];
+  }
+  
+  $this->paymentId = (string)$datas['paymentId'];
 
-    $this->settlementAmount = to_dict($datas['settlementAmount']) |> Amount::assert($$);
+  $this->settlementAmount = to_dict($datas['settlementAmount']) |> Amount::assert($$);
 
-    $this->links = to_dict($datas['_links']) |> Links::assert($$);
+  $this->links = to_dict($datas['_links']) |> Links::assert($$);
   }
 }

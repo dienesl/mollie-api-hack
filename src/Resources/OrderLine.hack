@@ -193,42 +193,42 @@ class OrderLine extends BaseResource {
    * Get the url pointing to the product page in your web shop of the product sold.
    */
   public function getProductUrl(): ?string {
-    return $this->links->productUrl?->href;
+  return $this->links->productUrl?->href;
   }
 
   /**
    * Get the image URL of the product sold.
    */
   public function getImageUrl(): ?string {
-    return $this->links->imageUrl?->href;
+  return $this->links->imageUrl?->href;
   }
 
   /**
    * Is this order line created?
    */
   public function isCreated(): bool {
-    return $this->status === OrderLineStatus::STATUS_CREATED;
+  return $this->status === OrderLineStatus::STATUS_CREATED;
   }
 
   /**
    * Is this order line paid for?
    */
   public function isPaid(): bool {
-    return $this->status === OrderLineStatus::STATUS_PAID;
+  return $this->status === OrderLineStatus::STATUS_PAID;
   }
 
   /**
    * Is this order line authorized?
    */
   public function isAuthorized(): bool {
-    return $this->status === OrderLineStatus::STATUS_AUTHORIZED;
+  return $this->status === OrderLineStatus::STATUS_AUTHORIZED;
   }
 
   /**
    * Is this order line canceled?
    */
   public function isCanceled(): bool {
-    return $this->status === OrderLineStatus::STATUS_CANCELED;
+  return $this->status === OrderLineStatus::STATUS_CANCELED;
   }
 
   /**
@@ -237,163 +237,163 @@ class OrderLine extends BaseResource {
    */
   <<__Deprecated('This function has been replaced at 2018-11-27', 10)>>
   public function isRefunded(): bool {
-    return $this->status === OrderLineStatus::STATUS_REFUNDED;
+  return $this->status === OrderLineStatus::STATUS_REFUNDED;
   }
 
   /**
    * Is this order line shipping?
    */
   public function isShipping(): bool {
-    return $this->status === OrderLineStatus::STATUS_SHIPPING;
+  return $this->status === OrderLineStatus::STATUS_SHIPPING;
   }
 
   /**
    * Is this order line completed?
    */
   public function isCompleted(): bool {
-    return $this->status === OrderLineStatus::STATUS_COMPLETED;
+  return $this->status === OrderLineStatus::STATUS_COMPLETED;
   }
 
   /**
    * Is this order line for a physical product?
    */
   public function isPhysical(): bool {
-    return $this->type === OrderLineType::TYPE_PHYSICAL;
+  return $this->type === OrderLineType::TYPE_PHYSICAL;
   }
 
   /**
    * Is this order line for applying a discount?
    */
   public function isDiscount(): bool {
-    return $this->type === OrderLineType::TYPE_DISCOUNT;
+  return $this->type === OrderLineType::TYPE_DISCOUNT;
   }
 
   /**
    * Is this order line for a digital product?
    */
   public function isDigital(): bool {
-    return $this->type === OrderLineType::TYPE_DIGITAL;
+  return $this->type === OrderLineType::TYPE_DIGITAL;
   }
 
   /**
    * Is this order line for applying a shipping fee?
    */
   public function isShippingFee(): bool {
-    return $this->type === OrderLineType::TYPE_SHIPPING_FEE;
+  return $this->type === OrderLineType::TYPE_SHIPPING_FEE;
   }
 
   /**
    * Is this order line for store credit?
    */
   public function isStoreCredit(): bool {
-    return $this->type === OrderLineType::TYPE_STORE_CREDIT;
+  return $this->type === OrderLineType::TYPE_STORE_CREDIT;
   }
 
   /**
    * Is this order line for a gift card?
    */
   public function isGiftCard(): bool {
-    return $this->type === OrderLineType::TYPE_GIFT_CARD;
+  return $this->type === OrderLineType::TYPE_GIFT_CARD;
   }
 
   /**
    * Is this order line for a surcharge?
    */
   public function isSurcharge(): bool {
-    return $this->type === OrderLineType::TYPE_SURCHARGE;
+  return $this->type === OrderLineType::TYPE_SURCHARGE;
   }
 
   /**
    * Update an orderline by supplying one or more parameters in the data array
    */
   public function update(): BaseResource {
-    $url = 'orders/' . $this->orderId . '/lines/' . $this->id;
-    $body = json_encode($this->getUpdateData());
-    $result = $this->client->performHttpCall(MollieApiClient::HTTP_PATCH, $url, $body);
+  $url = 'orders/' . $this->orderId . '/lines/' . $this->id;
+  $body = json_encode($this->getUpdateData());
+  $result = $this->client->performHttpCall(MollieApiClient::HTTP_PATCH, $url, $body);
 
-    return ResourceFactory::createFromApiResult($result, new Order($this->client));
+  return ResourceFactory::createFromApiResult($result, new Order($this->client));
   }
 
   /**
    * Get sanitized array of order line data
    */
   public function getUpdateData(): dict<string, mixed> {
-    // Explicitly filter only NULL values to keep "vatRate => 0" intact
-    return Dict\filter(dict[
-      "name" => $this->name,
-      'imageUrl' => $this->imageUrl,
-      'productUrl' => $this->productUrl,
-      'metadata' => $this->metadata,
-      'quantity' => $this->quantity,
-      'unitPrice' => $this->unitPrice,
-      'discountAmount' => $this->discountAmount,
-      'totalAmount' => $this->totalAmount,
-      'vatAmount' => $this->vatAmount,
-      'vatRate' => $this->vatRate,
-    ], $val ==> $val !== null);
+  // Explicitly filter only NULL values to keep "vatRate => 0" intact
+  return Dict\filter(dict[
+    "name" => $this->name,
+    'imageUrl' => $this->imageUrl,
+    'productUrl' => $this->productUrl,
+    'metadata' => $this->metadata,
+    'quantity' => $this->quantity,
+    'unitPrice' => $this->unitPrice,
+    'discountAmount' => $this->discountAmount,
+    'totalAmount' => $this->totalAmount,
+    'vatAmount' => $this->vatAmount,
+    'vatRate' => $this->vatRate,
+  ], $val ==> $val !== null);
   }
 
   <<__Override>>
   public function assert(
-    dict<string, mixed> $datas
+  dict<string, mixed> $datas
   ): void {
-    $this->resource = (string)$datas['resource'];
-    $this->id = (string)$datas['id'];
-    $this->orderId = (string)$datas['orderId'];
+  $this->resource = (string)$datas['resource'];
+  $this->id = (string)$datas['id'];
+  $this->orderId = (string)$datas['orderId'];
 
-    $this->type = OrderLineType::assert((string)$datas['type']);
+  $this->type = OrderLineType::assert((string)$datas['type']);
 
-    $this->name = (string)$datas['name'];
+  $this->name = (string)$datas['name'];
 
-    $this->status = OrderLineStatus::assert((string)$datas['status']);
+  $this->status = OrderLineStatus::assert((string)$datas['status']);
 
-    $this->isCancelable = (bool)$datas['isCancelable'];
+  $this->isCancelable = (bool)$datas['isCancelable'];
 
-    $this->quantity = (int)$datas['quantity'];
-    $this->quantityShipped = (int)$datas['quantityShipped'];
+  $this->quantity = (int)$datas['quantity'];
+  $this->quantityShipped = (int)$datas['quantityShipped'];
 
-    $this->amountShipped = to_dict($datas['amountShipped']) |> Amount::assert($$);
+  $this->amountShipped = to_dict($datas['amountShipped']) |> Amount::assert($$);
 
-    $this->quantityRefunded = (int)$datas['quantityRefunded'];
+  $this->quantityRefunded = (int)$datas['quantityRefunded'];
 
-    $this->amountRefunded = to_dict($datas['amountRefunded']) |> Amount::assert($$);
+  $this->amountRefunded = to_dict($datas['amountRefunded']) |> Amount::assert($$);
 
-    $this->quantityCanceled = (int)$datas['quantityCanceled'];
+  $this->quantityCanceled = (int)$datas['quantityCanceled'];
 
-    $this->amountCanceled = to_dict($datas['amountCanceled']) |> Amount::assert($$);
+  $this->amountCanceled = to_dict($datas['amountCanceled']) |> Amount::assert($$);
 
-    $this->shippableQuantity = (int)$datas['shippableQuantity'];
-    $this->refundableQuantity = (int)$datas['refundableQuantity'];
-    $this->cancelableQuantity = (int)$datas['cancelableQuantity'];
+  $this->shippableQuantity = (int)$datas['shippableQuantity'];
+  $this->refundableQuantity = (int)$datas['refundableQuantity'];
+  $this->cancelableQuantity = (int)$datas['cancelableQuantity'];
 
-    $this->unitPrice = to_dict($datas['unitPrice']) |> Amount::assert($$);
+  $this->unitPrice = to_dict($datas['unitPrice']) |> Amount::assert($$);
 
-    if(C\contains_key($datas, 'discountAmount') && $datas['discountAmount'] !== null) {
-      $this->discountAmount = to_dict($datas['discountAmount']) |> Amount::assert($$);
-    }
+  if(C\contains_key($datas, 'discountAmount') && $datas['discountAmount'] !== null) {
+    $this->discountAmount = to_dict($datas['discountAmount']) |> Amount::assert($$);
+  }
 
-    $this->totalAmount = to_dict($datas['totalAmount']) |> Amount::assert($$);
+  $this->totalAmount = to_dict($datas['totalAmount']) |> Amount::assert($$);
 
-    $this->vatRate = (float)$datas['vatRate'];
+  $this->vatRate = (float)$datas['vatRate'];
 
-    $this->vatAmount = to_dict($datas['vatAmount']) |> Amount::assert($$);
+  $this->vatAmount = to_dict($datas['vatAmount']) |> Amount::assert($$);
 
-    if(C\contains_key($datas, 'sku') && $datas['sku'] !== null) {
-      $this->sku = (string)$datas['sku'];
-    }
+  if(C\contains_key($datas, 'sku') && $datas['sku'] !== null) {
+    $this->sku = (string)$datas['sku'];
+  }
 
-    if(C\contains_key($datas, 'imageUrl') && $datas['imageUrl'] !== null) {
-      $this->imageUrl = (string)$datas['imageUrl'];
-    }
+  if(C\contains_key($datas, 'imageUrl') && $datas['imageUrl'] !== null) {
+    $this->imageUrl = (string)$datas['imageUrl'];
+  }
 
-    if(C\contains_key($datas, 'productUrl') && $datas['productUrl'] !== null) {
-      $this->imageUrl = (string)$datas['productUrl'];
-    }
+  if(C\contains_key($datas, 'productUrl') && $datas['productUrl'] !== null) {
+    $this->imageUrl = (string)$datas['productUrl'];
+  }
 
-    $this->metadata = $datas['metadata'];
+  $this->metadata = $datas['metadata'];
 
-    $this->createdAt = (string)$datas['createdAt'];
+  $this->createdAt = (string)$datas['createdAt'];
 
-    $this->links = to_dict($datas['_links']) |> Links::assert($$);
+  $this->links = to_dict($datas['_links']) |> Links::assert($$);
   }
 }

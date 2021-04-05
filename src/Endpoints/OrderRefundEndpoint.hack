@@ -5,7 +5,7 @@ use namespace Mollie\Api\Resources;
 class OrderRefundEndpoint extends CollectionEndpointAbstract<Resources\Refund, Resources\RefundCollection> {
   <<__Override>>
   protected function setResourcePath(): void {
-    $this->resourcePath = 'orders_refunds';
+  $this->resourcePath = 'orders_refunds';
   }
 
   /**
@@ -13,7 +13,7 @@ class OrderRefundEndpoint extends CollectionEndpointAbstract<Resources\Refund, R
    */
   <<__Override>>
   protected function getResourceObject(): Resources\Refund {
-    return new Resources\Refund($this->client);
+  return new Resources\Refund($this->client);
   }
 
   /**
@@ -21,10 +21,10 @@ class OrderRefundEndpoint extends CollectionEndpointAbstract<Resources\Refund, R
    */
   <<__Override>>
   protected function getResourceCollectionObject(
-    int $count,
-    Resources\Links $links
+  int $count,
+  Resources\Links $links
   ): Resources\RefundCollection {
-    return new Resources\RefundCollection($this->client, $count, $links);
+  return new Resources\RefundCollection($this->client, $count, $links);
   }
 
   /**
@@ -32,11 +32,11 @@ class OrderRefundEndpoint extends CollectionEndpointAbstract<Resources\Refund, R
    * "lines" data to refund all eligible lines for this order.
    */
   public function createFor(
-    Resources\Order $order,
-    dict<arraykey, mixed> $data,
-    dict<arraykey, mixed> $filters = dict[]
+  Resources\Order $order,
+  dict<arraykey, mixed> $data,
+  dict<arraykey, mixed> $filters = dict[]
   ): Resources\Refund {
-    return $this->createForId($order->id, $data, $filters);
+  return $this->createForId($order->id, $data, $filters);
   }
 
   /**
@@ -44,12 +44,12 @@ class OrderRefundEndpoint extends CollectionEndpointAbstract<Resources\Refund, R
    * "lines" data to refund all eligible lines for this order.
    */
   public function createForId(
-    string $orderId,
-    dict<arraykey, mixed> $data,
-    dict<arraykey, mixed> $filters = dict[]
+  string $orderId,
+  dict<arraykey, mixed> $data,
+  dict<arraykey, mixed> $filters = dict[]
   ): Resources\Refund {
-    $this->parentId = $orderId;
+  $this->parentId = $orderId;
 
-    return $this->restCreate($data, $filters);
+  return $this->restCreate($data, $filters);
   }
 }

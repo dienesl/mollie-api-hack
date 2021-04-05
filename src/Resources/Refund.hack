@@ -74,80 +74,80 @@ class Refund extends BaseResource {
    * Is this refund queued?
    */
   public function isQueued(): bool {
-    return $this->status === RefundStatus::STATUS_QUEUED;
+  return $this->status === RefundStatus::STATUS_QUEUED;
   }
 
   /**
    * Is this refund pending?
    */
   public function isPending(): bool {
-    return $this->status === RefundStatus::STATUS_PENDING;
+  return $this->status === RefundStatus::STATUS_PENDING;
   }
 
   /**
    * Is this refund processing?
    */
   public function isProcessing(): bool {
-    return $this->status === RefundStatus::STATUS_PROCESSING;
+  return $this->status === RefundStatus::STATUS_PROCESSING;
   }
 
   /**
    * Is this refund transferred to consumer?
    */
   public function isTransferred(): bool {
-    return $this->status === RefundStatus::STATUS_REFUNDED;
+  return $this->status === RefundStatus::STATUS_REFUNDED;
   }
 
   /**
    * Is this refund failed?
    */
   public function isFailed(): bool {
-    return $this->status === RefundStatus::STATUS_FAILED;
+  return $this->status === RefundStatus::STATUS_FAILED;
   }
 
   /**
    * Cancel the refund.
    */
   public function cancel(): void {
-    $selfLink = $this->links->self;
-    if($selfLink !== null) {
-      $this->client->performHttpCallToFullUrl(
-        MollieApiClient::HTTP_DELETE,
-        $selfLink->href
-      );
-    }
-    throw new ApiException('self link is not setted,');
+  $selfLink = $this->links->self;
+  if($selfLink !== null) {
+    $this->client->performHttpCallToFullUrl(
+    MollieApiClient::HTTP_DELETE,
+    $selfLink->href
+    );
+  }
+  throw new ApiException('self link is not setted,');
   }
 
   <<__Override>>
   public function assert(
-    dict<string, mixed> $datas
+  dict<string, mixed> $datas
   ): void {
-    $this->resource = (string)$datas['resource'];
-    $this->id = (string)$datas['id'];
+  $this->resource = (string)$datas['resource'];
+  $this->id = (string)$datas['id'];
 
-    $this->amount = to_dict($datas['amount']) |> Amount::assert($$);
+  $this->amount = to_dict($datas['amount']) |> Amount::assert($$);
 
-    $this->createdAt = (string)$datas['createdAt'];
+  $this->createdAt = (string)$datas['createdAt'];
 
-    if(C\contains_key($datas, 'description') && $datas['description'] !== null) {
-      $this->description = (string)$datas['description'];
-    }
+  if(C\contains_key($datas, 'description') && $datas['description'] !== null) {
+    $this->description = (string)$datas['description'];
+  }
 
-    $this->paymentId = (string)$datas['paymentId'];
+  $this->paymentId = (string)$datas['paymentId'];
 
-    if(C\contains_key($datas, 'orderId') && $datas['orderId'] !== null) {
-      $this->orderId = (string)$datas['orderId'];
-    }
+  if(C\contains_key($datas, 'orderId') && $datas['orderId'] !== null) {
+    $this->orderId = (string)$datas['orderId'];
+  }
 
-    $this->lines = $datas['lines'];
+  $this->lines = $datas['lines'];
 
-    if(C\contains_key($datas, 'settlementAmount') && $datas['settlementAmount'] !== null) {
-      $this->settlementAmount = to_dict($datas['settlementAmount']) |> Amount::assert($$);
-    }
+  if(C\contains_key($datas, 'settlementAmount') && $datas['settlementAmount'] !== null) {
+    $this->settlementAmount = to_dict($datas['settlementAmount']) |> Amount::assert($$);
+  }
 
-    $this->status = RefundStatus::assert((string)$datas['status']);
+  $this->status = RefundStatus::assert((string)$datas['status']);
 
-    $this->links = to_dict($datas['_links']) |> Links::assert($$);
+  $this->links = to_dict($datas['_links']) |> Links::assert($$);
   }
 }

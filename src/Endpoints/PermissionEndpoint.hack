@@ -9,7 +9,7 @@ use namespace Mollie\Api\Resources;
 class PermissionEndpoint extends CollectionEndpointAbstract<Resources\Permission, Resources\PermissionCollection> {
   <<__Override>>
   protected function setResourcePath(): void {
-    $this->resourcePath = 'permissions';
+  $this->resourcePath = 'permissions';
   }
 
   /**
@@ -18,7 +18,7 @@ class PermissionEndpoint extends CollectionEndpointAbstract<Resources\Permission
    */
   <<__Override>>
   protected function getResourceObject(): Resources\Permission {
-    return new Resources\Permission($this->client);
+  return new Resources\Permission($this->client);
   }
 
   /**
@@ -27,10 +27,10 @@ class PermissionEndpoint extends CollectionEndpointAbstract<Resources\Permission
    */
   <<__Override>>
   protected function getResourceCollectionObject(
-    int $count,
-    Resources\Links $links
+  int $count,
+  Resources\Links $links
   ): Resources\PermissionCollection {
-    return new Resources\PermissionCollection($count, $links);
+  return new Resources\PermissionCollection($count, $links);
   }
 
   /**
@@ -39,18 +39,18 @@ class PermissionEndpoint extends CollectionEndpointAbstract<Resources\Permission
    * Will throw an ApiException if the permission id is invalid.
    */
   public function get(
-    string $permissionId,
-    dict<arraykey, mixed> $parameters = dict[]
+  string $permissionId,
+  dict<arraykey, mixed> $parameters = dict[]
   ): Resources\Permission {
-    return $this->restRead($permissionId, $parameters);
+  return $this->restRead($permissionId, $parameters);
   }
 
   /**
    * Retrieve all permissions.
    */
   public function all(
-    dict<arraykey, mixed> $parameters = dict[]
+  dict<arraykey, mixed> $parameters = dict[]
   ): Resources\PermissionCollection {
-    return $this->restList(null, null, $parameters);
+  return $this->restList(null, null, $parameters);
   }
 }

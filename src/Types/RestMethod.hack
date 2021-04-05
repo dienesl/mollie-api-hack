@@ -1,6 +1,6 @@
 namespace Mollie\Api\Types;
 
-enum RestMethod: HttpMethod {
+enum RestMethod: HttpMethod as HttpMethod {
   CREATE = HttpMethod::POST;
   UPDATE = HttpMethod::PATCH;
   READ = HttpMethod::GET;

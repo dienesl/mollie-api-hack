@@ -46,7 +46,7 @@ class Settlement extends BaseResource {
   /**
    * Total settlement amount in euros.
    */
-    <<__LateInit>>
+  <<__LateInit>>
   public Amount $amount;
 
   /**
@@ -70,123 +70,123 @@ class Settlement extends BaseResource {
    * Is this settlement still open?
    */
   public function isOpen(): bool {
-    return $this->status === SettlementStatus::STATUS_OPEN;
+  return $this->status === SettlementStatus::STATUS_OPEN;
   }
 
   /**
    * Is this settlement pending?
    */
   public function isPending(): bool {
-    return $this->status === SettlementStatus::STATUS_PENDING;
+  return $this->status === SettlementStatus::STATUS_PENDING;
   }
 
   /**
    * Is this settlement paidout?
    */
   public function isPaidout(): bool {
-    return $this->status === SettlementStatus::STATUS_PAIDOUT;
+  return $this->status === SettlementStatus::STATUS_PAIDOUT;
   }
 
   /**
    * Is this settlement failed?
    */
   public function isFailed(): bool {
-    return $this->status === SettlementStatus::STATUS_FAILED;
+  return $this->status === SettlementStatus::STATUS_FAILED;
   }
 
   /**
    * Retrieves all payments associated with this settlement
    */
   public function payments(
-    ?int $limit = null,
-    dict<arraykey, mixed> $parameters = dict[]
+  ?int $limit = null,
+  dict<arraykey, mixed> $parameters = dict[]
   ): PaymentCollection {
-    return $this->client->settlementPayments->pageForId($this->id, null, $limit, $parameters);
+  return $this->client->settlementPayments->pageForId($this->id, null, $limit, $parameters);
   }
 
   /**
    * Retrieves all refunds associated with this settlement
    */
   public function refunds(): RefundCollection {
-    $refundsLink = $this->links->refunds;
-    if($refundsLink === null) {
-      return new RefundCollection($this->client, 0, new Links());
-    } else {
-      $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $refundsLink->href);
+  $refundsLink = $this->links->refunds;
+  if($refundsLink === null) {
+    return new RefundCollection($this->client, 0, new Links());
+  } else {
+    $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $refundsLink->href);
 
-      return ResourceFactory::createCursorResourceCollection(
-        $this->client,
-        Refund::class,
-        RefundCollection::class,
-        to_vec_dict($result['_embedded']['refunds'] ?? vec[]),
-        to_dict($result['_links'] ?? dict[]) |> Links::assert($$)
-      );
-    }
+    return ResourceFactory::createCursorResourceCollection(
+    $this->client,
+    Refund::class,
+    RefundCollection::class,
+    to_vec_dict($result['_embedded']['refunds'] ?? vec[]),
+    to_dict($result['_links'] ?? dict[]) |> Links::assert($$)
+    );
+  }
   }
 
   /**
    * Retrieves all chargebacks associated with this settlement
    */
   public function chargebacks(): ChargebackCollection {
-    $chargebacksLink = $this->links->chargebacks;
-    if($chargebacksLink === null) {
-      return new ChargebackCollection($this->client, 0, new Links());
-    } else {
-      $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $chargebacksLink->href);
+  $chargebacksLink = $this->links->chargebacks;
+  if($chargebacksLink === null) {
+    return new ChargebackCollection($this->client, 0, new Links());
+  } else {
+    $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $chargebacksLink->href);
 
-      return ResourceFactory::createCursorResourceCollection(
-        $this->client,
-        Chargeback::class,
-        ChargebackCollection::class,
-        to_vec_dict($result['_embedded']['chargebacks'] ?? vec[]),
-        to_dict($result['_links']) |> Links::assert($$)
-      );
-    }
+    return ResourceFactory::createCursorResourceCollection(
+    $this->client,
+    Chargeback::class,
+    ChargebackCollection::class,
+    to_vec_dict($result['_embedded']['chargebacks'] ?? vec[]),
+    to_dict($result['_links']) |> Links::assert($$)
+    );
+  }
   }
 
   /**
    * Retrieves all captures associated with this settlement
    */
   public function captures(): CaptureCollection {
-    $capturesLink = $this->links->captures;
-    if($capturesLink === null) {
-      return new CaptureCollection($this->client, 0, new Links());
-    } else {
-      $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $capturesLink->href);
+  $capturesLink = $this->links->captures;
+  if($capturesLink === null) {
+    return new CaptureCollection($this->client, 0, new Links());
+  } else {
+    $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $capturesLink->href);
 
-      return ResourceFactory::createCursorResourceCollection(
-        $this->client,
-        Capture::class,
-        CaptureCollection::class,
-        to_vec_dict($result['_embedded']['captures'] ?? vec[]),
-        to_dict($result['_links'] ?? dict[]) |> Links::assert($$)
-      );
-    }
+    return ResourceFactory::createCursorResourceCollection(
+    $this->client,
+    Capture::class,
+    CaptureCollection::class,
+    to_vec_dict($result['_embedded']['captures'] ?? vec[]),
+    to_dict($result['_links'] ?? dict[]) |> Links::assert($$)
+    );
+  }
   }
 
   <<__Override>>
   public function assert(
-    dict<string, mixed> $datas
+  dict<string, mixed> $datas
   ): void {
-    $this->resource = (string)$datas['resource'];
-    $this->id = (string)$datas['id'];
-    $this->reference = (string)$datas['reference'];
-    $this->createdAt = (string)$datas['createdAt'];
+  $this->resource = (string)$datas['resource'];
+  $this->id = (string)$datas['id'];
+  $this->reference = (string)$datas['reference'];
+  $this->createdAt = (string)$datas['createdAt'];
 
-    if(C\contains_key($datas, 'settledAt') && $datas['settledAt'] !== null) {
-      $this->settledAt = (string)$datas['settledAt'];
-    }
+  if(C\contains_key($datas, 'settledAt') && $datas['settledAt'] !== null) {
+    $this->settledAt = (string)$datas['settledAt'];
+  }
 
-    $this->status = SettlementStatus::assert((string)$datas['status']);
+  $this->status = SettlementStatus::assert((string)$datas['status']);
 
-    $this->amount = to_dict($datas['amount']) |> Amount::assert($$);
+  $this->amount = to_dict($datas['amount']) |> Amount::assert($$);
 
-    $this->periods = $datas['periods'];
+  $this->periods = $datas['periods'];
 
-    if(C\contains_key($datas, 'invoiceId') && $datas['invoiceId'] !== null) {
-      $this->invoiceId = (string)$datas['invoiceId'];
-    }
+  if(C\contains_key($datas, 'invoiceId') && $datas['invoiceId'] !== null) {
+    $this->invoiceId = (string)$datas['invoiceId'];
+  }
 
-    $this->links = to_dict($datas['_links']) |> Links::assert($$);
+  $this->links = to_dict($datas['_links']) |> Links::assert($$);
   }
 }

@@ -1,565 +1,316 @@
 namespace Mollie\Api;
 
-use Composer\CaBundle\CaBundle;
-use GuzzleHttp\Client;
-use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\RequestOptions as GuzzleRequestOptions;
-use Mollie\Api\Endpoints\ChargebackEndpoint;
-use Mollie\Api\Endpoints\CustomerEndpoint;
-use Mollie\Api\Endpoints\CustomerPaymentsEndpoint;
-use Mollie\Api\Endpoints\InvoiceEndpoint;
-use Mollie\Api\Endpoints\MandateEndpoint;
-use Mollie\Api\Endpoints\MethodEndpoint;
-use Mollie\Api\Endpoints\OnboardingEndpoint;
-use Mollie\Api\Endpoints\OrderEndpoint;
-use Mollie\Api\Endpoints\OrderLineEndpoint;
-use Mollie\Api\Endpoints\OrderPaymentEndpoint;
-use Mollie\Api\Endpoints\OrderRefundEndpoint;
-use Mollie\Api\Endpoints\OrganizationEndpoint;
-use Mollie\Api\Endpoints\PaymentCaptureEndpoint;
-use Mollie\Api\Endpoints\PaymentChargebackEndpoint;
-use Mollie\Api\Endpoints\PaymentEndpoint;
-use Mollie\Api\Endpoints\PaymentRefundEndpoint;
-use Mollie\Api\Endpoints\PermissionEndpoint;
-use Mollie\Api\Endpoints\ProfileEndpoint;
-use Mollie\Api\Endpoints\ProfileMethodEndpoint;
-use Mollie\Api\Endpoints\RefundEndpoint;
-use Mollie\Api\Endpoints\SettlementPaymentEndpoint;
-use Mollie\Api\Endpoints\SettlementsEndpoint;
-use Mollie\Api\Endpoints\ShipmentEndpoint;
-use Mollie\Api\Endpoints\SubscriptionEndpoint;
-use Mollie\Api\Endpoints\WalletEndpoint;
-use Mollie\Api\Exceptions\ApiException;
-use Mollie\Api\Exceptions\IncompatiblePlatform;
-use Mollie\Api\Guzzle\RetryMiddlewareFactory;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamInterface;
+use namespace HH\Lib\{
+  Dict,
+  Str,
+  Regex,
+  Vec
+};
+use namespace Mollie\Api\{
+  Endpoints,
+  Types
+};
+use type Mollie\Api\Exceptions\ApiException;
+use function curl_init;
+use function curl_setopt;
+use function HH\Asio\curl_exec;
+use function json_decode;
+use const CURLOPT_CUSTOMREQUEST;
+use const CURLOPT_RETURNTRANSFER;
+use const CURLOPT_HTTPHEADER;
+use const CURLOPT_POST;
+use const CURLOPT_POSTFIELDS;
 
-class MollieApiClient
-{
-    /**
-     * Version of our client.
-     */
-    const CLIENT_VERSION = "2.30.2";
+class MollieApiClient {
+  /**
+   * Version of our client.
+   */
+  const string CLIENT_VERSION = '1.0.0';
 
-    /**
-     * Endpoint of the remote API.
-     */
-    const API_ENDPOINT = "https://api.mollie.com";
+  /**
+   * Endpoint of the remote API.
+   */
+  const string API_ENDPOINT = 'https://api.mollie.com';
 
-    /**
-     * Version of the remote API.
-     */
-    const API_VERSION = "v2";
+  /**
+   * Version of the remote API.
+   */
+  const string API_VERSION = 'v2';
 
-    /**
-     * HTTP Methods
-     */
-    const HTTP_GET = "GET";
-    const HTTP_POST = "POST";
-    const HTTP_DELETE = "DELETE";
-    const HTTP_PATCH = "PATCH";
+  /**
+   * HTTP status codes
+   */
+  const int HTTP_NO_CONTENT = 204;
 
-    /**
-     * HTTP status codes
-     */
-    const HTTP_NO_CONTENT = 204;
+  /**
+   * Default response timeout (in seconds).
+   */
+  const int TIMEOUT = 10;
 
-    /**
-     * Default response timeout (in seconds).
-     */
-    const TIMEOUT = 10;
+  /**
+   * Default connect timeout (in seconds).
+   */
+  const int CONNECT_TIMEOUT = 2;
 
-    /**
-     * Default connect timeout (in seconds).
-     */
-    const CONNECT_TIMEOUT = 2;
+  // TODO
+  // create http client for hhvm
+  //protected $httpClient;
 
-    /**
-     * @var ClientInterface
-     */
-    protected $httpClient;
+  /**
+   * @var string
+   */
+  protected string $apiEndpoint = self::API_ENDPOINT;
 
-    /**
-     * @var string
-     */
-    protected $apiEndpoint = self::API_ENDPOINT;
+  <<__LateInit>>
+  public Endpoints\PaymentEndpoint $payments;
+  <<__LateInit>>
+  public Endpoints\MethodEndpoint $methods;
+  <<__LateInit>>
+  public Endpoints\ProfileMethodEndpoint $profileMethods;
+  <<__LateInit>>
+  public Endpoints\CustomerEndpoint $customers;
+  <<__LateInit>>
+  public Endpoints\CustomerPaymentsEndpoint $customerPayments;
+  <<__LateInit>>
+  public Endpoints\SettlementsEndpoint $settlements;
+  <<__LateInit>>
+  public Endpoints\SettlementPaymentEndpoint $settlementPayments;
+  <<__LateInit>>
+  public Endpoints\SubscriptionEndpoint $subscriptions;
+  <<__LateInit>>
+  public Endpoints\MandateEndpoint $mandates;
+  <<__LateInit>>
+  public Endpoints\ProfileEndpoint $profiles;
+  <<__LateInit>>
+  public Endpoints\OrganizationEndpoint $organizations;
+  <<__LateInit>>
+  public Endpoints\PermissionEndpoint $permissions;
+  <<__LateInit>>
+  public Endpoints\InvoiceEndpoint $invoices;
+  <<__LateInit>>
+  public Endpoints\OnboardingEndpoint $onboarding;
+  <<__LateInit>>
+  public Endpoints\OrderEndpoint $orders;
+  <<__LateInit>>
+  public Endpoints\OrderLineEndpoint $orderLines;
+  <<__LateInit>>
+  public Endpoints\OrderPaymentEndpoint $orderPayments;
+  <<__LateInit>>
+  public Endpoints\ShipmentEndpoint $shipments;
+  <<__LateInit>>
+  public Endpoints\RefundEndpoint $refunds;
+  <<__LateInit>>
+  public Endpoints\PaymentRefundEndpoint $paymentRefunds;
+  <<__LateInit>>
+  public Endpoints\PaymentCaptureEndpoint $paymentCaptures;
+  <<__LateInit>>
+  public Endpoints\ChargebackEndpoint $chargebacks;
+  <<__LateInit>>
+  public Endpoints\PaymentChargebackEndpoint $paymentChargebacks;
+  <<__LateInit>>
+  public Endpoints\OrderRefundEndpoint $orderRefunds;
+  <<__LateInit>>
+  public Endpoints\WalletEndpoint $wallets;
 
-    /**
-     * RESTful Payments resource.
-     *
-     * @var PaymentEndpoint
-     */
-    public $payments;
+  protected string $apiKey = '';
 
-    /**
-     * RESTful Methods resource.
-     *
-     * @var MethodEndpoint
-     */
-    public $methods;
+  /**
+   * True if an OAuth access token is set as API key.
+   */
+  protected ?bool $oauthAccess;
 
-    /**
-     * @var ProfileMethodEndpoint
-     */
-    public $profileMethods;
+  protected vec<string> $versionStrings = vec[];
 
-    /**
-     * RESTful Customers resource.
-     *
-     * @var CustomerEndpoint
-     */
-    public $customers;
+  protected ?int $lastHttpResponseStatusCode;
 
-    /**
-     * RESTful Customer payments resource.
-     *
-     * @var CustomerPaymentsEndpoint
-     */
-    public $customerPayments;
+  public function __construct() {
+    $this->payments = new Endpoints\PaymentEndpoint($this);
+    $this->methods = new Endpoints\MethodEndpoint($this);
+    $this->profileMethods = new Endpoints\ProfileMethodEndpoint($this);
+    $this->customers = new Endpoints\CustomerEndpoint($this);
+    $this->settlements = new Endpoints\SettlementsEndpoint($this);
+    $this->settlementPayments = new Endpoints\SettlementPaymentEndpoint($this);
+    $this->subscriptions = new Endpoints\SubscriptionEndpoint($this);
+    $this->customerPayments = new Endpoints\CustomerPaymentsEndpoint($this);
+    $this->mandates = new Endpoints\MandateEndpoint($this);
+    $this->invoices = new Endpoints\InvoiceEndpoint($this);
+    $this->permissions = new Endpoints\PermissionEndpoint($this);
+    $this->profiles = new Endpoints\ProfileEndpoint($this);
+    $this->onboarding = new Endpoints\OnboardingEndpoint($this);
+    $this->organizations = new Endpoints\OrganizationEndpoint($this);
+    $this->orders = new Endpoints\OrderEndpoint($this);
+    $this->orderLines = new Endpoints\OrderLineEndpoint($this);
+    $this->orderPayments = new Endpoints\OrderPaymentEndpoint($this);
+    $this->orderRefunds = new Endpoints\OrderRefundEndpoint($this);
+    $this->shipments = new Endpoints\ShipmentEndpoint($this);
+    $this->refunds = new Endpoints\RefundEndpoint($this);
+    $this->paymentRefunds = new Endpoints\PaymentRefundEndpoint($this);
+    $this->paymentCaptures = new Endpoints\PaymentCaptureEndpoint($this);
+    $this->chargebacks = new Endpoints\ChargebackEndpoint($this);
+    $this->paymentChargebacks = new Endpoints\PaymentChargebackEndpoint($this);
+    $this->wallets = new Endpoints\WalletEndpoint($this);
 
-    /**
-     * RESTful Settlement resource.
-     *
-     * @var SettlementsEndpoint
-     */
-    public $settlements;
+    $this->addVersionString('Mollie/' . self::CLIENT_VERSION);
+    $this->addVersionString('HHVM/' . \HHVM_VERSION);
+  }
 
-    /**
-     * RESTful Settlement payment resource.
-     *
-     * @var \Mollie\Api\Endpoints\SettlementPaymentEndpoint
-     */
-    public $settlementPayments;
+  public function setApiEndpoint(
+    string $url
+  ): this {
+    $this->apiEndpoint = Str\trim($url) |> Str\trim_right($$, '/');
 
-    /**
-     * RESTful Subscription resource.
-     *
-     * @var SubscriptionEndpoint
-     */
-    public $subscriptions;
+    return $this;
+  }
 
-    /**
-     * RESTful Mandate resource.
-     *
-     * @var MandateEndpoint
-     */
-    public $mandates;
+  public function getApiEndpoint(): string {
+    return $this->apiEndpoint;
+  }
 
-    /**
-     * @var ProfileEndpoint
-     */
-    public $profiles;
+  /**
+   * $apiKey The Mollie API key, starting with 'test_' or 'live_'
+   */
+  public function setApiKey(
+    string $apiKey
+  ): this {
+    $apiKey = Str\trim($apiKey);
 
-    /**
-     * RESTful Organization resource.
-     *
-     * @var OrganizationEndpoint
-     */
-    public $organizations;
-
-    /**
-     * RESTful Permission resource.
-     *
-     * @var PermissionEndpoint
-     */
-    public $permissions;
-
-    /**
-     * RESTful Invoice resource.
-     *
-     * @var InvoiceEndpoint
-     */
-    public $invoices;
-
-    /**
-     * RESTful Onboarding resource.
-     *
-     * @var OnboardingEndpoint
-     */
-    public $onboarding;
-
-    /**
-     * RESTful Order resource.
-     *
-     * @var OrderEndpoint
-     */
-    public $orders;
-
-    /**
-     * RESTful OrderLine resource.
-     *
-     * @var OrderLineEndpoint
-     */
-    public $orderLines;
-
-    /**
-     * RESTful OrderPayment resource.
-     *
-     * @var OrderPaymentEndpoint
-     */
-    public $orderPayments;
-
-    /**
-     * RESTful Shipment resource.
-     *
-     * @var ShipmentEndpoint
-     */
-    public $shipments;
-
-    /**
-     * RESTful Refunds resource.
-     *
-     * @var RefundEndpoint
-     */
-    public $refunds;
-
-    /**
-     * RESTful Payment Refunds resource.
-     *
-     * @var PaymentRefundEndpoint
-     */
-    public $paymentRefunds;
-
-    /**
-     * RESTful Payment Captures resource.
-     *
-     * @var PaymentCaptureEndpoint
-     */
-    public $paymentCaptures;
-
-    /**
-     * RESTful Chargebacks resource.
-     *
-     * @var ChargebackEndpoint
-     */
-    public $chargebacks;
-
-    /**
-     * RESTful Payment Chargebacks resource.
-     *
-     * @var PaymentChargebackEndpoint
-     */
-    public $paymentChargebacks;
-
-    /**
-     * RESTful Order Refunds resource.
-     *
-     * @var OrderRefundEndpoint
-     */
-    public $orderRefunds;
-
-    /**
-     * Manages Wallet requests
-     *
-     * @var WalletEndpoint
-     */
-    public $wallets;
-
-    /**
-     * @var string
-     */
-    protected $apiKey;
-
-    /**
-     * True if an OAuth access token is set as API key.
-     *
-     * @var bool
-     */
-    protected $oauthAccess;
-
-    /**
-     * @var array
-     */
-    protected $versionStrings = [];
-
-    /**
-     * @var int
-     */
-    protected $lastHttpResponseStatusCode;
-
-    /**
-     * @param ClientInterface $httpClient
-     *
-     * @throws IncompatiblePlatform
-     */
-    public function __construct(ClientInterface $httpClient = null)
-    {
-        $this->httpClient = $httpClient;
-
-        if (! $this->httpClient) {
-            $retryMiddlewareFactory = new RetryMiddlewareFactory;
-            $handlerStack = HandlerStack::create();
-            $handlerStack->push($retryMiddlewareFactory->retry());
-
-            $this->httpClient = new Client([
-                GuzzleRequestOptions::VERIFY => CaBundle::getBundledCaBundlePath(),
-                GuzzleRequestOptions::TIMEOUT => self::TIMEOUT,
-                GuzzleRequestOptions::CONNECT_TIMEOUT => self::CONNECT_TIMEOUT,
-                'handler' => $handlerStack,
-            ]);
-        }
-
-        $compatibilityChecker = new CompatibilityChecker();
-        $compatibilityChecker->checkCompatibility();
-
-        $this->initializeEndpoints();
-
-        $this->addVersionString("Mollie/" . self::CLIENT_VERSION);
-        $this->addVersionString("PHP/" . phpversion());
-
-        if (defined('\GuzzleHttp\ClientInterface::MAJOR_VERSION')) { // Guzzle 7
-            $this->addVersionString("Guzzle/" . ClientInterface::MAJOR_VERSION);
-        } elseif (defined('\GuzzleHttp\ClientInterface::VERSION')) { // Before Guzzle 7
-            $this->addVersionString("Guzzle/" . ClientInterface::VERSION);
-        }
+    if(!Regex\matches($apiKey, re'/^(live|test)_\w{30,}$/')) {
+      throw new ApiException('Invalid API key: \''. $apiKey . '\'. An API key must start with \'test_\' or \'live_\' and must be at least 30 characters long.');
     }
 
-    public function initializeEndpoints()
-    {
-        $this->payments = new PaymentEndpoint($this);
-        $this->methods = new MethodEndpoint($this);
-        $this->profileMethods = new ProfileMethodEndpoint($this);
-        $this->customers = new CustomerEndpoint($this);
-        $this->settlements = new SettlementsEndpoint($this);
-        $this->settlementPayments = new SettlementPaymentEndpoint($this);
-        $this->subscriptions = new SubscriptionEndpoint($this);
-        $this->customerPayments = new CustomerPaymentsEndpoint($this);
-        $this->mandates = new MandateEndpoint($this);
-        $this->invoices = new InvoiceEndpoint($this);
-        $this->permissions = new PermissionEndpoint($this);
-        $this->profiles = new ProfileEndpoint($this);
-        $this->onboarding = new OnboardingEndpoint($this);
-        $this->organizations = new OrganizationEndpoint($this);
-        $this->orders = new OrderEndpoint($this);
-        $this->orderLines = new OrderLineEndpoint($this);
-        $this->orderPayments = new OrderPaymentEndpoint($this);
-        $this->orderRefunds = new OrderRefundEndpoint($this);
-        $this->shipments = new ShipmentEndpoint($this);
-        $this->refunds = new RefundEndpoint($this);
-        $this->paymentRefunds = new PaymentRefundEndpoint($this);
-        $this->paymentCaptures = new PaymentCaptureEndpoint($this);
-        $this->chargebacks = new ChargebackEndpoint($this);
-        $this->paymentChargebacks = new PaymentChargebackEndpoint($this);
-        $this->wallets = new WalletEndpoint($this);
+    $this->apiKey = $apiKey;
+    $this->oauthAccess = false;
+
+    return $this;
+  }
+
+  /**
+   * $accessToken OAuth access token, starting with 'access_'
+   */
+  public function setAccessToken(
+    string $accessToken
+  ): this {
+    $accessToken = Str\trim($accessToken);
+
+    if(!Regex\matches($accessToken, re'/^access_\w+$/')) {
+      throw new ApiException('Invalid OAuth access token: \'' . $accessToken . '\'. An access token must start with \'access_\'.');
     }
 
-    /**
-     * @param string $url
-     *
-     * @return MollieApiClient
-     */
-    public function setApiEndpoint($url)
-    {
-        $this->apiEndpoint = rtrim(trim($url), '/');
+    $this->apiKey = $accessToken;
+    $this->oauthAccess = true;
 
-        return $this;
+    return $this;
+  }
+
+  /**
+   * Returns null if no API key has been set yet.
+   */
+  public function usesOAuth(): ?bool {
+    return $this->oauthAccess;
+  }
+
+  private function addVersionString(
+    string $versionString
+  ): this {
+    $this->versionStrings[] = Str\replace_every(
+      $versionString,
+      dict[
+        ' ' => '-',
+        "\t" => '-',
+        "\n" => '-',
+        "\r" => '-'
+      ]
+    );
+
+    return $this;
+  }
+
+  /**
+   * Perform an http call. This method is used by the resource specific classes. Please use the $payments property to
+   * perform operations on payments.
+   */
+  public function performHttpCall(
+    Types\HttpMethod $httpMethod,
+    string $apiMethod,
+    ?string $httpBody = null
+  ): Awaitable<dict<string, mixed>> {
+    $url = $this->apiEndpoint . '/' . self::API_VERSION . '/' . $apiMethod;
+
+    return $this->performHttpCallToFullUrl($httpMethod, $url, $httpBody);
+  }
+
+  /**
+   * Perform an http call to a full url. This method is used by the resource specific classes.
+   *
+   * @see $payments
+   * @see $isuers
+   *
+   * @param string $httpMethod
+   * @param string $url
+   * @param string|null|resource|StreamInterface $httpBody
+   *
+   * @return \stdClass|null
+   * @throws ApiException
+   *
+   * @codeCoverageIgnore
+   */
+  public async function performHttpCallToFullUrl(
+    Types\HttpMethod $httpMethod,
+    string $url,
+    ?string $httpBody = null
+  ): Awaitable<dict<string, mixed>> {
+    if(Str\is_empty($this->apiKey)) {
+      throw new ApiException('You have not set an API key or OAuth access token. Please use setApiKey() to set the API key.');
     }
 
-    /**
-     * @return string
-     */
-    public function getApiEndpoint()
-    {
-        return $this->apiEndpoint;
+    $userAgent = Str\join($this->versionStrings, ' ');
+
+    if($this->usesOAuth()) {
+      $userAgent .= ' OAuth/2.0';
     }
 
-    /**
-     * @param string $apiKey The Mollie API key, starting with 'test_' or 'live_'
-     *
-     * @return MollieApiClient
-     * @throws ApiException
-     */
-    public function setApiKey($apiKey)
-    {
-        $apiKey = trim($apiKey);
+    $headers = dict[
+      'Accept' => 'application/json',
+      'Authorization' => 'Bearer ' . $this->apiKey,
+      'User-Agent' => $userAgent,
+    ];
 
-        if (! preg_match('/^(live|test)_\w{30,}$/', $apiKey)) {
-            throw new ApiException("Invalid API key: '{$apiKey}'. An API key must start with 'test_' or 'live_' and must be at least 30 characters long.");
-        }
+    $ch = curl_init($url);
+    
+    if($httpMethod !== Types\HttpMethod::GET) {
+      if($httpBody !== null && !Str\is_empty($httpBody)) {
+        $headers['Content-Type'] = 'application/json';
+        $headers['Content-Length'] = Str\length($httpBody);
 
-        $this->apiKey = $apiKey;
-        $this->oauthAccess = false;
-
-        return $this;
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $httpBody);
+      }
     }
 
-    /**
-     * @param string $accessToken OAuth access token, starting with 'access_'
-     *
-     * @return MollieApiClient
-     * @throws ApiException
-     */
-    public function setAccessToken($accessToken)
-    {
-        $accessToken = trim($accessToken);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $httpMethod as string);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, Dict\map_with_key(
+      $headers,
+      ($key, $value) ==> $key . ': ' . $value
+    ) |> vec($$));
 
-        if (! preg_match('/^access_\w+$/', $accessToken)) {
-            throw new ApiException("Invalid OAuth access token: '{$accessToken}'. An access token must start with 'access_'.");
-        }
+    $response = await curl_exec($ch);
 
-        $this->apiKey = $accessToken;
-        $this->oauthAccess = true;
-
-        return $this;
+    if(Str\is_empty($response)) {
+      throw new ApiException('Did not receive API response.');
     }
 
-    /**
-     * Returns null if no API key has been set yet.
-     *
-     * @return bool|null
-     */
-    public function usesOAuth()
-    {
-        return $this->oauthAccess;
+    return $this->parseResponseBody($response);
+  }
+
+  private function parseResponseBody(
+    string $response
+  ): dict<string, mixed> {
+    $result = json_decode($response, true);
+
+    if($result === null) {
+      throw new ApiException('Did not recive Api valid json.');
     }
 
-    /**
-     * @param string $versionString
-     *
-     * @return MollieApiClient
-     */
-    public function addVersionString($versionString)
-    {
-        $this->versionStrings[] = str_replace([" ", "\t", "\n", "\r"], '-', $versionString);
-
-        return $this;
-    }
-
-    /**
-     * Perform an http call. This method is used by the resource specific classes. Please use the $payments property to
-     * perform operations on payments.
-     *
-     * @param string $httpMethod
-     * @param string $apiMethod
-     * @param string|null|resource|StreamInterface $httpBody
-     *
-     * @return \stdClass
-     * @throws ApiException
-     *
-     * @codeCoverageIgnore
-     */
-    public function performHttpCall($httpMethod, $apiMethod, $httpBody = null)
-    {
-        $url = $this->apiEndpoint . "/" . self::API_VERSION . "/" . $apiMethod;
-
-        return $this->performHttpCallToFullUrl($httpMethod, $url, $httpBody);
-    }
-
-    /**
-     * Perform an http call to a full url. This method is used by the resource specific classes.
-     *
-     * @see $payments
-     * @see $isuers
-     *
-     * @param string $httpMethod
-     * @param string $url
-     * @param string|null|resource|StreamInterface $httpBody
-     *
-     * @return \stdClass|null
-     * @throws ApiException
-     *
-     * @codeCoverageIgnore
-     */
-    public function performHttpCallToFullUrl($httpMethod, $url, $httpBody = null)
-    {
-        if (empty($this->apiKey)) {
-            throw new ApiException("You have not set an API key or OAuth access token. Please use setApiKey() to set the API key.");
-        }
-
-        $userAgent = implode(' ', $this->versionStrings);
-
-        if ($this->usesOAuth()) {
-            $userAgent .= " OAuth/2.0";
-        }
-
-        $headers = [
-            'Accept' => "application/json",
-            'Authorization' => "Bearer {$this->apiKey}",
-            'User-Agent' => $userAgent,
-        ];
-
-        if (function_exists("php_uname")) {
-            $headers['X-Mollie-Client-Info'] = php_uname();
-        }
-
-        $request = new Request($httpMethod, $url, $headers, $httpBody);
-
-        try {
-            $response = $this->httpClient->send($request, ['http_errors' => false]);
-        } catch (GuzzleException $e) {
-            throw ApiException::createFromGuzzleException($e, $request);
-        }
-
-        if (! $response) {
-            throw new ApiException("Did not receive API response.", 0, null, $request);
-        }
-
-        return $this->parseResponseBody($response);
-    }
-
-    /**
-     * Parse the PSR-7 Response body
-     *
-     * @param ResponseInterface $response
-     * @return \stdClass|null
-     * @throws ApiException
-     */
-    private function parseResponseBody(ResponseInterface $response)
-    {
-        $body = (string) $response->getBody();
-        if (empty($body)) {
-            if ($response->getStatusCode() === self::HTTP_NO_CONTENT) {
-                return null;
-            }
-
-            throw new ApiException("No response body found.");
-        }
-
-        $object = @json_decode($body);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new ApiException("Unable to decode Mollie response: '{$body}'.");
-        }
-
-        if ($response->getStatusCode() >= 400) {
-            throw ApiException::createFromResponse($response, null);
-        }
-
-        return $object;
-    }
-
-    /**
-     * Serialization can be used for caching. Of course doing so can be dangerous but some like to live dangerously.
-     *
-     * \serialize() should be called on the collections or object you want to cache.
-     *
-     * We don't need any property that can be set by the constructor, only properties that are set by setters.
-     *
-     * Note that the API key is not serialized, so you need to set the key again after unserializing if you want to do
-     * more API calls.
-     *
-     * @deprecated
-     * @return string[]
-     */
-    public function __sleep()
-    {
-        return ["apiEndpoint"];
-    }
-
-    /**
-     * When unserializing a collection or a resource, this class should restore itself.
-     *
-     * Note that if you use a custom GuzzleClient, this client is lost. You can't re set the Client, so you should
-     * probably not use this feature.
-     *
-     * @throws IncompatiblePlatform If suddenly unserialized on an incompatible platform.
-     */
-    public function __wakeup()
-    {
-        $this->__construct();
-    }
+    return dict($result);
+  }
 }

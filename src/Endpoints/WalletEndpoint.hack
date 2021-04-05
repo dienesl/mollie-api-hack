@@ -9,32 +9,32 @@ use function json_encode;
 class WalletEndpoint extends EndpointAbstract<Resources\VoidResource> {
   <<__Override>>
   protected function setResourcePath(): void {
-    $this->resourcePath = '';
+  $this->resourcePath = '';
   }
   /**
    * Get the object that is used by this API endpoint. Every API endpoint uses one type of object.
    */
   <<__Override>>
   protected function getResourceObject(): Resources\VoidResource {
-    // Not used
-    return new Resources\VoidResource($this->client);
+  // Not used
+  return new Resources\VoidResource($this->client);
   }
 
   public function requestApplePayPaymentSession(
-    string $domain,
-    string $validationUrl
+  string $domain,
+  string $validationUrl
   ): string {
-    $body = $this->parseRequestBody(dict[
-      'domain' => $domain,
-      'validationUrl' => $validationUrl,
-    ]);
+  $body = $this->parseRequestBody(dict[
+    'domain' => $domain,
+    'validationUrl' => $validationUrl,
+  ]);
 
-    $response = $this->client->performHttpCall(
-      RestMethod::CREATE,
-      'wallets/applepay/sessions',
-      $body
-    );
+  $response = $this->client->performHttpCall(
+    RestMethod::CREATE,
+    'wallets/applepay/sessions',
+    $body
+  );
 
-    return json_encode($response);
+  return json_encode($response);
   }
 }

@@ -10,7 +10,7 @@ use function urlencode;
 class ProfileMethodEndpoint extends CollectionEndpointAbstract<Resources\Method, Resources\MethodCollection> {
   <<__Override>>
   protected function setResourcePath(): void {
-    $this->resourcePath = 'profiles_methods';
+  $this->resourcePath = 'profiles_methods';
   }
 
   /**
@@ -18,7 +18,7 @@ class ProfileMethodEndpoint extends CollectionEndpointAbstract<Resources\Method,
    */
   <<__Override>>
   protected function getResourceObject(): Resources\Method {
-    return new Resources\Method($this->client);
+  return new Resources\Method($this->client);
   }
 
   /**
@@ -26,88 +26,88 @@ class ProfileMethodEndpoint extends CollectionEndpointAbstract<Resources\Method,
    */
   <<__Override>>
   protected function getResourceCollectionObject(
-    int $count,
-    Resources\Links $links
+  int $count,
+  Resources\Links $links
   ): Resources\MethodCollection {
-    return new Resources\MethodCollection($count, $links);
+  return new Resources\MethodCollection($count, $links);
   }
 
   /**
    * Enable a method for the provided Profile ID.
    */
   public function createForId(
-    string $profileId,
-    string $methodId,
-    dict<arraykey, mixed> $data = dict[]
+  string $profileId,
+  string $methodId,
+  dict<arraykey, mixed> $data = dict[]
   ): Resources\Method {
-    $this->parentId = $profileId;
-    $resource = $this->getResourcePath() . '/' . urlencode($methodId);
+  $this->parentId = $profileId;
+  $resource = $this->getResourcePath() . '/' . urlencode($methodId);
 
-    $body = null;
-    if(C\count($data) > 0) {
-      $body = json_encode($data);
-    }
+  $body = null;
+  if(C\count($data) > 0) {
+    $body = json_encode($data);
+  }
 
-    $result = $this->client->performHttpCall(RestMethod::CREATE, $resource, $body);
+  $result = $this->client->performHttpCall(RestMethod::CREATE, $resource, $body);
 
-    return Resources\ResourceFactory::createFromApiResult(
-      to_dict($result),
-      new Resources\Method($this->client)
-    );
+  return Resources\ResourceFactory::createFromApiResult(
+    to_dict($result),
+    new Resources\Method($this->client)
+  );
   }
 
   /**
    * Enable a method for the provided Profile object.
    */
   public function createFor(
-    Resources\Profile $profile,
-    string $methodId,
-    dict<arraykey, mixed> $data = dict[]
+  Resources\Profile $profile,
+  string $methodId,
+  dict<arraykey, mixed> $data = dict[]
   ): Resources\Method {
-    return $this->createForId($profile->id, $methodId, $data);
+  return $this->createForId($profile->id, $methodId, $data);
   }
 
   /**
    * Enable a method for the current profile.
    */
   public function createForCurrentProfile(
-    string $methodId,
-    dict<arraykey, mixed> $data = dict[]
+  string $methodId,
+  dict<arraykey, mixed> $data = dict[]
   ): Resources\Method {
-    return $this->createForId('me', $methodId, $data);
+  return $this->createForId('me', $methodId, $data);
   }
 
   /**
    * Disable a method for the provided Profile ID.
    */
   public function deleteForId(
-    string $profileId,
-    string $methodId,
-    dict<arraykey, mixed> $data = dict[]
+  string $profileId,
+  string $methodId,
+  dict<arraykey, mixed> $data = dict[]
   ): ?Resources\Method {
-    $this->parentId = $profileId;
+  $this->parentId = $profileId;
 
-    return $this->restDelete($methodId, $data);
+  return $this->restDelete($methodId, $data);
   }
 
   /**
    * Disable a method for the provided Profile object.
    */
   public function deleteFor(
-    Resources\Profile $profile,
-    string $methodId,
-    dict<arraykey, mixed> $data = dict[]
+  Resources\Profile $profile,
+  string $methodId,
+  dict<arraykey, mixed> $data = dict[]
   ): ?Resources\Method {
-    return $this->deleteForId($profile->id, $methodId, $data);
+  return $this->deleteForId($profile->id, $methodId, $data);
   }
 
   /**
    * Disable a method for the current profile.
    */
   public function deleteForCurrentProfile(
-    string $methodId,
-    dict<arraykey, mixed> $data
+  string $methodId,
+  dict<arraykey, mixed> $data
   ): ?Resources\Method {
-    return $this->deleteForId('me', $methodId, $data);
+  return $this->deleteForId('me', $methodId, $data);
   }
 }

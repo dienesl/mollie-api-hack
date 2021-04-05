@@ -5,26 +5,26 @@ use type Mollie\Api\Types\MandateStatus;
 
 class MandateCollection extends CursorCollection<Mandate> {
   public function getCollectionResourceName(): string {
-    return 'mandates';
+  return 'mandates';
   }
 
   protected function createResourceObject(): Mandate {
-    return new Mandate($this->client);
+  return new Mandate($this->client);
   }
 
   public function whereStatus(
-    MandateStatus $status
+  MandateStatus $status
   ): MandateCollection {
-    $items = vec[];
+  $items = vec[];
 
-    foreach($this->values as $item) {
-      if($item->status === $status) {
-        $items[] = $item;
-      }
+  foreach($this->values as $item) {
+    if($item->status === $status) {
+    $items[] = $item;
     }
-    
-    $collection = new self($this->client, C\count($items), $this->links);
-    $collection->values = $items;
-    return $collection;
+  }
+  
+  $collection = new self($this->client, C\count($items), $this->links);
+  $collection->values = $items;
+  return $collection;
   }
 }

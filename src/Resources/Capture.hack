@@ -60,22 +60,22 @@ class Capture extends BaseResource {
 
   <<__Override>>
   public function assert(
-    dict<string, mixed> $datas
+  dict<string, mixed> $datas
   ): void {
-    $this->resource = (string)$datas['resource'];
-    $this->id = (string)$datas['id'];
-    $this->mode = (string)$datas['mode'];
+  $this->resource = (string)$datas['resource'];
+  $this->id = (string)$datas['id'];
+  $this->mode = (string)$datas['mode'];
 
-    $this->amount = to_dict($datas['amount']) |> Amount::assert($$);
+  $this->amount = to_dict($datas['amount']) |> Amount::assert($$);
 
-    $this->settlementAmount = to_dict($datas['settlementAmount']) |> Amount::assert($$);
+  $this->settlementAmount = to_dict($datas['settlementAmount']) |> Amount::assert($$);
 
-    $this->paymentId = (string)$datas['paymentId'];
+  $this->paymentId = (string)$datas['paymentId'];
 
-    $this->shipmentId = (string)$datas['shipmentId'];
+  $this->shipmentId = (string)$datas['shipmentId'];
 
-    $this->createdAt = (string)$datas['createdAt'];
+  $this->createdAt = (string)$datas['createdAt'];
 
-    $this->links = to_dict($datas['_links']) |> Links::assert($$);
+  $this->links = to_dict($datas['_links']) |> Links::assert($$);
   }
 }

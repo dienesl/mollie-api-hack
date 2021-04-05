@@ -43,61 +43,61 @@ class Mandate extends BaseResource {
   public Links $links; 
 
   public function isValid(): bool {
-    return $this->status === MandateStatus::STATUS_VALID;
+  return $this->status === MandateStatus::STATUS_VALID;
   }
 
   public function isPending(): bool {
-    return $this->status === MandateStatus::STATUS_PENDING;
+  return $this->status === MandateStatus::STATUS_PENDING;
   }
 
   public function isInvalid(): bool {
-    return $this->status === MandateStatus::STATUS_INVALID;
+  return $this->status === MandateStatus::STATUS_INVALID;
   }
 
   /**
    * Revoke the mandate
    */
   public function revoke(): this {
-    $selfLink = $this->links->self;
-    if($selfLink === null) {
-      return $this;
-    } else {
-      $body = null;
-      if($this->client->usesOAuth()) {
-        $body = json_encode(dict[
-          'testmode' => $this->mode === 'test' ? true : false,
-        ]);
-      }
-
-      $result = $this->client->performHttpCallToFullUrl(
-        MollieApiClient::HTTP_DELETE,
-        $selfLink->href,
-        $body
-      );
-
-      return $result;
+  $selfLink = $this->links->self;
+  if($selfLink === null) {
+    return $this;
+  } else {
+    $body = null;
+    if($this->client->usesOAuth()) {
+    $body = json_encode(dict[
+      'testmode' => $this->mode === 'test' ? true : false,
+    ]);
     }
+
+    $result = $this->client->performHttpCallToFullUrl(
+    MollieApiClient::HTTP_DELETE,
+    $selfLink->href,
+    $body
+    );
+
+    return $result;
+  }
   }
 
   <<__Override>>
   public function assert(
-    dict<arraykey, mixed> $datas
+  dict<arraykey, mixed> $datas
   ): void {
-    $this->resource = (string)$datas['resource'];
-    $this->id = (string)$datas['id'];
+  $this->resource = (string)$datas['resource'];
+  $this->id = (string)$datas['id'];
 
-    $this->status = MandateStatus::assert((string)$datas['status']);
+  $this->status = MandateStatus::assert((string)$datas['status']);
 
-    $this->mode = (string)$datas['mode'];
-    $this->method = (string)$datas['method'];
+  $this->mode = (string)$datas['mode'];
+  $this->method = (string)$datas['method'];
 
-    $this->details = to_dict($datas['details']) |> Details::assert($$);
+  $this->details = to_dict($datas['details']) |> Details::assert($$);
 
-    $this->customerId = (string)$datas['customerId'];
-    $this->createdAt = (string)$datas['createdAt'];
-    $this->mandateReference = (string)$datas['mandateReference'];
-    $this->signatureDate = (string)$datas['signatureDate'];
+  $this->customerId = (string)$datas['customerId'];
+  $this->createdAt = (string)$datas['createdAt'];
+  $this->mandateReference = (string)$datas['mandateReference'];
+  $this->signatureDate = (string)$datas['signatureDate'];
 
-    $this->links = to_dict($datas['_links']) |> Links::assert($$);
+  $this->links = to_dict($datas['_links']) |> Links::assert($$);
   }
 }

@@ -6,9 +6,9 @@ function to_dict(
   $result = dict[];
 
   if($values is KeyedContainer<_, _>) {
-    foreach($values as $key => $value) {
-      $result[(string)$key] = $value;
-    }
+  foreach($values as $key => $value) {
+    $result[(string)$key] = $value;
+  }
   }
   
   return $result;
@@ -20,9 +20,9 @@ function to_vec_dict(
   $result = vec[];
 
   if($values is Traversable<_>) {
-    foreach($values as $value) {
-      $result[] = to_dict($value);
-    }
+  foreach($values as $value) {
+    $result[] = to_dict($value);
+  }
   }
 
   return $result;
@@ -34,9 +34,9 @@ function to_dict_with_vec_dict(
   $result = dict[];
 
   if($values is KeyedContainer<_, _>) {
-    foreach($values as $key => $value) {
-      $result[(string)$key] = to_vec_dict($value);
-    }
+  foreach($values as $key => $value) {
+    $result[(string)$key] = to_vec_dict($value);
+  }
   }
   
   return $result;

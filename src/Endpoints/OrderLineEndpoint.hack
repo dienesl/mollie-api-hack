@@ -10,7 +10,7 @@ class OrderLineEndpoint extends CollectionEndpointAbstract<Resources\OrderLine, 
 
   <<__Override>>
   protected function setResourcePath(): void {
-    $this->resourcePath = 'orders_lines';
+  $this->resourcePath = 'orders_lines';
   }
 
   /**
@@ -19,7 +19,7 @@ class OrderLineEndpoint extends CollectionEndpointAbstract<Resources\OrderLine, 
    */
   <<__Override>>
   protected function getResourceObject(): Resources\OrderLine {
-    return new Resources\OrderLine($this->client);
+  return new Resources\OrderLine($this->client);
   }
 
   /**
@@ -28,10 +28,10 @@ class OrderLineEndpoint extends CollectionEndpointAbstract<Resources\OrderLine, 
    */
   <<__Override>>
   protected function getResourceCollectionObject(
-    int $count,
-    Resources\Links $links
+  int $count,
+  Resources\Links $links
   ): Resources\OrderLineCollection {
-    return new Resources\OrderLineCollection($count, $links);
+  return new Resources\OrderLineCollection($count, $links);
   }
 
   /**
@@ -41,10 +41,10 @@ class OrderLineEndpoint extends CollectionEndpointAbstract<Resources\OrderLine, 
    * Returns null if successful.
    */
   public function cancelFor(
-    Resources\Order $order,
-    dict<arraykey, mixed> $data
+  Resources\Order $order,
+  dict<arraykey, mixed> $data
   ): void {
-    $this->cancelForId($order->id, $data);
+  $this->cancelForId($order->id, $data);
   }
 
   /**
@@ -60,21 +60,21 @@ class OrderLineEndpoint extends CollectionEndpointAbstract<Resources\OrderLine, 
    * @throws ApiException
    */
   public function cancelForId(
-    string $orderId,
-    dict<arraykey, mixed> $data
+  string $orderId,
+  dict<arraykey, mixed> $data
   ): void {
-    // TODO
-    // maybe change KeyedContainer to Iterator
-    if(!C\contains($data, 'lines') || !$data['lines'] is KeyedContainer<_, _>) {
-      throw new ApiException('A lines array is required.');
-    }
+  // TODO
+  // maybe change KeyedContainer to Iterator
+  if(!C\contains($data, 'lines') || !$data['lines'] is KeyedContainer<_, _>) {
+    throw new ApiException('A lines array is required.');
+  }
 
-    $this->parentId = $orderId;
+  $this->parentId = $orderId;
 
-    $this->client->performHttpCall(
-      RestMethod::DELETE,
-      $this->getResourcePath(),
-      $this->parseRequestBody($data)
-    );
+  $this->client->performHttpCall(
+    RestMethod::DELETE,
+    $this->getResourcePath(),
+    $this->parseRequestBody($data)
+  );
   }
 }

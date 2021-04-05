@@ -8,7 +8,7 @@ use function Mollie\Api\Functions\to_dict;
 class OnboardingEndpoint extends EndpointAbstract<Resources\Onboarding> {
   <<__Override>>
   protected function setResourcePath(): void {
-    $this->resourcePath = 'onboarding/me';
+  $this->resourcePath = 'onboarding/me';
   }
 
   /**
@@ -16,16 +16,16 @@ class OnboardingEndpoint extends EndpointAbstract<Resources\Onboarding> {
    */
   <<__Override>>
   protected function getResourceObject(): Resources\Onboarding {
-    return new Resources\Onboarding($this->client);
+  return new Resources\Onboarding($this->client);
   }
 
   //<<__Override>>
   protected function getResourceCollectionObject(
-    int $count,
-    Resources\Links $links
+  int $count,
+  Resources\Links $links
   ): Resources\OnboardingCollection {
-    throw  new ApiException('not implemnted.');
-    //return new Resources\OnboardingCollection($this->client, $count, $links);
+  throw  new ApiException('not implemnted.');
+  //return new Resources\OnboardingCollection($this->client, $count, $links);
   }
 
   /**
@@ -34,7 +34,7 @@ class OnboardingEndpoint extends EndpointAbstract<Resources\Onboarding> {
    * Will throw a ApiException if the resource cannot be found.
    */
   public function get(): Resources\Onboarding {
-    return $this->restRead('', dict[]);
+  return $this->restRead('', dict[]);
   }
 
   /**
@@ -46,24 +46,24 @@ class OnboardingEndpoint extends EndpointAbstract<Resources\Onboarding> {
    * Will throw a ApiException if the resource cannot be found.
    */
   public function submit(
-    dict<arraykey, mixed> $parameters = dict[]
+  dict<arraykey, mixed> $parameters = dict[]
   ): Resources\Onboarding {
-    return $this->restCreate($parameters, dict[]);
+  return $this->restCreate($parameters, dict[]);
   }
 
   <<__Override>>
   protected function restRead(
-    string $id,
-    dict<arraykey, mixed> $filters
+  string $id,
+  dict<arraykey, mixed> $filters
   ): Resources\Onboarding {
-    $result = $this->client->performHttpCall(
-      RestMethod::READ,
-      $this->getResourcePath() . $this->buildQueryString($filters)
-    );
+  $result = $this->client->performHttpCall(
+    RestMethod::READ,
+    $this->getResourcePath() . $this->buildQueryString($filters)
+  );
 
-    return Resources\ResourceFactory::createFromApiResult(
-      to_dict($result),
-      $this->getResourceObject()
-    );
+  return Resources\ResourceFactory::createFromApiResult(
+    to_dict($result),
+    $this->getResourceObject()
+  );
   }
 }

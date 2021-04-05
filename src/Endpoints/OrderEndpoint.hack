@@ -9,7 +9,7 @@ class OrderEndpoint extends CollectionEndpointAbstract<Resources\Order, Resource
 
   <<__Override>>
   protected function setResourcePath(): void {
-    $this->resourcePath = 'orders';
+  $this->resourcePath = 'orders';
   }
 
   /**
@@ -17,7 +17,7 @@ class OrderEndpoint extends CollectionEndpointAbstract<Resources\Order, Resource
    * type of object.
    */
   protected function getResourceObject(): Resources\Order {
-    return new Resources\Order($this->client);
+  return new Resources\Order($this->client);
   }
 
   /**
@@ -25,20 +25,20 @@ class OrderEndpoint extends CollectionEndpointAbstract<Resources\Order, Resource
    * endpoint uses one type of collection object.
    */
   protected function getResourceCollectionObject(
-    int $count,
-    Resources\Links $links
+  int $count,
+  Resources\Links $links
   ): Resources\OrderCollection {
-    return new Resources\OrderCollection($this->client, $count, $links);
+  return new Resources\OrderCollection($this->client, $count, $links);
   }
 
   /**
    * Creates a order in Mollie.
    */
   public function create(
-    dict<arraykey, mixed> $data = dict[],
-    dict<arraykey, mixed> $filters = dict[]
+  dict<arraykey, mixed> $data = dict[],
+  dict<arraykey, mixed> $filters = dict[]
   ): Resources\Order {
-    return $this->restCreate($data, $filters);
+  return $this->restCreate($data, $filters);
   }
 
   /**
@@ -48,14 +48,14 @@ class OrderEndpoint extends CollectionEndpointAbstract<Resources\Order, Resource
    * be found.
    */
   public function get(
-    string $orderId,
-    dict<arraykey, mixed> $parameters = dict[]
+  string $orderId,
+  dict<arraykey, mixed> $parameters = dict[]
   ): Resources\Order {
-    if(Str\is_empty($orderId) || Str\search($orderId, self::RESOURCE_ID_PREFIX) !== 0) {
-      throw new ApiException('Invalid order ID: \'' . $orderId . '\'. An order ID should start with \'' . self::RESOURCE_ID_PREFIX . '\'.');
-    }
+  if(Str\is_empty($orderId) || Str\search($orderId, self::RESOURCE_ID_PREFIX) !== 0) {
+    throw new ApiException('Invalid order ID: \'' . $orderId . '\'. An order ID should start with \'' . self::RESOURCE_ID_PREFIX . '\'.');
+  }
 
-    return $this->restRead($orderId, $parameters);
+  return $this->restRead($orderId, $parameters);
   }
 
   /**
@@ -68,20 +68,20 @@ class OrderEndpoint extends CollectionEndpointAbstract<Resources\Order, Resource
    * Returns the canceled order with HTTP status 200.
    */
   public function cancel(
-    string $orderId,
-    dict<arraykey, mixed> $parameters = dict[]
+  string $orderId,
+  dict<arraykey, mixed> $parameters = dict[]
   ): ?Resources\Order {
-    return $this->restDelete($orderId, $parameters);
+  return $this->restDelete($orderId, $parameters);
   }
 
   /**
    * Retrieves a collection of Orders from Mollie.
    */
   public function page(
-    ?string $from = null,
-    ?int $limit = null,
-    dict<arraykey, mixed> $parameters = dict[]
+  ?string $from = null,
+  ?int $limit = null,
+  dict<arraykey, mixed> $parameters = dict[]
   ): Resources\OrderCollection {
-    return $this->restList($from, $limit, $parameters);
+  return $this->restList($from, $limit, $parameters);
   }
 }

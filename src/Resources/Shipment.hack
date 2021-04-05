@@ -55,86 +55,86 @@ class Shipment extends BaseResource {
    * Does this shipment offer track and trace?
    */
   public function hasTracking(): bool {
-    return $this->tracking !== null;
+  return $this->tracking !== null;
   }
 
   /**
    * Does this shipment offer a track and trace code?
    */
   public function hasTrackingUrl(): bool {
-    return $this->tracking !== null && $this->tracking->url !== null;
+  return $this->tracking !== null && $this->tracking->url !== null;
   }
 
   /**
    * Retrieve the track and trace url. Returns null if there is no url available.
    */
   public function getTrackingUrl(): ?string {
-    return $this->tracking?->url;
+  return $this->tracking?->url;
   }
 
   /**
    * Get the line value objects
    */
   public function lines(): OrderLineCollection {
-    return ResourceFactory::createBaseResourceCollection(
-      $this->client,
-      OrderLine::class,
-      OrderLineCollection::class,
-      to_vec_dict($this->lines),
-      new Links()
-    );
+  return ResourceFactory::createBaseResourceCollection(
+    $this->client,
+    OrderLine::class,
+    OrderLineCollection::class,
+    to_vec_dict($this->lines),
+    new Links()
+  );
   }
 
   /**
    * Get the Order object for this shipment
    */
   public function order(): Order {
-    return $this->client->orders->get($this->orderId);
+  return $this->client->orders->get($this->orderId);
   }
 
   /**
    * Save changes made to this shipment.
    */
   public function update(): Shipment {
-    $selfLink = $this->links->self;
-    if($selfLink === null) {
-      return $this;
-    } else {
-      $body = json_encode(dict[
-        'tracking' => $this->tracking,
-      ]);
+  $selfLink = $this->links->self;
+  if($selfLink === null) {
+    return $this;
+  } else {
+    $body = json_encode(dict[
+    'tracking' => $this->tracking,
+    ]);
 
-      $result = $this->client->performHttpCallToFullUrl(
-        MollieApiClient::HTTP_PATCH,
-        $selfLink->href,
-        $body
-      );
+    $result = $this->client->performHttpCallToFullUrl(
+    MollieApiClient::HTTP_PATCH,
+    $selfLink->href,
+    $body
+    );
 
-      return ResourceFactory::createFromApiResult(
-        $result,
-        new Shipment($this->client)
-      );
-    }
+    return ResourceFactory::createFromApiResult(
+    $result,
+    new Shipment($this->client)
+    );
+  }
   }
 
   <<__Override>>
   public function assert(
-    dict<string, mixed> $datas
+  dict<string, mixed> $datas
   ): void {
-    $this->resource = (string)$datas['resource'];
-    $this->id = (string)$datas['id'];
-    $this->orderId = (string)$datas['orderId'];
+  $this->resource = (string)$datas['resource'];
+  $this->id = (string)$datas['id'];
+  $this->orderId = (string)$datas['orderId'];
 
-    if(C\contains_key($datas, 'createdAt') && $datas['createdAt'] !== null) {
-      $this->createdAt = (string)$datas['createdAt'];
-    }
+  if(C\contains_key($datas, 'createdAt') && $datas['createdAt'] !== null) {
+    $this->createdAt = (string)$datas['createdAt'];
+  }
 
-    $this->lines = $datas['lines'];
+  $this->lines = $datas['lines'];
 
-    if(C\contains_key($datas, 'tracking') && $datas['tracking'] !== null) {
-      $this->tracking = to_dict($datas['tracking']) |> Tracking::assert($$);
-    }
+  if(C\contains_key($datas, 'tracking') && $datas['tracking'] !== null) {
+    $this->tracking = to_dict($datas['tracking']) |> Tracking::assert($$);
+  }
 
-    $this->links = to_dict($datas['links']) |> Links::assert($$);
+  $this->links = to_dict($datas['links']) |> Links::assert($$);
   }
 }
