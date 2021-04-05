@@ -1,11 +1,11 @@
 namespace Mollie\Api\Resources;
 
-class PaymentCollection extends CursorCollection {
+class PaymentCollection extends CursorCollection<Payment> {
   public function getCollectionResourceName(): string {
     return 'payments';
   }
 
-  protected function createResourceObject(): BaseResource {
+  protected function createResourceObject(): Payment {
     return new Payment($this->client);
   }
 }

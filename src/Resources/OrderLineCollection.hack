@@ -1,6 +1,6 @@
 namespace Mollie\Api\Resources;
 
-class OrderLineCollection extends BaseCollection {
+class OrderLineCollection extends BaseCollectionBridge<OrderLine> {
   public function getCollectionResourceName(): ?string {
     return null;
   }
@@ -12,13 +12,11 @@ class OrderLineCollection extends BaseCollection {
   public function get(
     string $lineId
   ): ?OrderLine {
-    /* TODO
-    foreach($this as $line) {
+    foreach($this->values as $line) {
       if($line->id === $lineId) {
         return $line;
       }
     }
-    */
 
     return null;
   }

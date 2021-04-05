@@ -1,6 +1,6 @@
 namespace Mollie\Api\Resources;
 
-class PermissionCollection extends BaseCollection {
+class PermissionCollection extends BaseCollectionBridge<Permission> {
   public function getCollectionResourceName(): string {
     return 'permissions';
   }

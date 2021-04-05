@@ -162,7 +162,7 @@ class Settlement extends BaseResource {
   }
 
   <<__Override>>
-  public function parseJsonData(
+  public function assert(
     dict<string, mixed> $datas
   ): void {
     $this->resource = (string)$datas['resource'];
@@ -176,7 +176,7 @@ class Settlement extends BaseResource {
 
     $this->status = SettlementStatus::assert((string)$datas['status']);
 
-    $this->amount = to_dict($datas['amount']) |> Amount::parse($$);
+    $this->amount = to_dict($datas['amount']) |> Amount::assert($$);
 
     $this->periods = $datas['periods'];
 
@@ -184,6 +184,6 @@ class Settlement extends BaseResource {
       $this->invoiceId = (string)$datas['invoiceId'];
     }
 
-    $this->links = to_dict($datas['_links']) |> Links::parse($$);
+    $this->links = to_dict($datas['_links']) |> Links::assert($$);
   }
 }

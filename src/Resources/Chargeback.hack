@@ -1,9 +1,6 @@
 namespace Mollie\Api\Resources;
 
-use namespace HH\Lib\{
-  C,
-  Str
-};
+use namespace HH\Lib\{C};
 use type Mollie\Api\Exceptions\ApiException;
 use function Mollie\Api\Functions\to_dict;
 
@@ -23,7 +20,6 @@ class Chargeback extends BaseResource {
   /**
    * UTC datetime the payment was created in ISO-8601 format.
    */
-  <<__LateInit>>
   public ?string $createdAt;
 
   /**
@@ -42,24 +38,21 @@ class Chargeback extends BaseResource {
   public Links $links;
 
   <<__Override>>
-  public function parseJsonData(
+  public function assert(
     dict<string, mixed> $datas
   ): void {
     $this->id = (string)$datas['id'];
 
-    $this->amount = to_dict($datas['amount']) |> Amount::parse($$);
+    $this->amount = to_dict($datas['amount']) |> Amount::assert($$);
 
-    if(C\contains_key($datas, 'createdAt')) {
-      $createdAt = (string)$datas['createdAt'];
-      if(!Str\is_empty($createdAt)) {
-        $this->createdAt = $createdAt;
-      }
+    if(C\contains_key($datas, 'createdAt') && $datas['createdAt'] !== null) {
+      $this->createdAt = (string)$datas['createdAt'];
     }
     
     $this->paymentId = (string)$datas['paymentId'];
 
-    $this->settlementAmount = to_dict($datas['settlementAmount']) |> Amount::parse($$);
+    $this->settlementAmount = to_dict($datas['settlementAmount']) |> Amount::assert($$);
 
-    $this->links = to_dict($datas['_links']) |> Links::parse($$);
+    $this->links = to_dict($datas['_links']) |> Links::assert($$);
   }
 }

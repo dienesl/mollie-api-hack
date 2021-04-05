@@ -1,7 +1,10 @@
 namespace Mollie\Api\Resources;
 
 use namespace HH\Lib\C;
-use function Mollie\Api\Functions\to_dict;
+use function Mollie\Api\Functions\{
+  to_dict,
+  to_vec_dict
+};
 
 class Method extends BaseResource {
   <<__LateInit>>
@@ -66,51 +69,53 @@ class Method extends BaseResource {
 
   /**
    * Get the issuer value objects
-   * TODO
    */
   public function issuers(): IssuerCollection {
     return ResourceFactory::createBaseResourceCollection(
       $this->client,
       Issuer::class,
-      $this->issuers
+      IssuerCollection::class,
+      to_vec_dict($this->issuers),
+      new Links()
     );
   }
 
   /**
    * Get the method price value objects.
-   * TODO
    */
   public function pricing(): MethodPriceCollection {
     return ResourceFactory::createBaseResourceCollection(
       $this->client,
       MethodPrice::class,
-      $this->pricing
+      MethodPriceCollection::class,
+      to_vec_dict($this->pricing),
+      new Links()
     );
   }
 
   <<__Override>>
-  public function parseJsonData(
+  public function assert(
     dict<string, mixed> $datas
   ): void {
     $this->resource = (string)$datas['resource'];
     $this->id = (string)$datas['id'];
     $this->description = (string)$datas['description'];
 
-    $this->minimumAmount = to_dict($datas['minimumAmount']) |> Amount::parse($$);
-    $this->maximumAmount = to_dict($datas['maximumAmount']) |> Amount::parse($$);
+    $this->minimumAmount = to_dict($datas['minimumAmount']) |> Amount::assert($$);
+    $this->maximumAmount = to_dict($datas['maximumAmount']) |> Amount::assert($$);
 
-    $this->image = to_dict($datas['image']) |> Image::parse($$);
+    $this->image = to_dict($datas['image']) |> Image::assert($$);
 
-    if(C\contains_key($datas, 'issuers')) {
+    if(C\contains_key($datas, 'issuers') && $datas['issuers'] !== null) {
       $this->issuers = $datas['issuers'];
     }
 
-    if(C\contains_key($datas, 'pricing')) {
+    if(C\contains_key($datas, 'pricing') && $datas['pricing'] !== null) {
       $this->pricing = $datas['pricing'];
     }
 
     $this->status = (string)$datas['status'];
 
-    $this->links = to_dict($datas['_links']) |> Links::parse($$);
+    $this->links = to_dict($datas['_links']) |> Links::assert($$);
   }
 }

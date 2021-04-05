@@ -179,7 +179,7 @@ class Subscription extends BaseResource {
   }
 
   <<__Override>>
-  public function parseJsonData(
+  public function assert(
     dict<string, mixed> $datas
   ): void {
     $this->resource = (string)$datas['resource'];
@@ -190,7 +190,7 @@ class Subscription extends BaseResource {
 
     $this->status = SubscriptionStatus::assert((string)$datas['status']);
 
-    $this->amount = to_dict($datas['amount']) |> Amount::parse($$);
+    $this->amount = to_dict($datas['amount']) |> Amount::assert($$);
 
     if(C\contains_key($datas, 'times') && $datas['times'] !== null) {
       $this->times = (int)$datas['times'];
@@ -225,6 +225,6 @@ class Subscription extends BaseResource {
       $this->nextPaymentDate = (string)$datas['nextPaymentDate'];
     }
 
-    $this->links = to_dict($datas['_links']) |> Links::parse($$);
+    $this->links = to_dict($datas['_links']) |> Links::assert($$);
   }
 }

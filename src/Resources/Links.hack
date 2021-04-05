@@ -31,7 +31,7 @@ final class Links {
 
   public ?Link $self;
 
-  public static function parse(
+  public static function assert(
     dict<string, mixed> $datas
   ): this {
     $links = new Links();

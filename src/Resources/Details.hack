@@ -12,7 +12,7 @@ final class Details {
   public ?string $consumerBic;
   public ?string $billingEmail;
 
-  public static function parse(
+  public static function assert(
     dict<string, mixed> $datas
   ): this {
     $details = new Details();

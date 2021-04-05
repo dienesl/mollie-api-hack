@@ -110,7 +110,7 @@ class Shipment extends BaseResource {
   }
 
   <<__Override>>
-  public function parseJsonData(
+  public function assert(
     dict<string, mixed> $datas
   ): void {
     $this->resource = (string)$datas['resource'];
@@ -124,9 +124,9 @@ class Shipment extends BaseResource {
     $this->lines = $datas['lines'];
 
     if(C\contains_key($datas, 'tracking') && $datas['tracking'] !== null) {
-      $this->tracking = to_dict($datas['tracking']) |> Tracking::parse($$);
+      $this->tracking = to_dict($datas['tracking']) |> Tracking::assert($$);
     }
 
-    $this->links = to_dict($datas['links']) |> Links::parse($$);
+    $this->links = to_dict($datas['links']) |> Links::assert($$);
   }
 }

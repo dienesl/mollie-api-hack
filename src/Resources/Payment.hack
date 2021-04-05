@@ -605,29 +605,29 @@ class Payment extends BaseResource {
   }
 
   <<__Override>>
-  public function parseJsonData(
+  public function assert(
     dict<string, mixed> $datas
   ): void {
     $this->resource = (string)$datas['resource'];
     $this->id = (string)$datas['id'];
     $this->mode = (string)$datas['mode'];
 
-    $this->amount = to_dict($datas['amount']) |> Amount::parse($$);
+    $this->amount = to_dict($datas['amount']) |> Amount::assert($$);
 
     if(C\contains_key($datas, 'settlementAmount') && $datas['settlementAmount'] !== null) {
-      $this->settlementAmount = to_dict($datas['settlementAmount']) |> Amount::parse($$);
+      $this->settlementAmount = to_dict($datas['settlementAmount']) |> Amount::assert($$);
     }
 
     if(C\contains_key($datas, 'amountRefunded') && $datas['amountRefunded'] !== null) {
-      $this->amountRefunded = to_dict($datas['amountRefunded']) |> Amount::parse($$);
+      $this->amountRefunded = to_dict($datas['amountRefunded']) |> Amount::assert($$);
     }
 
     if(C\contains_key($datas, 'amountRemaining') && $datas['amountRemaining'] !== null) {
-      $this->amountRemaining = to_dict($datas['amountRemaining']) |> Amount::parse($$);
+      $this->amountRemaining = to_dict($datas['amountRemaining']) |> Amount::assert($$);
     }
 
     if(C\contains_key($datas, 'amountChargedBack') && $datas['amountChargedBack'] !== null) {
-      $this->amountRemaining = to_dict($datas['amountChargedBack']) |> Amount::parse($$);
+      $this->amountRemaining = to_dict($datas['amountChargedBack']) |> Amount::assert($$);
     }
 
     $this->description = (string)$datas['description'];
@@ -702,24 +702,24 @@ class Payment extends BaseResource {
 
     $this->metadata = $datas['metadata'];
 
-    $this->details = to_dict($datas['details']) |> Details::parse($$);
+    $this->details = to_dict($datas['details']) |> Details::assert($$);
 
     if(C\contains_key($datas, 'restrictPaymentMethodsToCountry') && $datas['restrictPaymentMethodsToCountry'] !== null) {
       $this->restrictPaymentMethodsToCountry = (string)$datas['restrictPaymentMethodsToCountry'];
     }
 
-    $this->links = to_dict($datas['_links']) |> Links::parse($$);
+    $this->links = to_dict($datas['_links']) |> Links::assert($$);
 
     $this->embedded = to_dict_with_vec_dict($datas['_embedded']);
 
     $this->isCancelable = (bool)$datas['isCancelable'];
 
     if(C\contains_key($datas, 'amountCaptured') && $datas['amountCaptured'] !== null) {
-      $this->amountCaptured = to_dict($datas['amountCaptured']) |> Amount::parse($$);
+      $this->amountCaptured = to_dict($datas['amountCaptured']) |> Amount::assert($$);
     }
     
     if(C\contains_key($datas, 'applicationFee') && $datas['applicationFee'] !== null) {
-      $this->applicationFee = to_dict($datas['applicationFee']) |> ApplicationFee::parse($$);
+      $this->applicationFee = to_dict($datas['applicationFee']) |> ApplicationFee::assert($$);
     }
 
     if(C\contains_key($datas, 'authorizedAt') && $datas['authorizedAt'] !== null) {

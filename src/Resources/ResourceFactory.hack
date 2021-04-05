@@ -1,75 +1,61 @@
 namespace Mollie\Api\Resources;
 
+use namespace HH\Lib\C;
 use type Mollie\Api\MollieApiClient;
 
 class ResourceFactory {
   /**
    * Create resource object from Api result
-   *
-   * @param object $apiResult
-   * @param BaseResource $resource
-   *
-   * @return BaseResource
    */
   public static function createFromApiResult<T as BaseResource>(
     dict<string, mixed> $apiResult,
     T $resource
   ): T {
-    $resource->parseJsonData($apiResult);
+    $resource->assert($apiResult);
 
     return $resource;
   }
 
-  /**
-   * @param MollieApiClient $client
-   * @param string $resourceClass
-   * @param array $data
-   * @param null $_links
-   * @param null $resourceCollectionClass
-   * @return mixed
-   */
-  public static function createBaseResourceCollection(
+  public static function loadDatas<T1 as BaseResource, T2 as BaseCollection<T1>>(
     MollieApiClient $client,
-    string $resourceClass,
-    dict<arraykey, mixed> $data,
-    Links ?$links = null,
-    string $resourceCollectionClass = null
-  ) {
-    $resourceCollectionClass = $resourceCollectionClass ?: $resourceClass . 'Collection';
-    $data = $data ?: [];
-
-    $result = new $resourceCollectionClass(count($data), $_links);
+    classname<T1> $resourceClass,
+    T2 $resourceCollectionClass,
+    vec<dict<string, mixed>> $data,
+  ): T2 {
     foreach($data as $item) {
-      $result[] = static::createFromApiResult($item, new $resourceClass($client));
+      $resourceCollectionClass->values[] = static::createFromApiResult($item, new $resourceClass($client));
     }
 
-    return $result;
+    return $resourceCollectionClass;
   }
 
-  /**
-   * @param MollieApiClient $client
-   * @param array $input
-   * @param string $resourceClass
-   * @param null $_links
-   * @param null $resourceCollectionClass
-   * @return mixed
-   */
-  public static function createCursorResourceCollection(
-    $client,
-    vec<dict<string, mixed>> $input,
-    $resourceClass,
-    $_links = null,
-    $resourceCollectionClass = null
-  ) {
-    if(null === $resourceCollectionClass) {
-      $resourceCollectionClass = $resourceClass.'Collection';
-    }
+  public static function createBaseResourceCollection<T1 as BaseResource, T2 as BaseCollectionBridge<T1>>(
+    MollieApiClient $client,
+    classname<T1> $resourceClass,
+    classname<T2> $resourceCollectionClass,
+    vec<dict<string, mixed>> $data,
+    Links $links
+  ): T2 {
+    return static::loadDatas(
+      $client,
+      $resourceClass,
+      new $resourceCollectionClass(C\count($data), $links),
+      $data
+    );
+  }
 
-    $data = new $resourceCollectionClass($client, count($input), $_links);
-    foreach($input as $item) {
-      $data[] = static::createFromApiResult($item, new $resourceClass($client));
-    }
-
-    return $data;
+  public static function createCursorResourceCollection<T1 as BaseResource, T2 as CursorCollection<T1>>(
+    MollieApiClient $client,
+    classname<T1> $resourceClass,
+    classname<T2> $resourceCollectionClass,
+    vec<dict<string, mixed>> $data,
+    Links $links,
+  ): T2 {
+    return static::loadDatas(
+      $client,
+      $resourceClass,
+      new $resourceCollectionClass($client, C\count($data), $links),
+      $data
+    );
   }
 }

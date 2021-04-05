@@ -9,7 +9,7 @@ final class ApplicationFee {
     public Amount $amount 
   ) {}
 
-  public static function parse(
+  public static function assert(
     dict<string, mixed> $datas
   ): this {
     if(C\contains_key($datas, 'desription') && $datas['description'] !== null) {
@@ -20,7 +20,7 @@ final class ApplicationFee {
 
     return new ApplicationFee(
       $description,
-      to_dict($datas['amount']) |> Amount::parse($$)
+      to_dict($datas['amount']) |> Amount::assert($$)
     );
   }
 }

@@ -30,7 +30,7 @@ class Issuer extends BaseResource {
   public Image $image;
 
   <<__Override>>
-  public function parseJsonData(
+  public function assert(
     dict<string, mixed> $datas
   ): void {
     $this->resource = (string)$datas['resource'];
@@ -38,6 +38,6 @@ class Issuer extends BaseResource {
     $this->name = (string)$datas['name'];
     $this->method = (string)$datas['method'];
 
-    $this->image = to_dict($datas['image']) |> Image::parse($$);
+    $this->image = to_dict($datas['image']) |> Image::assert($$);
   }
 }

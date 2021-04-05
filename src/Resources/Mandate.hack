@@ -80,7 +80,7 @@ class Mandate extends BaseResource {
   }
 
   <<__Override>>
-  public function parseJsonData(
+  public function assert(
     dict<arraykey, mixed> $datas
   ): void {
     $this->resource = (string)$datas['resource'];
@@ -91,13 +91,13 @@ class Mandate extends BaseResource {
     $this->mode = (string)$datas['mode'];
     $this->method = (string)$datas['method'];
 
-    $this->details = to_dict($datas['details']) |> Details::parse($$);
+    $this->details = to_dict($datas['details']) |> Details::assert($$);
 
     $this->customerId = (string)$datas['customerId'];
     $this->createdAt = (string)$datas['createdAt'];
     $this->mandateReference = (string)$datas['mandateReference'];
     $this->signatureDate = (string)$datas['signatureDate'];
 
-    $this->links = to_dict($datas['_links']) |> Links::parse($$);
+    $this->links = to_dict($datas['_links']) |> Links::assert($$);
   }
 }

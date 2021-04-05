@@ -9,22 +9,22 @@ final class Image {
     public ?string $svg
   ) {}
 
-  public static function parse(
+  public static function assert(
     dict<string, mixed> $datas
   ): this {
-    if(C\contains_key($datas, 'site1x')) {
+    if(C\contains_key($datas, 'site1x') && $datas['site1x'] !== null) {
       $site1x = (string)$datas['site1x'];
     } else {
       $site1x = null;
     }
 
-    if(C\contains_key($datas, 'site2x')) {
+    if(C\contains_key($datas, 'site2x') && $datas['site2x'] !== null) {
       $site2x = (string)$datas['site2x'];
     } else {
       $site2x = null;
     }
 
-    if(C\contains_key($datas, 'svg')) {
+    if(C\contains_key($datas, 'svg') && $datas['svg'] !== null) {
       $svg = (string)$datas['svg'];
     } else {
       $svg = null;

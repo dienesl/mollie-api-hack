@@ -334,7 +334,7 @@ class OrderLine extends BaseResource {
   }
 
   <<__Override>>
-  public function parseJsonData(
+  public function assert(
     dict<string, mixed> $datas
   ): void {
     $this->resource = (string)$datas['resource'];
@@ -352,31 +352,31 @@ class OrderLine extends BaseResource {
     $this->quantity = (int)$datas['quantity'];
     $this->quantityShipped = (int)$datas['quantityShipped'];
 
-    $this->amountShipped = to_dict($datas['amountShipped']) |> Amount::parse($$);
+    $this->amountShipped = to_dict($datas['amountShipped']) |> Amount::assert($$);
 
     $this->quantityRefunded = (int)$datas['quantityRefunded'];
 
-    $this->amountRefunded = to_dict($datas['amountRefunded']) |> Amount::parse($$);
+    $this->amountRefunded = to_dict($datas['amountRefunded']) |> Amount::assert($$);
 
     $this->quantityCanceled = (int)$datas['quantityCanceled'];
 
-    $this->amountCanceled = to_dict($datas['amountCanceled']) |> Amount::parse($$);
+    $this->amountCanceled = to_dict($datas['amountCanceled']) |> Amount::assert($$);
 
     $this->shippableQuantity = (int)$datas['shippableQuantity'];
     $this->refundableQuantity = (int)$datas['refundableQuantity'];
     $this->cancelableQuantity = (int)$datas['cancelableQuantity'];
 
-    $this->unitPrice = to_dict($datas['unitPrice']) |> Amount::parse($$);
+    $this->unitPrice = to_dict($datas['unitPrice']) |> Amount::assert($$);
 
     if(C\contains_key($datas, 'discountAmount') && $datas['discountAmount'] !== null) {
-      $this->discountAmount = to_dict($datas['discountAmount']) |> Amount::parse($$);
+      $this->discountAmount = to_dict($datas['discountAmount']) |> Amount::assert($$);
     }
 
-    $this->totalAmount = to_dict($datas['totalAmount']) |> Amount::parse($$);
+    $this->totalAmount = to_dict($datas['totalAmount']) |> Amount::assert($$);
 
     $this->vatRate = (float)$datas['vatRate'];
 
-    $this->vatAmount = to_dict($datas['vatAmount']) |> Amount::parse($$);
+    $this->vatAmount = to_dict($datas['vatAmount']) |> Amount::assert($$);
 
     if(C\contains_key($datas, 'sku') && $datas['sku'] !== null) {
       $this->sku = (string)$datas['sku'];
@@ -394,6 +394,6 @@ class OrderLine extends BaseResource {
 
     $this->createdAt = (string)$datas['createdAt'];
 
-    $this->links = to_dict($datas['_links']) |> Links::parse($$);
+    $this->links = to_dict($datas['_links']) |> Links::assert($$);
   }
 }

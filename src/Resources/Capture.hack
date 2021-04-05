@@ -59,16 +59,16 @@ class Capture extends BaseResource {
   public Links $links;
 
   <<__Override>>
-  public function parseJsonData(
+  public function assert(
     dict<string, mixed> $datas
   ): void {
     $this->resource = (string)$datas['resource'];
     $this->id = (string)$datas['id'];
     $this->mode = (string)$datas['mode'];
 
-    $this->amount = to_dict($datas['amount']) |> Amount::parse($$);
+    $this->amount = to_dict($datas['amount']) |> Amount::assert($$);
 
-    $this->settlementAmount = to_dict($datas['settlementAmount']) |> Amount::parse($$);
+    $this->settlementAmount = to_dict($datas['settlementAmount']) |> Amount::assert($$);
 
     $this->paymentId = (string)$datas['paymentId'];
 
@@ -76,6 +76,6 @@ class Capture extends BaseResource {
 
     $this->createdAt = (string)$datas['createdAt'];
 
-    $this->links = to_dict($datas['_links']) |> Links::parse($$);
+    $this->links = to_dict($datas['_links']) |> Links::assert($$);
   }
 }

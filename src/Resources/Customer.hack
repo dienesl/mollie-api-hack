@@ -193,7 +193,7 @@ class Customer extends BaseResource {
   }
 
   <<__Override>>
-  public function parseJsonData(
+  public function assert(
     dict<string, mixed>$datas
   ): void {
     $this->resource = (string)$datas['resource'];
@@ -202,20 +202,16 @@ class Customer extends BaseResource {
     $this->name = (string)$datas['name'];
     $this->email = (string)$datas['email'];
     
-    if(C\contains_key($datas, 'locale')) {
+    if(C\contains_key($datas, 'locale') && $datas['locale'] !== null) {
       $this->locale = (string)$datas['locale'];
     }
 
-    if(C\contains_key($datas, 'metadata')) {
-      $this->metadata = $datas['metadata'];
-    }
+    $this->metadata = $datas['metadata'];
 
-    if(C\contains_key($datas, 'recentlyUsedMethods')) {
-      $this->recentlyUsedMethods = $datas['recentlyUsedMethods'];
-    }
+    $this->recentlyUsedMethods = $datas['recentlyUsedMethods'];
 
     $this->createdAt = (string)$datas['createdAt'];
 
-    $this->links = to_dict($datas['_links']) |> Links::parse($$);
+    $this->links = to_dict($datas['_links']) |> Links::assert($$);
   }
 }

@@ -12,7 +12,7 @@ final class Address {
     public string $email
   ) {}
 
-  public static function parse(
+  public static function assert(
     dict<string, mixed> $datas
   ): this {
     return new Address(

@@ -80,7 +80,7 @@ class Invoice extends BaseResource {
   }
 
   <<__Override>>
-  public function parseJsonData(
+  public function assert(
     dict<string, mixed> $datas
   ): void {
     $this->reference = (string)$datas['reference'];
@@ -100,18 +100,18 @@ class Invoice extends BaseResource {
       $this->dueAt = (string)$datas['dueAt'];
     }
 
-    $this->netAmount = to_dict($datas['netAmount']) |> Amount::parse($$);
-    $this->vatAmount = to_dict($datas['vatAmount']) |> Amount::parse($$);
-    $this->grossAmount = to_dict($datas['grossAmount']) |> Amount::parse($$);
+    $this->netAmount = to_dict($datas['netAmount']) |> Amount::assert($$);
+    $this->vatAmount = to_dict($datas['vatAmount']) |> Amount::assert($$);
+    $this->grossAmount = to_dict($datas['grossAmount']) |> Amount::assert($$);
 
     $this->lines = vec[];
     $lines = $datas['lines'];
     if($lines is Traversable<_>) {
       foreach($lines as $line) {
-        $this->lines[] = to_dict($line) |> Line::parse($$);
+        $this->lines[] = to_dict($line) |> Line::assert($$);
       }
     }
 
-    $this->links = to_dict($datas['_links']) |> Links::parse($$);
+    $this->links = to_dict($datas['_links']) |> Links::assert($$);
   }
 }

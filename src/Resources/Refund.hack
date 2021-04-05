@@ -120,13 +120,13 @@ class Refund extends BaseResource {
   }
 
   <<__Override>>
-  public function parseJsonData(
+  public function assert(
     dict<string, mixed> $datas
   ): void {
     $this->resource = (string)$datas['resource'];
     $this->id = (string)$datas['id'];
 
-    $this->amount = to_dict($datas['amount']) |> Amount::parse($$);
+    $this->amount = to_dict($datas['amount']) |> Amount::assert($$);
 
     $this->createdAt = (string)$datas['createdAt'];
 
@@ -143,11 +143,11 @@ class Refund extends BaseResource {
     $this->lines = $datas['lines'];
 
     if(C\contains_key($datas, 'settlementAmount') && $datas['settlementAmount'] !== null) {
-      $this->settlementAmount = to_dict($datas['settlementAmount']) |> Amount::parse($$);
+      $this->settlementAmount = to_dict($datas['settlementAmount']) |> Amount::assert($$);
     }
 
     $this->status = RefundStatus::assert((string)$datas['status']);
 
-    $this->links = to_dict($datas['_links']) |> Links::parse($$);
+    $this->links = to_dict($datas['_links']) |> Links::assert($$);
   }
 }

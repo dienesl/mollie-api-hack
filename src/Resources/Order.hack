@@ -467,7 +467,7 @@ class Order extends BaseResource {
   }
 
   <<__Override>>
-  public function parseJsonData(
+  public function assert(
     dict<string, mixed> $datas
   ): void {
     $this->resource = (string)$datas['resource'];
@@ -475,13 +475,13 @@ class Order extends BaseResource {
     $this->profileId = (string)$datas['profileId'];
     $this->mode = (string)$datas['mode'];
 
-    $this->amount = to_dict($datas['amount']) |> Amount::parse($$);
-    $this->amountCaptured = to_dict($datas['amountCaptured']) |> Amount::parse($$);
-    $this->amountRefunded = to_dict($datas['amountRefunded']) |> Amount::parse($$);
+    $this->amount = to_dict($datas['amount']) |> Amount::assert($$);
+    $this->amountCaptured = to_dict($datas['amountCaptured']) |> Amount::assert($$);
+    $this->amountRefunded = to_dict($datas['amountRefunded']) |> Amount::assert($$);
 
     $this->status = OrderStatus::assert((string)$datas['status']);
 
-    $this->billingAddress = to_dict($datas['billingAddress']) |> Address::parse($$);
+    $this->billingAddress = to_dict($datas['billingAddress']) |> Address::assert($$);
 
     if(C\contains_key($datas, 'consumerDateOfBirth')) {
       $this->consumerDateOfBirth = (string)$datas['consumerDateOfBirth'];
@@ -489,7 +489,7 @@ class Order extends BaseResource {
 
     $this->orderNumber = (string)$datas['orderNumber'];
 
-    $this->shippingAddress = to_dict($datas['shippingAddress']) |> Address::parse($$);
+    $this->shippingAddress = to_dict($datas['shippingAddress']) |> Address::assert($$);
 
     if(C\contains_key($datas, 'method')) {
       $this->method = (string)$datas['method'];
@@ -533,7 +533,7 @@ class Order extends BaseResource {
 
     $this->lines = $datas['lines'];
 
-    $this->links = to_dict($datas['_links']) |> Links::parse($$);
+    $this->links = to_dict($datas['_links']) |> Links::assert($$);
 
     $this->embedded = to_dict_with_vec_dict($datas['_embedded']);
   }

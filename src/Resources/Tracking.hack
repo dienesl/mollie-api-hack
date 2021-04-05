@@ -9,7 +9,7 @@ final class Tracking {
     public ?string $url
   ) {}
 
-  public static function parse(
+  public static function assert(
     dict<string, mixed> $datas
   ): this {
     return new Tracking(

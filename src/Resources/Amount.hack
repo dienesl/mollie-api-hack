@@ -6,7 +6,7 @@ final class Amount {
     public string $currency
   ) {}
 
-  public static function parse(
+  public static function assert(
     dict<string, mixed> $datas
   ): this {
     return new Amount(

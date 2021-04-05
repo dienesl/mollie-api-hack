@@ -1,30 +1,30 @@
 namespace Mollie\Api\Resources;
 
-class MandateCollection extends CursorCollection {
+use namespace HH\Lib\C;
+use type Mollie\Api\Types\MandateStatus;
+
+class MandateCollection extends CursorCollection<Mandate> {
   public function getCollectionResourceName(): string {
     return 'mandates';
   }
 
-  protected function createResourceObject(): BaseResource {
+  protected function createResourceObject(): Mandate {
     return new Mandate($this->client);
   }
 
-  /**
-   * @param string $status
-   * @return array|\Mollie\Api\Resources\MandateCollection
-   * TODO
-   */
   public function whereStatus(
-    string $status
-  ): mixed {
-    $collection = new self($this->client, $this->count, $this->links);
+    MandateStatus $status
+  ): MandateCollection {
+    $items = vec[];
 
-    foreach($this as $item) {
+    foreach($this->values as $item) {
       if($item->status === $status) {
-        $collection[] = $item;
+        $items[] = $item;
       }
     }
-
+    
+    $collection = new self($this->client, C\count($items), $this->links);
+    $collection->values = $items;
     return $collection;
   }
 }

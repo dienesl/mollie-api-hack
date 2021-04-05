@@ -42,7 +42,7 @@ class Onboarding extends BaseResource {
   }
 
   <<__Override>>
-  public function parseJsonData(
+  public function assert(
     dict<string, mixed> $datas
   ): void {
     $this->resource = (string)$datas['resource'];
@@ -54,6 +54,6 @@ class Onboarding extends BaseResource {
     $this->canReceivePayments = (bool)$datas['canReceivePayments'];
     $this->canReceiveSettlements = (bool)$datas['canReceiveSettlements'];
 
-    $this->links = to_dict($datas['_links']) |> Links::parse($$);
+    $this->links = to_dict($datas['_links']) |> Links::assert($$);
   }
 }

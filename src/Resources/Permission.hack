@@ -22,7 +22,7 @@ class Permission extends BaseResource {
   public Links $links;
 
   <<__Override>>
-  public function parseJsonData(
+  public function assert(
     dict<string, mixed> $datas
   ): void {
     $this->resource = (string)$datas['resource'];
@@ -31,6 +31,6 @@ class Permission extends BaseResource {
 
     $this->granted = (bool)$datas['granted'];
 
-    $this->links = to_dict($datas['_links']) |> Links::parse($$);
+    $this->links = to_dict($datas['_links']) |> Links::assert($$);
   }
 }

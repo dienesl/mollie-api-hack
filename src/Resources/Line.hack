@@ -11,7 +11,7 @@ final class Line {
     public Amount $amount
   ) {}
 
-  public static function parse(
+  public static function assert(
     dict<string, mixed> $datas
   ): this {
     return new Line(
@@ -19,7 +19,7 @@ final class Line {
       (string)$datas['description'],
       (int)$datas['count'],
       (float)$datas['varPercentage'],
-      to_dict($datas['amount']) |> Amount::parse($$)
+      to_dict($datas['amount']) |> Amount::assert($$)
     );
   }
 }

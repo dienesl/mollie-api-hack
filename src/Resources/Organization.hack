@@ -60,7 +60,7 @@ class Organization extends BaseResource {
   public Links $links;
 
   <<__Override>>
-  public function parseJsonData(
+  public function assert(
     dict<string, mixed> $datas
   ): void {
     $this->resource = (string)$datas['resource'];
@@ -69,7 +69,7 @@ class Organization extends BaseResource {
     $this->email = (string)$datas['email'];
     $this->locale = (string)$datas['locale'];
 
-    $this->address = to_dict($datas['address']) |> Address::parse($$);
+    $this->address = to_dict($datas['address']) |> Address::assert($$);
 
     $this->registrationNumber = (string)$datas['registrationNumber'];
 
@@ -81,6 +81,6 @@ class Organization extends BaseResource {
       $this->vatRegulation = (string)$datas['vatRegulation'];
     }
 
-    $this->links = to_dict($datas['_links']) |> Links::parse($$);
+    $this->links = to_dict($datas['_links']) |> Links::assert($$);
   }
 }

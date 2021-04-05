@@ -29,16 +29,16 @@ class MethodPrice extends BaseResource {
   public ?string $feeRegion;
 
   <<__Override>>
-  public function parseJsonData(
+  public function assert(
     dict<string, mixed> $datas
   ): void {
     $this->description = (string)$datas['description'];
 
-    $this->fixed = to_dict($datas['fixed']) |> Amount::parse($$);
+    $this->fixed = to_dict($datas['fixed']) |> Amount::assert($$);
 
     $this->variable = (float)$datas['variable'];
     
-    if(C\contains_key($datas, 'feeRegion')) {
+    if(C\contains_key($datas, 'feeRegion') && $datas['feeRegion'] !== null) {
       $this->feeRegion = (string)$datas['feeRegion'];
     }
   }

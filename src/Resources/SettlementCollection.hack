@@ -1,11 +1,11 @@
 namespace Mollie\Api\Resources;
 
-class SettlementCollection extends CursorCollection {
+class SettlementCollection extends CursorCollection<Settlement> {
   public function getCollectionResourceName(): string {
     return 'settlements';
   }
 
-  protected function createResourceObject(): BaseResource {
+  protected function createResourceObject(): Settlement {
     return new Settlement($this->client);
   }
 }

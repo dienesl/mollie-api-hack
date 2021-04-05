@@ -1,9 +1,10 @@
 namespace Mollie\Api\Resources;
 
 use type Mollie\Api\MollieApiClient;
+use function Mollie\Api\Functions\to_dict;
 
 <<__ConsistentConstruct>>
-abstract class CursorCollection extends BaseCollection {
+abstract class CursorCollection<T as BaseResource> extends BaseCollection<T> {
   final public function __construct(
     protected MollieApiClient $client,
     int $count,
@@ -12,44 +13,60 @@ abstract class CursorCollection extends BaseCollection {
     parent::__construct($count, $links);
   }
 
-  abstract protected function createResourceObject(): BaseResource;
+  abstract protected function createResourceObject(): T;
 
   /**
    * Return the next set of resources when available
    */
-  final public function next(): ?vec<CursorCollection> {
-    if(!$this->hasNext()) {
+  final public function next(): ?CursorCollection<T> {
+    $nextLink = $this->links->next;
+    if($nextLink === null) {
       return null;
+    } else { 
+      $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $nextLink->href);
+
+      $collection = new static(
+        $this->client,
+        (int)$result['count'],
+        to_dict($result['_links']) |> Links::assert($$)
+      );
+
+      $embedded = $result['_embedded'][$collection->getCollectionResourceName()];
+      if($embedded is Traversable<_>) {
+        foreach($embedded as $dataResult) {
+          $collection->values[] = ResourceFactory::createFromApiResult(to_dict($dataResult), $this->createResourceObject());
+        }
+      }
+
+      return $collection;
     }
-
-    $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $this->links->next->href);
-
-    $collection = vec[new static($this->client, $result->count, $result->_links)];
-
-    foreach($result->_embedded->{$collection->getCollectionResourceName()} as $dataResult) {
-      $collection[] = ResourceFactory::createFromApiResult($dataResult, $this->createResourceObject());
-    }
-
-    return $collection;
   }
 
   /**
    * Return the previous set of resources when available
    */
-  final public function previous(): ?vec<CursorCollection> {
-    if(!$this->hasPrevious()) {
+  final public function previous(): ?CursorCollection<T> {
+    $previousLink = $this->links->previous;
+    if($previousLink === null) {
       return null;
+    } else { 
+      $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $previousLink->href);
+
+      $collection = new static(
+        $this->client,
+        (int)$result['count'],
+        to_dict($result['_links']) |> Links::assert($$)
+      );
+
+      $embedded = $result['_embedded'][$collection->getCollectionResourceName()];
+      if($embedded is Traversable<_>) {
+        foreach($embedded as $dataResult) {
+          $collection->values[] = ResourceFactory::createFromApiResult(to_dict($dataResult), $this->createResourceObject());
+        }
+      }
+
+      return $collection;
     }
-
-    $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $this->links->previous->href);
-
-    $collection = vec[new static($this->client, $result->count, $result->links)];
-
-    foreach($result->_embedded->{$collection->getCollectionResourceName()} as $dataResult) {
-      $collection[] = ResourceFactory::createFromApiResult($dataResult, $this->createResourceObject());
-    }
-
-    return $collection;
   }
 
   /**
