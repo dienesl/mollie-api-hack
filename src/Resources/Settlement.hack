@@ -109,13 +109,13 @@ class Settlement extends BaseResource {
     if($refundsLink === null) {
       return new RefundCollection($this->client, 0, new Links());
     } else {
-      // TODO MollieApiClient
       $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $refundsLink->href);
 
       return ResourceFactory::createCursorResourceCollection(
         $this->client,
-        $result->embedded['refunds'] ?? vec[],
         Refund::class,
+        RefundCollection::class,
+        $result->embedded['refunds'] ?? vec[],
         $result->links
       );
     }
@@ -129,13 +129,13 @@ class Settlement extends BaseResource {
     if($chargebacksLink === null) {
       return new ChargebackCollection($this->client, 0, new Links());
     } else {
-      // TODO MollieApiClient
       $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $chargebacksLink->href);
 
       return ResourceFactory::createCursorResourceCollection(
         $this->client,
-        $result->embedded['chargebacks'] ?? vec[],
         Chargeback::class,
+        ChargebackCollection::class,
+        $result->embedded['chargebacks'] ?? vec[],
         $result->links
       );
     }
@@ -149,13 +149,13 @@ class Settlement extends BaseResource {
     if($capturesLink === null) {
       return new CaptureCollection($this->client, 0, new Links());
     } else {
-      // TODO MollieApiClient
       $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $capturesLink->href);
 
       return ResourceFactory::createCursorResourceCollection(
         $this->client,
-        $result->embedded['captures'] ?? vec[],
         Capture::class,
+        CaptureCollection::class,
+        $result->embedded['captures'] ?? vec[],
         $result->links
       );
     }

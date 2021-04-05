@@ -2,7 +2,10 @@ namespace Mollie\Api\Resources;
 
 use namespace HH\Lib\C;
 use type Mollie\Api\MollieApiClient;
-use function Mollie\Api\Functions\to_dict;
+use function Mollie\Api\Functions\{
+  to_dict,
+  to_vec_dict
+};
 use function json_encode;
 
 class Shipment extends BaseResource {
@@ -76,7 +79,9 @@ class Shipment extends BaseResource {
     return ResourceFactory::createBaseResourceCollection(
       $this->client,
       OrderLine::class,
-      $this->lines
+      OrderLineCollection::class,
+      to_vec_dict($this->lines),
+      new Links()
     );
   }
 
@@ -105,7 +110,10 @@ class Shipment extends BaseResource {
         $body
       );
 
-      return ResourceFactory::createFromApiResult($result, new Shipment($this->client));
+      return ResourceFactory::createFromApiResult(
+        $result,
+        new Shipment($this->client)
+      );
     }
   }
 

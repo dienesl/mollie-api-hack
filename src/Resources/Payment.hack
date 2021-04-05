@@ -410,8 +410,9 @@ class Payment extends BaseResource {
 
       return ResourceFactory::createCursorResourceCollection(
         $this->client,
-        $result->embedded['refunds'] ?? vec[],
         Refund::class,
+        RefundCollection::class,
+        $result->embedded['refunds'] ?? vec[],
         $result->links
       );
     }
@@ -445,8 +446,9 @@ class Payment extends BaseResource {
 
       return ResourceFactory::createCursorResourceCollection(
         $this->client,
-        $result->embedded['captures'] ?? vec[],
         Capture::class,
+        CaptureCollection::class,
+        $result->embedded['captures'] ?? vec[],
         $result->links
       );
     }
@@ -478,8 +480,9 @@ class Payment extends BaseResource {
 
       return ResourceFactory::createCursorResourceCollection(
         $this->client,
-        $result->embedded['chargebacks'] ?? vec[],
         Chargeback::class,
+        ChargebackCollection::class,
+        $result->embedded['chargebacks'] ?? vec[],
         $result->links
       );
     }
@@ -544,7 +547,10 @@ class Payment extends BaseResource {
         $body
       );
 
-      return ResourceFactory::createFromApiResult($result, new Payment($this->client));
+      return ResourceFactory::createFromApiResult(
+        $result,
+        new Payment($this->client)
+      );
     }
   }
 

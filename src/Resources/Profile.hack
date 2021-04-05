@@ -82,7 +82,10 @@ class Profile extends BaseResource {
 
       $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_PATCH, $selfLink->href, $body);
 
-      return ResourceFactory::createFromApiResult($result, new Profile($this->client));
+      return ResourceFactory::createFromApiResult(
+        $result,
+        new Profile($this->client)
+      );
     }
   }
 
@@ -98,8 +101,9 @@ class Profile extends BaseResource {
 
       return ResourceFactory::createCursorResourceCollection(
         $this->client,
-        $result->embedded['chargebacks'] ?? vec[],
         Chargeback::class,
+        ChargebackCollection::class,
+        $result->embedded['chargebacks'] ?? vec[],
         $result->links
       );
     }
@@ -115,10 +119,13 @@ class Profile extends BaseResource {
     } else {
       $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $methodsLink->href);
 
-      return ResourceFactory::createCursorResourceCollection(
+      // probably it is wrong in the origin source
+      //return ResourceFactory::createCursorResourceCollection(
+      return ResourceFactory::createBaseResourceCollection(
         $this->client,
-        $result->embedded['methods'] ?? vec[],
         Method::class,
+        MethodCollection::class,
+        $result->embedded['methods'] ?? vec[],
         $result->links
       );
     }
@@ -156,8 +163,9 @@ class Profile extends BaseResource {
 
       return ResourceFactory::createCursorResourceCollection(
         $this->client,
+        Payment::class,
+        PaymentCollection::class,
         $result->embedded['methods'] ?? vec[],
-        Method::class,
         $result->links
       );
     }
@@ -172,8 +180,9 @@ class Profile extends BaseResource {
 
       return ResourceFactory::createCursorResourceCollection(
         $this->client,
-        $result->embedded['refunds'] ?? vec[],
         Refund::class,
+        RefundCollection::class,
+        $result->embedded['refunds'] ?? vec[],
         $result->links
       );
     }

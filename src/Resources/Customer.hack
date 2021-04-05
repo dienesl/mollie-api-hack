@@ -141,14 +141,12 @@ class Customer extends BaseResource {
    * Helper function to check for mandate with status valid
    */
   public function hasValidMandate(): bool {
-    /* TODO
     $mandates = $this->mandates();
-    foreach($mandates as $mandate) {
+    foreach($mandates->values as $mandate) {
       if($mandate->isValid()) {
         return true;
       }
     }
-    */
 
     return false;
   }
@@ -159,14 +157,12 @@ class Customer extends BaseResource {
   public function hasValidMandateForMethod(
     string $method
   ): bool {
-    /* TODO
     $mandates = $this->mandates();
-    foreach($mandates as $mandate) {
+    foreach($mandates->values as $mandate) {
       if($mandate->method === $method && $mandate->isValid()) {
         return true;
       }
     }
-    */
 
     return false;
   }

@@ -95,7 +95,10 @@ class Subscription extends BaseResource {
         $body
       );
 
-      return ResourceFactory::createFromApiResult($result, new Subscription($this->client));
+      return ResourceFactory::createFromApiResult(
+        $result,
+        new Subscription($this->client)
+      );
     }
   }
 
@@ -155,7 +158,10 @@ class Subscription extends BaseResource {
         $body
       );
 
-      return ResourceFactory::createFromApiResult($result, new Subscription($this->client));
+      return ResourceFactory::createFromApiResult(
+        $result,
+        new Subscription($this->client)
+      );
     }
   }
 
@@ -171,8 +177,9 @@ class Subscription extends BaseResource {
 
       return ResourceFactory::createCursorResourceCollection(
         $this->client,
-        $result->embedded['payments'] ?? vec[],
         Payment::class,
+        PaymentCollection::class,
+        $result->embedded['payments'] ?? vec[],
         $result->links
       );
     }

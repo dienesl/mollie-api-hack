@@ -8,6 +8,7 @@ use type Mollie\Api\MollieApiClient;
 use type Mollie\Api\Types\OrderStatus;
 use function Mollie\Api\Functions\{
   to_dict,
+  to_vec_dict,
   to_dict_with_vec_dict
 };
 use function json_encode;
@@ -305,7 +306,9 @@ class Order extends BaseResource {
     return ResourceFactory::createBaseResourceCollection(
       $this->client,
       OrderLine::class,
-      $this->lines
+      OrderLineCollection::class,
+      to_vec_dict($this->lines),
+      new Links()
     );
   }
 
@@ -382,15 +385,15 @@ class Order extends BaseResource {
   public function refunds(): RefundCollection {
     $refundsLink = $this->links->refunds;
     if($refundsLink === null) {
-      //return new RefundCollection($this->client, 0, null);
       return new RefundCollection($this->client, 0, new Links());
     } else {
       $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $refundsLink->href);
 
       return ResourceFactory::createCursorResourceCollection(
         $this->client,
-        $result->embedded['refunds'] ?? vec[],
         Refund::class,
+        RefundCollection::class,
+        $result->embedded['refunds'] ?? vec[],
         $result->links
       );
     }
@@ -440,8 +443,10 @@ class Order extends BaseResource {
 
     return ResourceFactory::createCursorResourceCollection(
       $this->client,
-      $this->embedded['payments'],
-      Payment::class
+      Payment::class,
+      PaymentCollection::class,
+      $this->embedded['payments'] ?? vec[],
+      new Links()
     );
   }
 
