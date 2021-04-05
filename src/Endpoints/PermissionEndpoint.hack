@@ -47,11 +47,6 @@ class PermissionEndpoint extends CollectionEndpointAbstract<Resources\Permission
 
   /**
    * Retrieve all permissions.
-   *
-   * @param array $parameters
-   *
-   * @return PermissionCollection
-   * @throws ApiException
    */
   public function all(
     dict<arraykey, mixed> $parameters = dict[]

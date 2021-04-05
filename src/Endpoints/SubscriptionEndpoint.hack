@@ -3,6 +3,7 @@ namespace Mollie\Api\Endpoints;
 use namespace HH\Lib\Dict;
 use namespace Mollie\Api\Resources;
 use type Mollie\Api\Types\RestMethod;
+use function Mollie\Api\Functions\to_dict;
 
 class SubscriptionEndpoint extends CollectionEndpointAbstract<Resources\Subscription, Resources\SubscriptionCollection> {
   <<__Override>>
@@ -113,11 +114,6 @@ class SubscriptionEndpoint extends CollectionEndpointAbstract<Resources\Subscrip
    * Retrieves a collection of Subscriptions from Mollie.
    *
    * @param string $from The first payment ID you want to include in your list.
-   * @param int $limit
-   * @param array $parameters
-   *
-   * @return SubscriptionCollection
-   * @throws \Mollie\Api\Exceptions\ApiException
    */
   public function page(
     ?string $from = null,
@@ -130,11 +126,19 @@ class SubscriptionEndpoint extends CollectionEndpointAbstract<Resources\Subscrip
 
     $result = $this->client->performHttpCall(RestMethod::LIST, $apiPath);
 
-    $collection = $this->getResourceCollectionObject($result->count, $result->links);
+    $collection = $this->getResourceCollectionObject(
+      (int)($result['count'] ?? 0),
+      to_dict($result['_links'] ?? dict[]) |> Resources\Links::assert($$)
+    );
 
-    // TODO
-    foreach($result->_embedded->{$collection->getCollectionResourceName()} as $dataResult) {
-      $collection[] = Resources\ResourceFactory::createFromApiResult($dataResult, $this->getResourceObject());
+    $embedded = $result['_embedded'][$collection->getCollectionResourceName()] ?? null;
+    if($embedded is Traversable<_>) {
+      foreach($embedded as $dataResult) {
+        $collection->values[] = Resources\ResourceFactory::createFromApiResult(
+          to_dict($dataResult),
+          $this->getResourceObject()
+        );
+      }
     }
 
     return $collection;

@@ -4,7 +4,10 @@ use namespace HH\Lib\C;
 use type Mollie\Api\Exceptions\ApiException;
 use type Mollie\Api\MollieApiClient;
 use type Mollie\Api\Types\ProfileStatus;
-use function Mollie\Api\Functions\to_dict;
+use function Mollie\Api\Functions\{
+  to_dict,
+  to_vec_dict
+};
 use function json_encode;
 
 class Profile extends BaseResource {
@@ -103,8 +106,8 @@ class Profile extends BaseResource {
         $this->client,
         Chargeback::class,
         ChargebackCollection::class,
-        $result->embedded['chargebacks'] ?? vec[],
-        $result->links
+        to_vec_dict($result['_embedded']['chargebacks'] ?? vec[]),
+        to_dict($result['_links'] ?? dict[]) |> Links::assert($$)
       );
     }
   }
@@ -125,8 +128,8 @@ class Profile extends BaseResource {
         $this->client,
         Method::class,
         MethodCollection::class,
-        $result->embedded['methods'] ?? vec[],
-        $result->links
+        to_vec_dict($result['_embedded']['methods'] ?? vec[]),
+        to_dict($result['_links'] ?? dict[]) |> Links::assert($$)
       );
     }
   }
@@ -165,8 +168,8 @@ class Profile extends BaseResource {
         $this->client,
         Payment::class,
         PaymentCollection::class,
-        $result->embedded['methods'] ?? vec[],
-        $result->links
+        to_vec_dict($result['_embedded']['methods'] ?? vec[]),
+        to_dict($result['_links'] ?? dict[]) |> Links::assert($$)
       );
     }
   }
@@ -182,8 +185,8 @@ class Profile extends BaseResource {
         $this->client,
         Refund::class,
         RefundCollection::class,
-        $result->embedded['refunds'] ?? vec[],
-        $result->links
+        to_vec_dict($result['_embedded']['refunds'] ?? vec[]),
+        to_dict($result['_links'] ?? dict[]) |> Links::assert($$)
       );
     }
   }
@@ -211,6 +214,6 @@ class Profile extends BaseResource {
 
     $this->createdAt = (string)$datas['createdAt'];
 
-    $this->links = to_dict($datas['_links']) |> Links::assert($$);
+    $this->links = to_dict($datas['_links'] ?? dict[]) |> Links::assert($$);
   }
 }

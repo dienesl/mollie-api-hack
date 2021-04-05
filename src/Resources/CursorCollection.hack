@@ -28,10 +28,10 @@ abstract class CursorCollection<T as BaseResource> extends BaseCollection<T> {
       $collection = new static(
         $this->client,
         (int)$result['count'],
-        to_dict($result['_links']) |> Links::assert($$)
+        to_dict($result['_links'] ?? dict[]) |> Links::assert($$)
       );
 
-      $embedded = $result['_embedded'][$collection->getCollectionResourceName()];
+      $embedded = $result['_embedded'][$collection->getCollectionResourceName()] ?? null;
       if($embedded is Traversable<_>) {
         foreach($embedded as $dataResult) {
           $collection->values[] = ResourceFactory::createFromApiResult(to_dict($dataResult), $this->createResourceObject());
@@ -55,10 +55,10 @@ abstract class CursorCollection<T as BaseResource> extends BaseCollection<T> {
       $collection = new static(
         $this->client,
         (int)$result['count'],
-        to_dict($result['_links']) |> Links::assert($$)
+        to_dict($result['_links'] ?? dict[]) |> Links::assert($$)
       );
 
-      $embedded = $result['_embedded'][$collection->getCollectionResourceName()];
+      $embedded = $result['_embedded'][$collection->getCollectionResourceName()] ?? null;
       if($embedded is Traversable<_>) {
         foreach($embedded as $dataResult) {
           $collection->values[] = ResourceFactory::createFromApiResult(to_dict($dataResult), $this->createResourceObject());

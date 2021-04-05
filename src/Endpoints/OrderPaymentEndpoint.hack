@@ -49,12 +49,7 @@ class OrderPaymentEndpoint extends CollectionEndpointAbstract<Resources\Payment,
   /**
    * Creates a payment in Mollie for a specific order ID.
    *
-   * @param string $orderId
    * @param array $data An array containing details on the order payment.
-   * @param array $filters
-   *
-   * @return \Mollie\Api\Resources\BaseResource|\Mollie\Api\Resources\Payment
-   * @throws \Mollie\Api\Exceptions\ApiException
    */
   public function createForId(
     string $orderId,

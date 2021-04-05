@@ -6,7 +6,7 @@ use namespace Mollie\Api\Resources;
 use type Mollie\Api\Types\RestMethod;
 use function json_encode;
 
-class WalletEndpoint extends EndpointAbstract<Resources\VoidResource, Resources\VoidResourceCollection> {
+class WalletEndpoint extends EndpointAbstract<Resources\VoidResource> {
   <<__Override>>
   protected function setResourcePath(): void {
     $this->resourcePath = '';

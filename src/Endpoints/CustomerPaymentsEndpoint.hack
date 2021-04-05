@@ -27,13 +27,6 @@ class CustomerPaymentsEndpoint extends CollectionEndpointAbstract<Resources\Paym
 
   /**
    * Create a subscription for a Customer
-   *
-   * @param Customer $customer
-   * @param array $options
-   * @param array $filters
-   *
-   * @return Payment
-   * @throws \Mollie\Api\Exceptions\ApiException
    */
   public function createFor(
     Resources\Customer $customer,
@@ -66,13 +59,7 @@ class CustomerPaymentsEndpoint extends CollectionEndpointAbstract<Resources\Paym
   }
 
   /**
-   * @param string $customerId
    * @param string $from The first resource ID you want to include in your list.
-   * @param int $limit
-   * @param array $parameters
-   *
-   * @return \Mollie\Api\Resources\BaseCollection|\Mollie\Api\Resources\PaymentCollection
-   * @throws \Mollie\Api\Exceptions\ApiException
    */
   public function listForId(
     string $customerId,

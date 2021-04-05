@@ -3,6 +3,7 @@ namespace Mollie\Api\Endpoints;
 use namespace HH\Lib\C;
 use namespace Mollie\Api\Resources;
 use type Mollie\Api\Types\RestMethod;
+use function Mollie\Api\Functions\to_dict;
 use function json_encode;
 use function urlencode;
 
@@ -49,7 +50,10 @@ class ProfileMethodEndpoint extends CollectionEndpointAbstract<Resources\Method,
 
     $result = $this->client->performHttpCall(RestMethod::CREATE, $resource, $body);
 
-    return Resources\ResourceFactory::createFromApiResult($result, new Method($this->client));
+    return Resources\ResourceFactory::createFromApiResult(
+      to_dict($result),
+      new Resources\Method($this->client)
+    );
   }
 
   /**

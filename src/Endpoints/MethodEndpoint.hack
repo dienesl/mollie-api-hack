@@ -4,6 +4,10 @@ use namespace HH\Lib\Str;
 use namespace Mollie\Api\Resources;
 use type Mollie\Api\Exceptions\ApiException;
 use type Mollie\Api\Types\HttpMethod;
+use function Mollie\Api\Functions\{
+  to_dict,
+  to_vec_dict
+};
 
 class MethodEndpoint extends CollectionEndpointAbstract<Resources\Method, Resources\MethodCollection> {
   <<__Override>>
@@ -48,8 +52,9 @@ class MethodEndpoint extends CollectionEndpointAbstract<Resources\Method, Resour
     return Resources\ResourceFactory::createBaseResourceCollection(
       $this->client,
       Resources\Method::class,
-      $result->_embedded->methods,
-      $result->links
+      Resources\MethodCollection::class,
+      to_vec_dict($result['_embedded']['methods'] ?? vec[]),
+      to_dict($result['_links'] ?? dict[]) |> Resources\Links::assert($$)
     );
   }
 

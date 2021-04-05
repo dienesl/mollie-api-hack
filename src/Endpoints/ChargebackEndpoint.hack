@@ -28,14 +28,12 @@ class ChargebackEndpoint extends CollectionEndpointAbstract<Resources\Chargeback
 
   /**
    * Retrieves a collection of Chargebacks from Mollie.
-   * TODO
    */
   public function page(
     ?string $from = null,
     ?int $limit = null,
     dict<arraykey, mixed> $parameters = dict[]
-  ): Resources\BaseCollection {
-  //): Resources\ChargebackCollection {
+  ): Resources\ChargebackCollection {
     return $this->restList($from, $limit, $parameters);
   }
 }

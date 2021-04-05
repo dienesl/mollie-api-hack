@@ -63,11 +63,6 @@ class CustomerEndpoint extends CollectionEndpointAbstract<Resources\Customer, Re
    * Retrieves a collection of Customers from Mollie.
    *
    * @param string $from The first customer ID you want to include in your list.
-   * @param int $limit
-   * @param array $parameters
-   *
-   * @return CustomerCollection
-   * @throws ApiException
    */
   public function page(
     ?string $from = null,

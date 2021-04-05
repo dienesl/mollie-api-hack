@@ -35,14 +35,6 @@ class PaymentCaptureEndpoint extends CollectionEndpointAbstract<Resources\Captur
     return $this->getForId($payment->id, $captureId, $parameters);
   }
 
-  /**
-   * @param string $paymentId
-   * @param string $captureId
-   * @param array $parameters
-   *
-   * @return \Mollie\Api\Resources\BaseResource|\Mollie\Api\Resources\Capture
-   * @throws \Mollie\Api\Exceptions\ApiException
-   */
   public function getForId(
     string $paymentId,
     string $captureId,

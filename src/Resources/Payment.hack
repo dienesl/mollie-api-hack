@@ -12,6 +12,7 @@ use type Mollie\Api\Types\{
 };
 use function Mollie\Api\Functions\{
   to_dict,
+  to_vec_dict,
   to_dict_with_vec_dict
 };
 use function json_encode;
@@ -394,9 +395,6 @@ class Payment extends BaseResource {
 
   /**
    * Retrieves all refunds associated with this payment
-   *
-   * @return RefundCollection
-   * @throws ApiException
    */
   public function refunds(): RefundCollection {
     $refundsLink = $this->links->refunds;
@@ -412,8 +410,8 @@ class Payment extends BaseResource {
         $this->client,
         Refund::class,
         RefundCollection::class,
-        $result->embedded['refunds'] ?? vec[],
-        $result->links
+        to_vec_dict($result['_embedded']['refunds'] ?? vec[]),
+        to_dict($result['_links'] ?? dict[]) |> Links::assert($$)
       );
     }
   }
@@ -448,8 +446,8 @@ class Payment extends BaseResource {
         $this->client,
         Capture::class,
         CaptureCollection::class,
-        $result->embedded['captures'] ?? vec[],
-        $result->links
+        to_vec_dict($result['_embedded']['captures'] ?? vec[]),
+        to_dict($result['_links'] ?? dict[]) |> Links::assert($$)
       );
     }
   }
@@ -482,8 +480,8 @@ class Payment extends BaseResource {
         $this->client,
         Chargeback::class,
         ChargebackCollection::class,
-        $result->embedded['chargebacks'] ?? vec[],
-        $result->links
+        to_vec_dict($result['_embedded']['chargebacks'] ?? vec[]),
+        to_dict($result['_links'] ?? dict[]) |> Links::assert($$)
       );
     }
   }
@@ -714,9 +712,9 @@ class Payment extends BaseResource {
       $this->restrictPaymentMethodsToCountry = (string)$datas['restrictPaymentMethodsToCountry'];
     }
 
-    $this->links = to_dict($datas['_links']) |> Links::assert($$);
+    $this->links = to_dict($datas['_links'] ?? dict[]) |> Links::assert($$);
 
-    $this->embedded = to_dict_with_vec_dict($datas['_embedded']);
+    $this->embedded = to_dict_with_vec_dict($datas['_embedded'] ?? vec[]);
 
     $this->isCancelable = (bool)$datas['isCancelable'];
 

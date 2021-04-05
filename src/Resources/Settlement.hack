@@ -3,7 +3,10 @@ namespace Mollie\Api\Resources;
 use namespace HH\Lib\C;
 use type Mollie\Api\MollieApiClient;
 use type Mollie\Api\Types\SettlementStatus;
-use function Mollie\Api\Functions\to_dict;
+use function Mollie\Api\Functions\{
+  to_dict,
+  to_vec_dict
+};
 
 class Settlement extends BaseResource {
   <<__LateInit>>
@@ -115,8 +118,8 @@ class Settlement extends BaseResource {
         $this->client,
         Refund::class,
         RefundCollection::class,
-        $result->embedded['refunds'] ?? vec[],
-        $result->links
+        to_vec_dict($result['_embedded']['refunds'] ?? vec[]),
+        to_dict($result['_links'] ?? dict[]) |> Links::assert($$)
       );
     }
   }
@@ -135,8 +138,8 @@ class Settlement extends BaseResource {
         $this->client,
         Chargeback::class,
         ChargebackCollection::class,
-        $result->embedded['chargebacks'] ?? vec[],
-        $result->links
+        to_vec_dict($result['_embedded']['chargebacks'] ?? vec[]),
+        to_dict($result['_links']) |> Links::assert($$)
       );
     }
   }
@@ -155,8 +158,8 @@ class Settlement extends BaseResource {
         $this->client,
         Capture::class,
         CaptureCollection::class,
-        $result->embedded['captures'] ?? vec[],
-        $result->links
+        to_vec_dict($result['_embedded']['captures'] ?? vec[]),
+        to_dict($result['_links'] ?? dict[]) |> Links::assert($$)
       );
     }
   }

@@ -13,7 +13,7 @@ use function http_build_query;
 use function json_encode;
 use function urlencode;
 
-abstract class EndpointAbstract<T1 as Resources\BaseResource, T2 as Resources\BaseCollection> {
+abstract class EndpointAbstract<T1 as Resources\BaseResource> {
   <<__LateInit>>
   protected string $resourcePath;
 
@@ -50,7 +50,10 @@ abstract class EndpointAbstract<T1 as Resources\BaseResource, T2 as Resources\Ba
       $this->parseRequestBody($body)
     );
 
-    return Resources\ResourceFactory::createFromApiResult($result, $this->getResourceObject());
+    return Resources\ResourceFactory::createFromApiResult(
+      $result,
+      $this->getResourceObject()
+    );
   }
 
   /**
@@ -70,7 +73,10 @@ abstract class EndpointAbstract<T1 as Resources\BaseResource, T2 as Resources\Ba
       $this->getResourcePath() . '/' . $id . $this->buildQueryString($filters)
     );
 
-    return Resources\ResourceFactory::createFromApiResult($result, $this->getResourceObject());
+    return Resources\ResourceFactory::createFromApiResult(
+      $result,
+      $this->getResourceObject()
+    );
   }
 
   /**
@@ -95,45 +101,11 @@ abstract class EndpointAbstract<T1 as Resources\BaseResource, T2 as Resources\Ba
       return null;
     }
 
-    return Resources\ResourceFactory::createFromApiResult($result, $this->getResourceObject());
+    return Resources\ResourceFactory::createFromApiResult(
+      $result,
+      $this->getResourceObject()
+    );
   }
-
-  /**
-   * Get a collection of objects from the REST API.
-   */
-  protected function restList(
-    ?string $from = null,
-    ?int $limit = null,
-    dict<arraykey, mixed> $filters = dict[]
-  ): T2 {
-    $filters = Dict\merge<arraykey, mixed>(dict[
-      'from' => $from,
-      'limit' => $limit
-    ], $filters);
-
-    $apiPath = $this->getResourcePath() . $this->buildQueryString($filters);
-
-    $result = $this->client->performHttpCall(RestMethod::LIST, $apiPath);
-
-    /** @var BaseCollection $collection */
-    // TODO
-    $collection = $this->getResourceCollectionObject($result->count, $result->links);
-
-    foreach($result->_embedded->{$collection->getCollectionResourceName()} as $dataResult) {
-      $collection[] = ResourceFactory::createFromApiResult($dataResult, $this->getResourceObject());
-    }
-
-    return $collection;
-  }
-
-  /*
-  TODO
-  public function setResourcePath(
-    string $resourcePath
-  ): void {
-    $this->resourcePath = Str\lowercase($resourcePath);
-  }
-  */
 
   public function getResourcePath(): string {
     if(Str\contains($this->resourcePath, '_') !== false) {

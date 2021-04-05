@@ -393,7 +393,7 @@ class Order extends BaseResource {
         $this->client,
         Refund::class,
         RefundCollection::class,
-        $result->embedded['refunds'] ?? vec[],
+        to_vec_dict($result->embedded['refunds'] ?? vec[]),
         $result->links
       );
     }

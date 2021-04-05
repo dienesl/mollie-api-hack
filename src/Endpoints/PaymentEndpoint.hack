@@ -7,6 +7,7 @@ use namespace HH\Lib\{
 use namespace Mollie\Api\Resources;
 use type Mollie\Api\Exceptions\ApiException;
 use type Mollie\Api\Types\RestMethod;
+use function Mollie\Api\Functions\to_dict;
 use function json_encode;
 use function urlencode;
 
@@ -123,6 +124,9 @@ class PaymentEndpoint extends CollectionEndpointAbstract<Resources\Payment, Reso
 
     $result = $this->client->performHttpCall(RestMethod::CREATE, $resource, $body);
 
-    return Resources\ResourceFactory::createFromApiResult($result, new Resources\Refund($this->client));
+    return Resources\ResourceFactory::createFromApiResult(
+      to_dict($result),
+      new Resources\Refund($this->client)
+    );
   }
 }

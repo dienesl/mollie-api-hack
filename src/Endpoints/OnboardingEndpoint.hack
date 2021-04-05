@@ -1,17 +1,11 @@
 namespace Mollie\Api\Endpoints;
 
-/*
-use Mollie\Api\Exceptions\ApiException;
-use Mollie\Api\Resources\BaseResource;
-use Mollie\Api\Resources\Onboarding;
-use Mollie\Api\Resources\ResourceFactory;
-*/
-
 use namespace Mollie\Api\Resources;
 use type Mollie\Api\Exceptions\ApiException;
 use type Mollie\Api\Types\RestMethod;
+use function Mollie\Api\Functions\to_dict;
 
-class OnboardingEndpoint extends EndpointAbstract<Resources\Onboarding, Resources\OnboardingCollection> {
+class OnboardingEndpoint extends EndpointAbstract<Resources\Onboarding> {
   <<__Override>>
   protected function setResourcePath(): void {
     $this->resourcePath = 'onboarding/me';
@@ -67,6 +61,9 @@ class OnboardingEndpoint extends EndpointAbstract<Resources\Onboarding, Resource
       $this->getResourcePath() . $this->buildQueryString($filters)
     );
 
-    return Resources\ResourceFactory::createFromApiResult($result, $this->getResourceObject());
+    return Resources\ResourceFactory::createFromApiResult(
+      to_dict($result),
+      $this->getResourceObject()
+    );
   }
 }

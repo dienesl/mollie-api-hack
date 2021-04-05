@@ -44,10 +44,6 @@ class OrganizationEndpoint extends CollectionEndpointAbstract<Resources\Organiza
 
   /**
    * Retrieve the current organization from Mollie.
-   *
-   * @param array $parameters
-   * @return Organization
-   * @throws ApiException
    */
   public function current(
     dict<arraykey, mixed> $parameters = dict[]

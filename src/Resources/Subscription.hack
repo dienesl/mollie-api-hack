@@ -3,7 +3,10 @@ namespace Mollie\Api\Resources;
 use namespace HH\Lib\C;
 use type Mollie\Api\MollieApiClient;
 use type Mollie\Api\Types\SubscriptionStatus;
-use function Mollie\Api\Functions\to_dict;
+use function Mollie\Api\Functions\{
+  to_dict,
+  to_vec_dict
+};
 use function json_encode;
 
 class Subscription extends BaseResource {
@@ -179,8 +182,8 @@ class Subscription extends BaseResource {
         $this->client,
         Payment::class,
         PaymentCollection::class,
-        $result->embedded['payments'] ?? vec[],
-        $result->links
+        to_vec_dict($result['_embedded']['payments'] ?? vec[]),
+        to_dict($result['_links'] ?? dict[]) |> Links::assert($$)
       );
     }
   }

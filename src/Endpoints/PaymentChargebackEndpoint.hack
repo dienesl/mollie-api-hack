@@ -33,14 +33,6 @@ class PaymentChargebackEndpoint extends CollectionEndpointAbstract<Resources\Cha
     return $this->getForId($payment->id, $chargebackId, $parameters);
   }
 
-  /**
-   * @param string $paymentId
-   * @param string $chargebackId
-   * @param array $parameters
-   *
-   * @return Chargeback
-   * @throws \Mollie\Api\Exceptions\ApiException
-   */
   public function getForId(
     string $paymentId,
     string $chargebackId,
