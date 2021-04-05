@@ -4,6 +4,7 @@ class CurrentProfile extends Profile {
   /**
    * Enable a payment method for this profile.
    */
+  <<__Override>>
   public function enableMethod(
   string $methodId,
   dict<arraykey, mixed> $data = dict[]
@@ -14,6 +15,7 @@ class CurrentProfile extends Profile {
   /**
    * Disable a payment method for this profile.
    */
+  <<__Override>>
   public function disableMethod(
   string $methodId,
   dict<arraykey, mixed> $data = dict[]

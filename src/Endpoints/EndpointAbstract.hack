@@ -20,105 +20,105 @@ abstract class EndpointAbstract<T1 as Resources\BaseResource> {
   protected ?string $parentId;
 
   public function __construct(
-  protected MollieApiClient $client
+    protected MollieApiClient $client
   ) {
-  $this->setResourcePath();
+    $this->setResourcePath();
   }
 
   protected function buildQueryString(
-  dict<arraykey, mixed> $filters
+    dict<arraykey, mixed> $filters
   ): string {
-  if(C\count($filters) === 0) {
-    return '';
+    if(C\count($filters) === 0) {
+      return '';
+    }
+
+    return '?' .(
+      Dict\map_with_key($filters,
+       ($key, $value) ==> dict[$key => $value is bool ? ($value ? 'true' : false) : $value]
+      )
+      |> http_build_query($$, '', '&')
+    );
   }
 
-  return '?' .(
-    Dict\map_with_key($filters,
-     ($key, $value) ==> dict[$key => $value is bool ? ($value ? 'true' : false) : $value]
-    )
-    |> http_build_query($$, '', '&')
-  );
-  }
+  protected async function restCreateAsync(
+    dict<arraykey, mixed> $body,
+    dict<arraykey, mixed> $filters
+  ): Awaitable<T1> {
+    $result = $this->client->performHttpCallAsync(
+      RestMethod::CREATE,
+      $this->getResourcePath() . $this->buildQueryString($filters),
+      $this->parseRequestBody($body)
+    );
 
-  protected function restCreate(
-  dict<arraykey, mixed> $body,
-  dict<arraykey, mixed> $filters
-  ): T1 {
-  $result = $this->client->performHttpCall(
-    RestMethod::CREATE,
-    $this->getResourcePath() . $this->buildQueryString($filters),
-    $this->parseRequestBody($body)
-  );
-
-  return Resources\ResourceFactory::createFromApiResult(
-    $result,
-    $this->getResourceObject()
-  );
+    return Resources\ResourceFactory::createFromApiResult(
+      await $result,
+      $this->getResourceObject()
+    );
   }
 
   /**
    * Retrieves a single object from the REST API.
    */
-  protected function restRead(
-  string $id,
-  dict<arraykey, mixed> $filters
-  ): T1 {
-  if(Str\is_empty($id)) {
-    throw new ApiException('Invalid resource id.');
-  }
+  protected async function restReadAsync(
+    string $id,
+    dict<arraykey, mixed> $filters
+  ): Awaitable<T1> {
+    if(Str\is_empty($id)) {
+      throw new ApiException('Invalid resource id.');
+    }
 
-  $id = urlencode($id);
-  $result = $this->client->performHttpCall(
-    RestMethod::READ,
-    $this->getResourcePath() . '/' . $id . $this->buildQueryString($filters)
-  );
+    $id = urlencode($id);
+    $result = await $this->client->performHttpCallAsync(
+      RestMethod::READ,
+      $this->getResourcePath() . '/' . $id . $this->buildQueryString($filters)
+    );
 
-  return Resources\ResourceFactory::createFromApiResult(
-    $result,
-    $this->getResourceObject()
-  );
+    return Resources\ResourceFactory::createFromApiResult(
+      $result,
+      $this->getResourceObject()
+    );
   }
 
   /**
    * Sends a DELETE request to a single Molle API object.
    */
-  protected function restDelete(
-  string $id,
-  dict<arraykey, mixed> $body = dict[]
-  ): ?T1 {
-  if(Str\is_empty($id)) {
-    throw new ApiException("Invalid resource id.");
-  }
+  protected async function restDeleteAsync(
+    string $id,
+    dict<arraykey, mixed> $body = dict[]
+  ): Awaitable<?T1> {
+    if(Str\is_empty($id)) {
+      throw new ApiException('Invalid resource id.');
+    }
 
-  $id = urlencode($id);
-  $result = $this->client->performHttpCall(
-    RestMethod::DELETE,
-    $this->getResourcePath() . '/' . $id,
-    $this->parseRequestBody($body)
-  );
+    $id = urlencode($id);
+    $result = await $this->client->performHttpCallAsync(
+      RestMethod::DELETE,
+      $this->getResourcePath() . '/' . $id,
+      $this->parseRequestBody($body)
+    );
 
-  if($result === null) {
-    return null;
-  }
+    if($result === null) {
+      return null;
+    }
 
-  return Resources\ResourceFactory::createFromApiResult(
-    $result,
-    $this->getResourceObject()
-  );
+    return Resources\ResourceFactory::createFromApiResult(
+      $result,
+      $this->getResourceObject()
+    );
   }
 
   public function getResourcePath(): string {
-  if(Str\contains($this->resourcePath, '_') !== false) {
-    list($parentResource, $childResource) = Str\split($this->resourcePath, '_', 2);
+    if(Str\contains($this->resourcePath, '_') !== false) {
+      list($parentResource, $childResource) = Str\split($this->resourcePath, '_', 2);
 
-    if(Str\is_empty($this->parentId)) {
-    throw new ApiException('Subresource "' . $this->resourcePath . '" used without parent ' . $parentResource . '\' ID.');
+      if(Str\is_empty($this->parentId)) {
+      throw new ApiException('Subresource "' . $this->resourcePath . '" used without parent ' . $parentResource . '\' ID.');
+      }
+
+      return $parentResource . '/' .$this->parentId . '/' . $childResource;
     }
 
-    return $parentResource . '/' .$this->parentId . '/' . $childResource;
-  }
-
-  return $this->resourcePath;
+    return $this->resourcePath;
   }
 
   protected function parseRequestBody(

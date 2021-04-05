@@ -1,7 +1,6 @@
 namespace Mollie\Api\Resources;
 
 use namespace HH\Lib\C;
-use type Mollie\Api\Exceptions\ApiException;
 use type Mollie\Api\MollieApiClient;
 use type Mollie\Api\Types\ProfileStatus;
 use function Mollie\Api\Functions\{
@@ -190,7 +189,7 @@ class Profile extends BaseResource {
     );
   }
   }
-  
+
   <<__Override>>
   public function assert(
   dict<string, mixed> $datas

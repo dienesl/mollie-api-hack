@@ -5,7 +5,7 @@ use namespace Mollie\Api\Resources;
 class SettlementPaymentEndpoint extends CollectionEndpointAbstract<Resources\Payment, Resources\PaymentCollection> {
   <<__Override>>
   protected function setResourcePath(): void {
-  $this->resourcePath = 'settlements_payments';
+    $this->resourcePath = 'settlements_payments';
   }
 
   <<__Override>>
@@ -15,23 +15,23 @@ class SettlementPaymentEndpoint extends CollectionEndpointAbstract<Resources\Pay
 
   <<__Override>>
   protected function getResourceCollectionObject(
-  int $count,
-  Resources\Links $links
+    int $count,
+    Resources\Links $links
   ): Resources\PaymentCollection {
-  return new Resources\PaymentCollection($this->client, $count, $links);
+    return new Resources\PaymentCollection($this->client, $count, $links);
   }
 
   /**
    * Retrieves a collection of Payments from Mollie.
    */
-  public function pageForId(
-  string $settlementId,
-  ?string $from = null,
-  ?int $limit = null,
-  dict<arraykey, mixed> $parameters = dict[]
-  ): Resources\PaymentCollection {
-  $this->parentId = $settlementId;
+  public function pageForIdAsync(
+    string $settlementId,
+    ?string $from = null,
+    ?int $limit = null,
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Awaitable<Resources\PaymentCollection> {
+    $this->parentId = $settlementId;
 
-  return $this->restList($from, $limit, $parameters);
+    return $this->restListAsync($from, $limit, $parameters);
   }
 }

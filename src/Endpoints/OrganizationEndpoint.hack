@@ -7,12 +7,12 @@ use type Mollie\Api\Exceptions\ApiException;
 class OrganizationEndpoint extends CollectionEndpointAbstract<Resources\Organization, Resources\OrganizationCollection> {
   <<__Override>>
   protected function setResourcePath(): void {
-  $this->resourcePath = 'organizations';
+    $this->resourcePath = 'organizations';
   }
 
   <<__Override>>
   protected function getResourceObject(): Resources\Organization {
-  return new Resources\Organization($this->client);
+    return new Resources\Organization($this->client);
   }
 
   /**
@@ -20,10 +20,10 @@ class OrganizationEndpoint extends CollectionEndpointAbstract<Resources\Organiza
    */
   <<__Override>>
   protected function getResourceCollectionObject(
-  int $count,
-  Resources\Links $links
+    int $count,
+    Resources\Links $links
   ): Resources\OrganizationCollection {
-  return new Resources\OrganizationCollection($this->client, $count, $links);
+    return new Resources\OrganizationCollection($this->client, $count, $links);
   }
 
   /**
@@ -31,23 +31,23 @@ class OrganizationEndpoint extends CollectionEndpointAbstract<Resources\Organiza
    *
    * Will throw a ApiException if the organization id is invalid or the resource cannot be found.
    */
-  public function get(
-  string $organizationId,
-  dict<arraykey, mixed> $parameters = dict[]
-  ): Resources\Organization {
-  if(Str\is_empty($organizationId)) {
-    throw new ApiException('Organization ID is empty.');
-  }
+  public function getAsync(
+    string $organizationId,
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Awaitable<Resources\Organization> {
+    if(Str\is_empty($organizationId)) {
+      throw new ApiException('Organization ID is empty.');
+    }
 
-  return $this->restRead($organizationId, $parameters);
+    return $this->restReadAsync($organizationId, $parameters);
   }
 
   /**
    * Retrieve the current organization from Mollie.
    */
-  public function current(
-  dict<arraykey, mixed> $parameters = dict[]
-  ): Resources\Organization {
-  return $this->restRead('me', $parameters);
+  public function currentAsync(
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Awaitable<Resources\Organization> {
+    return $this->restReadAsync('me', $parameters);
   }
 }

@@ -10,7 +10,7 @@ function to_dict(
     $result[(string)$key] = $value;
   }
   }
-  
+
   return $result;
 }
 
@@ -38,6 +38,6 @@ function to_dict_with_vec_dict(
     $result[(string)$key] = to_vec_dict($value);
   }
   }
-  
+
   return $result;
 }

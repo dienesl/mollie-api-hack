@@ -22,7 +22,7 @@ abstract class CursorCollection<T as BaseResource> extends BaseCollection<T> {
   $nextLink = $this->links->next;
   if($nextLink === null) {
     return null;
-  } else { 
+  } else {
     $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $nextLink->href);
 
     $collection = new static(
@@ -49,7 +49,7 @@ abstract class CursorCollection<T as BaseResource> extends BaseCollection<T> {
   $previousLink = $this->links->previous;
   if($previousLink === null) {
     return null;
-  } else { 
+  } else {
     $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $previousLink->href);
 
     $collection = new static(

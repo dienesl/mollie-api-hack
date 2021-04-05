@@ -35,7 +35,7 @@ final class Links {
   dict<string, mixed> $datas
   ): this {
   $links = new Links();
-  
+
   if(C\contains_key($datas, 'captures')) {
     $captures = $datas['captures'];
     if($captures is KeyedContainer<_, _>) {
@@ -45,7 +45,7 @@ final class Links {
     );
     }
   }
-  
+
   if(C\contains_key($datas, 'chargebacks')) {
     $chargebacks = $datas['chargebacks'];
     if($chargebacks is KeyedContainer<_, _>) {
@@ -55,7 +55,7 @@ final class Links {
     );
     }
   }
-  
+
   if(C\contains_key($datas, 'checkout')) {
     $checkout = $datas['checkout'];
     if($checkout is KeyedContainer<_, _>) {
@@ -65,7 +65,7 @@ final class Links {
     );
     }
   }
-  
+
   if(C\contains_key($datas, 'dashboard')) {
     $dashboard = $datas['dashboard'];
     if($dashboard is KeyedContainer<_, _>) {
@@ -75,7 +75,7 @@ final class Links {
     );
     }
   }
-  
+
   if(C\contains_key($datas, 'documentation')) {
     $documentation = $datas['documentation'];
     if($documentation is KeyedContainer<_, _>) {
@@ -85,7 +85,7 @@ final class Links {
     );
     }
   }
-  
+
   if(C\contains_key($datas, 'imageUrl')) {
     $imageUrl = $datas['imageUrl'];
     if($imageUrl is KeyedContainer<_, _>) {
@@ -95,7 +95,7 @@ final class Links {
     );
     }
   }
-  
+
   if(C\contains_key($datas, 'methods')) {
     $methods = $datas['methods'];
     if($methods is KeyedContainer<_, _>) {
@@ -105,7 +105,7 @@ final class Links {
     );
     }
   }
-  
+
   if(C\contains_key($datas, 'next')) {
     $next = $datas['next'];
     if($next is KeyedContainer<_, _>) {
@@ -115,7 +115,7 @@ final class Links {
     );
     }
   }
-  
+
   if(C\contains_key($datas, 'payments')) {
     $payments = $datas['payments'];
     if($payments is KeyedContainer<_, _>) {
@@ -125,7 +125,7 @@ final class Links {
     );
     }
   }
-  
+
   if(C\contains_key($datas, 'pdf')) {
     $pdf = $datas['pdf'];
     if($pdf is KeyedContainer<_, _>) {
@@ -135,7 +135,7 @@ final class Links {
     );
     }
   }
-  
+
   if(C\contains_key($datas, 'previous')) {
     $previous = $datas['previous'];
     if($previous is KeyedContainer<_, _>) {
@@ -145,7 +145,7 @@ final class Links {
     );
     }
   }
-  
+
   if(C\contains_key($datas, 'productUrl')) {
     $productUrl = $datas['productUrl'];
     if($productUrl is KeyedContainer<_, _>) {
@@ -155,7 +155,7 @@ final class Links {
     );
     }
   }
-  
+
   if(C\contains_key($datas, 'refunds')) {
     $refunds = $datas['refunds'];
     if($refunds is KeyedContainer<_, _>) {
@@ -165,7 +165,7 @@ final class Links {
     );
     }
   }
-  
+
   if(C\contains_key($datas, 'self')) {
     $self = $datas['self'];
     if($self is KeyedContainer<_, _>) {

@@ -1,9 +1,6 @@
 namespace Mollie\Api\Endpoints;
 
-use Mollie\Api\Exceptions\ApiException;
-use Mollie\Api\Resources\CurrentProfile;
-use Mollie\Api\Resources\Profile;
-use Mollie\Api\Resources\ProfileCollection;
+use type Mollie\Api\Resources\ProfileCollection;
 
 use namespace Mollie\Api\Resources;
 
@@ -12,7 +9,7 @@ class ProfileEndpoint extends CollectionEndpointAbstract<Resources\Profile, Reso
 
   <<__Override>>
   protected function setResourcePath(): void {
-  $this->resourcePath = 'profiles';
+    $this->resourcePath = 'profiles';
   }
 
   /**
@@ -20,8 +17,8 @@ class ProfileEndpoint extends CollectionEndpointAbstract<Resources\Profile, Reso
    */
   <<__Override>>
   protected function getResourceObject(): Resources\Profile {
-  $class = $this->resourceClass;
-  return new $class($this->client);
+    $class = $this->resourceClass;
+    return new $class($this->client);
   }
 
   /**
@@ -29,20 +26,20 @@ class ProfileEndpoint extends CollectionEndpointAbstract<Resources\Profile, Reso
    */
   <<__Override>>
   protected function getResourceCollectionObject(
-  int $count,
-  Resources\Links $links
+    int $count,
+    Resources\Links $links
   ): Resources\ProfileCollection {
-  return new ProfileCollection($this->client, $count, $links);
+    return new ProfileCollection($this->client, $count, $links);
   }
 
   /**
    * Creates a Profile in Mollie.
    */
-  public function create(
-  dict<arraykey, mixed> $data = dict[],
-  dict<arraykey, mixed> $filters = dict[]
-  ): Resources\Profile {
-  return $this->restCreate($data, $filters);
+  public function createAsync(
+    dict<arraykey, mixed> $data = dict[],
+    dict<arraykey, mixed> $filters = dict[]
+  ): Awaitable<Resources\Profile> {
+    return $this->restCreateAsync($data, $filters);
   }
 
   /**
@@ -50,26 +47,26 @@ class ProfileEndpoint extends CollectionEndpointAbstract<Resources\Profile, Reso
    *
    * Will throw an ApiException if the profile id is invalid or the resource cannot be found.
    */
-  public function get(
-  string $profileId,
-  dict<arraykey, mixed> $parameters = dict[]
-  ): Resources\Profile {
-  if($profileId === 'me') {
-    return $this->getCurrent($parameters);
-  }
-
-  return $this->restRead($profileId, $parameters);
+  public function getAsync(
+    string $profileId,
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Awaitable<Resources\Profile> {
+    if($profileId === 'me') {
+      return $this->getCurrentAsync($parameters);
+    } else {
+      return $this->restReadAsync($profileId, $parameters);
+    }
   }
 
   /**
    * Retrieve the current Profile from Mollie.
    */
-  public function getCurrent(
-  dict<arraykey, mixed> $parameters = dict[]
-  ): Resources\Profile {
-  $this->resourceClass = Resources\CurrentProfile::class;
+  public function getCurrentAsync(
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Awaitable<Resources\Profile> {
+    $this->resourceClass = Resources\CurrentProfile::class;
 
-  return $this->restRead('me', $parameters);
+    return $this->restReadAsync('me', $parameters);
   }
 
   /**
@@ -78,21 +75,21 @@ class ProfileEndpoint extends CollectionEndpointAbstract<Resources\Profile, Reso
    * Will throw a ApiException if the profile id is invalid or the resource cannot be found.
    * Returns with HTTP status No Content(204) if successful.
    */
-  public function delete(
-  string $profileId,
-  dict<arraykey, mixed> $data = dict[]
-  ): ?Resources\Profile {
-  return $this->restDelete($profileId, $data);
+  public function deleteAsync(
+    string $profileId,
+    dict<arraykey, mixed> $data = dict[]
+  ): Awaitable<?Resources\Profile> {
+    return $this->restDeleteAsync($profileId, $data);
   }
 
   /**
    * Retrieves a collection of Profiles from Mollie.
    */
-  public function page(
-  ?string $from = null,
-  ?int $limit = null,
-  dict<arraykey, mixed> $parameters = dict[]
-  ): Resources\ProfileCollection {
-  return $this->restList($from, $limit, $parameters);
+  public function pageAsync(
+    ?string $from = null,
+    ?int $limit = null,
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Awaitable<Resources\ProfileCollection> {
+    return $this->restListAsync($from, $limit, $parameters);
   }
 }

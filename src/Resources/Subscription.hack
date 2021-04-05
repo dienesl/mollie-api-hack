@@ -67,7 +67,7 @@ class Subscription extends BaseResource {
    * Contains an optional 'webhookUrl'.
    */
   public ?string $webhookUrl;
-  
+
   /**
    * Date the next subscription payment will take place. For example: 2018-04-24
    */

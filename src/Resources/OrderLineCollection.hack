@@ -1,6 +1,7 @@
 namespace Mollie\Api\Resources;
 
 class OrderLineCollection extends BaseCollectionBridge<OrderLine> {
+  <<__Override>>
   public function getCollectionResourceName(): ?string {
   return null;
   }

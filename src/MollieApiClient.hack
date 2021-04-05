@@ -2,9 +2,8 @@ namespace Mollie\Api;
 
 use namespace HH\Lib\{
   Dict,
-  Str,
   Regex,
-  Vec
+  Str,
 };
 use namespace Mollie\Api\{
   Endpoints,
@@ -229,7 +228,7 @@ class MollieApiClient {
    * Perform an http call. This method is used by the resource specific classes. Please use the $payments property to
    * perform operations on payments.
    */
-  public function performHttpCall(
+  public function performHttpCallAsync(
     Types\HttpMethod $httpMethod,
     string $apiMethod,
     ?string $httpBody = null
@@ -254,7 +253,7 @@ class MollieApiClient {
    *
    * @codeCoverageIgnore
    */
-  public async function performHttpCallToFullUrl(
+  public async function performHttpCallToFullUrlAsync(
     Types\HttpMethod $httpMethod,
     string $url,
     ?string $httpBody = null
@@ -276,7 +275,7 @@ class MollieApiClient {
     ];
 
     $ch = curl_init($url);
-    
+
     if($httpMethod !== Types\HttpMethod::GET) {
       if($httpBody !== null && !Str\is_empty($httpBody)) {
         $headers['Content-Type'] = 'application/json';

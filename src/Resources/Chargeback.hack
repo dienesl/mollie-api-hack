@@ -1,7 +1,6 @@
 namespace Mollie\Api\Resources;
 
 use namespace HH\Lib\{C};
-use type Mollie\Api\Exceptions\ApiException;
 use function Mollie\Api\Functions\to_dict;
 
 class Chargeback extends BaseResource {
@@ -48,7 +47,7 @@ class Chargeback extends BaseResource {
   if(C\contains_key($datas, 'createdAt') && $datas['createdAt'] !== null) {
     $this->createdAt = (string)$datas['createdAt'];
   }
-  
+
   $this->paymentId = (string)$datas['paymentId'];
 
   $this->settlementAmount = to_dict($datas['settlementAmount']) |> Amount::assert($$);

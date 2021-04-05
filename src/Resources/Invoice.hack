@@ -68,15 +68,15 @@ class Invoice extends BaseResource {
   public Links $links;
 
   public function isPaid(): bool {
-  return $this->status == InvoiceStatus::STATUS_PAID;
+  return $this->status === InvoiceStatus::STATUS_PAID;
   }
 
   public function isOpen(): bool {
-  return $this->status == InvoiceStatus::STATUS_OPEN;
+  return $this->status === InvoiceStatus::STATUS_OPEN;
   }
 
   public function isOverdue(): bool {
-  return $this->status == InvoiceStatus::STATUS_OVERDUE;
+  return $this->status === InvoiceStatus::STATUS_OVERDUE;
   }
 
   <<__Override>>

@@ -168,7 +168,7 @@ class OrderLine extends BaseResource {
    * A link pointing to the product page in your web shop of the product sold.
    */
   public ?string $productUrl;
-  
+
   /**
    * During creation of the order you can set custom metadata on order lines that is stored with
    * the order, and given back whenever you retrieve that order line.
@@ -320,7 +320,7 @@ class OrderLine extends BaseResource {
   public function getUpdateData(): dict<string, mixed> {
   // Explicitly filter only NULL values to keep "vatRate => 0" intact
   return Dict\filter(dict[
-    "name" => $this->name,
+    'name' => $this->name,
     'imageUrl' => $this->imageUrl,
     'productUrl' => $this->productUrl,
     'metadata' => $this->metadata,

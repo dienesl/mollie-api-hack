@@ -8,8 +8,8 @@ use type Mollie\Api\MollieApiClient;
 use type Mollie\Api\Types\OrderStatus;
 use function Mollie\Api\Functions\{
   to_dict,
+  to_dict_with_vec_dict,
   to_vec_dict,
-  to_dict_with_vec_dict
 };
 use function json_encode;
 
@@ -408,11 +408,11 @@ class Order extends BaseResource {
     return $this;
   } else {
     $body = json_encode(dict[
-    "billingAddress" => $this->billingAddress,
-    "shippingAddress" => $this->shippingAddress,
-    "orderNumber" => $this->orderNumber,
-    "redirectUrl" => $this->redirectUrl,
-    "webhookUrl" => $this->webhookUrl,
+    'billingAddress' => $this->billingAddress,
+    'shippingAddress' => $this->shippingAddress,
+    'orderNumber' => $this->orderNumber,
+    'redirectUrl' => $this->redirectUrl,
+    'webhookUrl' => $this->webhookUrl,
     ]);
 
     $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_PATCH, $selfLink->href, $body);

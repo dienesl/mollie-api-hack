@@ -40,7 +40,7 @@ class Mandate extends BaseResource {
   public string $signatureDate;
 
   <<__LateInit>>
-  public Links $links; 
+  public Links $links;
 
   public function isValid(): bool {
   return $this->status === MandateStatus::STATUS_VALID;

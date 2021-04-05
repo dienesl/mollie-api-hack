@@ -29,7 +29,7 @@ final class Image {
   } else {
     $svg = null;
   }
-  
+
   return new Image($site1x, $site2x, $svg);
   }
 }

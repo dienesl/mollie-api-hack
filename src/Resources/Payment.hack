@@ -4,7 +4,6 @@ use namespace HH\Lib\{
   C,
   Dict
 };
-use type Mollie\Api\Exceptions\ApiException;
 use type Mollie\Api\MollieApiClient;
 use type Mollie\Api\Types\{
   PaymentStatus,
@@ -12,8 +11,8 @@ use type Mollie\Api\Types\{
 };
 use function Mollie\Api\Functions\{
   to_dict,
+  to_dict_with_vec_dict,
   to_vec_dict,
-  to_dict_with_vec_dict
 };
 use function json_encode;
 use function urlencode;
@@ -721,7 +720,7 @@ class Payment extends BaseResource {
   if(C\contains_key($datas, 'amountCaptured') && $datas['amountCaptured'] !== null) {
     $this->amountCaptured = to_dict($datas['amountCaptured']) |> Amount::assert($$);
   }
-  
+
   if(C\contains_key($datas, 'applicationFee') && $datas['applicationFee'] !== null) {
     $this->applicationFee = to_dict($datas['applicationFee']) |> ApplicationFee::assert($$);
   }

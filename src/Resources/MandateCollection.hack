@@ -4,10 +4,12 @@ use namespace HH\Lib\C;
 use type Mollie\Api\Types\MandateStatus;
 
 class MandateCollection extends CursorCollection<Mandate> {
+  <<__Override>>
   public function getCollectionResourceName(): string {
   return 'mandates';
   }
 
+  <<__Override>>
   protected function createResourceObject(): Mandate {
   return new Mandate($this->client);
   }
@@ -22,7 +24,7 @@ class MandateCollection extends CursorCollection<Mandate> {
     $items[] = $item;
     }
   }
-  
+
   $collection = new self($this->client, C\count($items), $this->links);
   $collection->values = $items;
   return $collection;

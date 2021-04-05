@@ -6,7 +6,7 @@ use function Mollie\Api\Functions\to_dict;
 final class ApplicationFee {
   public function __construct(
   public ?string $desription,
-  public Amount $amount 
+  public Amount $amount
   ) {}
 
   public static function assert(
@@ -24,4 +24,3 @@ final class ApplicationFee {
   );
   }
 }
-

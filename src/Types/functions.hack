@@ -1,6 +1,6 @@
 namespace Mollie\Api\Types;
 
-function getForFirstPaymentMethod(
+function get_for_first_payment_method(
   PaymentMethod $firstPaymentMethod
 ): MandateMethod {
   if($firstPaymentMethod === PaymentMethod::PAYPAL) {

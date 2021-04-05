@@ -7,7 +7,7 @@ abstract class BaseResource {
   public function __construct(
   protected MollieApiClient $client
   ) {}
-  
+
   abstract public function assert(
   dict<string, mixed> $datas
   ): void;

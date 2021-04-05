@@ -8,7 +8,7 @@ use function Mollie\Api\Functions\to_dict;
 class SubscriptionEndpoint extends CollectionEndpointAbstract<Resources\Subscription, Resources\SubscriptionCollection> {
   <<__Override>>
   protected function setResourcePath(): void {
-  $this->resourcePath = 'customers_subscriptions';
+    $this->resourcePath = 'customers_subscriptions';
   }
 
   /**
@@ -16,7 +16,7 @@ class SubscriptionEndpoint extends CollectionEndpointAbstract<Resources\Subscrip
    */
   <<__Override>>
   protected function getResourceObject(): Resources\Subscription {
-  return new Resources\Subscription($this->client);
+    return new Resources\Subscription($this->client);
   }
 
   /**
@@ -24,90 +24,90 @@ class SubscriptionEndpoint extends CollectionEndpointAbstract<Resources\Subscrip
    */
   <<__Override>>
   protected function getResourceCollectionObject(
-  int $count,
-  Resources\Links $links
+    int $count,
+    Resources\Links $links
   ): Resources\SubscriptionCollection {
-  return new Resources\SubscriptionCollection($this->client, $count, $links);
+    return new Resources\SubscriptionCollection($this->client, $count, $links);
   }
 
   /**
    * Create a subscription for a Customer
    */
-  public function createFor(
-  Resources\Customer $customer,
-  dict<arraykey, mixed> $options = dict[],
-  dict<arraykey, mixed> $filters = dict[]
-  ): Resources\Subscription {
-  return $this->createForId($customer->id, $options, $filters);
+  public function createForAsync(
+    Resources\Customer $customer,
+    dict<arraykey, mixed> $options = dict[],
+    dict<arraykey, mixed> $filters = dict[]
+  ): Awaitable<Resources\Subscription> {
+    return $this->createForIdAsync($customer->id, $options, $filters);
   }
 
   /**
    * Create a subscription for a Customer
    */
-  public function createForId(
-  string $customerId,
-  dict<arraykey, mixed> $options = dict[],
-  dict<arraykey, mixed> $filters = dict[]
-  ): Resources\Subscription {
-  $this->parentId = $customerId;
+  public function createForIdAsync(
+    string $customerId,
+    dict<arraykey, mixed> $options = dict[],
+    dict<arraykey, mixed> $filters = dict[]
+  ): Awaitable<Resources\Subscription> {
+    $this->parentId = $customerId;
 
-  return $this->restCreate($options, $filters);
+    return $this->restCreateAsync($options, $filters);
   }
 
-  public function getFor(
-  Resources\Customer $customer,
-  string $subscriptionId,
-  dict<arraykey, mixed> $parameters = dict[]
-  ): Resources\Subscription {
-  return $this->getForId($customer->id, $subscriptionId, $parameters);
+  public function getForAsync(
+    Resources\Customer $customer,
+    string $subscriptionId,
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Awaitable<Resources\Subscription> {
+    return $this->getForIdAsync($customer->id, $subscriptionId, $parameters);
   }
 
-  public function getForId(
-  string $customerId,
-  string $subscriptionId,
-  dict<arraykey, mixed> $parameters = dict[]
-  ): Resources\Subscription {
-  $this->parentId = $customerId;
+  public function getForIdAsync(
+    string $customerId,
+    string $subscriptionId,
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Awaitable<Resources\Subscription> {
+    $this->parentId = $customerId;
 
-  return $this->restRead($subscriptionId, $parameters);
+    return $this->restReadAsync($subscriptionId, $parameters);
   }
 
-  public function listFor(
-  Resources\Customer $customer,
-  ?string $from = null,
-  ?int $limit = null,
-  dict<arraykey, mixed> $parameters = dict[]
-  ): Resources\SubscriptionCollection {
-  return $this->listForId($customer->id, $from, $limit, $parameters);
+  public function listForAsync(
+    Resources\Customer $customer,
+    ?string $from = null,
+    ?int $limit = null,
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Awaitable<Resources\SubscriptionCollection> {
+    return $this->listForIdAsync($customer->id, $from, $limit, $parameters);
   }
 
-  public function listForId(
-  string $customerId,
-  ?string $from = null,
-  ?int $limit = null,
-  dict<arraykey, mixed> $parameters = dict[]
-  ): Resources\SubscriptionCollection {
-  $this->parentId = $customerId;
+  public function listForIdAsync(
+    string $customerId,
+    ?string $from = null,
+    ?int $limit = null,
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Awaitable<Resources\SubscriptionCollection> {
+    $this->parentId = $customerId;
 
-  return $this->restList($from, $limit, $parameters);
+    return $this->restListAsync($from, $limit, $parameters);
   }
 
-  public function cancelFor(
-  Resources\Customer $customer,
-  string $subscriptionId,
-  dict<arraykey, mixed> $data = dict[]
-  ): ?Resources\Subscription {
-  return $this->cancelForId($customer->id, $subscriptionId, $data);
+  public function cancelForAsync(
+    Resources\Customer $customer,
+    string $subscriptionId,
+    dict<arraykey, mixed> $data = dict[]
+  ): Awaitable<?Resources\Subscription> {
+    return $this->cancelForIdAsync($customer->id, $subscriptionId, $data);
   }
 
-  public function cancelForId(
-  string $customerId,
-  string $subscriptionId,
-  dict<arraykey, mixed> $data = dict[]
-  ): ?Resources\Subscription {
-  $this->parentId = $customerId;
+  public function cancelForIdAsync(
+    string $customerId,
+    string $subscriptionId,
+    dict<arraykey, mixed> $data = dict[]
+  ): Awaitable<?Resources\Subscription> {
+    $this->parentId = $customerId;
 
-  return $this->restDelete($subscriptionId, $data);
+    return $this->restDeleteAsync($subscriptionId, $data);
   }
 
   /**
@@ -115,32 +115,40 @@ class SubscriptionEndpoint extends CollectionEndpointAbstract<Resources\Subscrip
    *
    * @param string $from The first payment ID you want to include in your list.
    */
-  public function page(
-  ?string $from = null,
-  ?int $limit = null,
-  dict<arraykey, mixed> $parameters = dict[]
-  ): Resources\SubscriptionCollection {
-  $filters = Dict\merge(dict['from' => $from, 'limit' => $limit], $parameters);
+  public async function pageAsync(
+    ?string $from = null,
+    ?int $limit = null,
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Awaitable<Resources\SubscriptionCollection> {
+    $filters = Dict\merge(dict['from' => $from, 'limit' => $limit], $parameters);
 
-  $apiPath = 'subscriptions' . $this->buildQueryString($filters);
+    $apiPath = 'subscriptions' . $this->buildQueryString($filters);
 
-  $result = $this->client->performHttpCall(RestMethod::LIST, $apiPath);
+    $result = await $this->client->performHttpCallAsync(RestMethod::LIST, $apiPath);
 
-  $collection = $this->getResourceCollectionObject(
-    (int)($result['count'] ?? 0),
-    to_dict($result['_links'] ?? dict[]) |> Resources\Links::assert($$)
-  );
-
-  $embedded = $result['_embedded'][$collection->getCollectionResourceName()] ?? null;
-  if($embedded is Traversable<_>) {
-    foreach($embedded as $dataResult) {
-    $collection->values[] = Resources\ResourceFactory::createFromApiResult(
-      to_dict($dataResult),
-      $this->getResourceObject()
+    $collection = $this->getResourceCollectionObject(
+      (int)($result['count'] ?? 0),
+      to_dict($result['_links'] ?? dict[]) |> Resources\Links::assert($$)
     );
-    }
-  }
 
-  return $collection;
+    $resourceName = $collection->getCollectionResourceName();
+    if($resourceName !== null) {
+      if($resourceName !== null) {
+        $embedded = $result['_embedded'] ?? null;
+        if($embedded is KeyedContainer<_, _>) {
+          $targetEmbedded = $embedded[$resourceName];
+          if($targetEmbedded is Traversable<_>) {
+            foreach($targetEmbedded as $dataResult) {
+              $collection->values[] = Resources\ResourceFactory::createFromApiResult(
+                to_dict($dataResult),
+                $this->getResourceObject()
+              );
+            }
+          }
+        }
+      }
+    }
+
+    return $collection;
   }
 }

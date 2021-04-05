@@ -5,7 +5,7 @@ use namespace Mollie\Api\Resources;
 class RefundEndpoint extends CollectionEndpointAbstract<Resources\Refund, Resources\RefundCollection> {
   <<__Override>>
   protected function setResourcePath(): void {
-  $this->resourcePath = 'refunds';
+    $this->resourcePath = 'refunds';
   }
 
   /**
@@ -13,7 +13,7 @@ class RefundEndpoint extends CollectionEndpointAbstract<Resources\Refund, Resour
    */
   <<__Override>>
   protected function getResourceObject(): Resources\Refund {
-  return new Resources\Refund($this->client);
+    return new Resources\Refund($this->client);
   }
 
   /**
@@ -21,20 +21,20 @@ class RefundEndpoint extends CollectionEndpointAbstract<Resources\Refund, Resour
    */
   <<__Override>>
   protected function getResourceCollectionObject(
-  int $count,
-  Resources\Links $links
+    int $count,
+    Resources\Links $links
   ): Resources\RefundCollection {
-  return new Resources\RefundCollection($this->client, $count, $links);
+    return new Resources\RefundCollection($this->client, $count, $links);
   }
 
   /**
    * Retrieves a collection of Refunds from Mollie.
    */
-  public function page(
-  ?string $from = null,
-  ?int $limit = null,
-  dict<arraykey, mixed> $parameters = dict[]
-  ): Resources\RefundCollection {
-  return $this->restList($from, $limit, $parameters);
+  public function pageAsync(
+    ?string $from = null,
+    ?int $limit = null,
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Awaitable<Resources\RefundCollection> {
+    return $this->restListAsync($from, $limit, $parameters);
   }
 }

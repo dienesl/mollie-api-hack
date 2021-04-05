@@ -173,7 +173,7 @@ class Customer extends BaseResource {
   private function getPresetOptions(): dict<arraykey, bool> {
   $options = dict[];
   if($this->client->usesOAuth()) {
-    $options["testmode"] = $this->mode === "test" ? true : false;
+    $options['testmode'] = $this->mode === 'test' ? true : false;
   }
 
   return $options;
@@ -197,7 +197,7 @@ class Customer extends BaseResource {
   $this->mode = (string)$datas['mode'];
   $this->name = (string)$datas['name'];
   $this->email = (string)$datas['email'];
-  
+
   if(C\contains_key($datas, 'locale') && $datas['locale'] !== null) {
     $this->locale = (string)$datas['locale'];
   }

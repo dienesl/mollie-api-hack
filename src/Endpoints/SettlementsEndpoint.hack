@@ -1,15 +1,11 @@
 namespace Mollie\Api\Endpoints;
 
-use Mollie\Api\Exceptions\ApiException;
-use Mollie\Api\Resources\Settlement;
-use Mollie\Api\Resources\SettlementCollection;
-
 use namespace Mollie\Api\Resources;
 
 class SettlementsEndpoint extends CollectionEndpointAbstract<Resources\Settlement, Resources\SettlementCollection> {
   <<__Override>>
   protected function setResourcePath(): void {
-  $this->resourcePath = 'settlements';
+    $this->resourcePath = 'settlements';
   }
 
   /**
@@ -17,7 +13,7 @@ class SettlementsEndpoint extends CollectionEndpointAbstract<Resources\Settlemen
    */
   <<__Override>>
   protected function getResourceObject(): Resources\Settlement {
-  return new Resources\Settlement($this->client);
+    return new Resources\Settlement($this->client);
   }
 
   /**
@@ -25,10 +21,10 @@ class SettlementsEndpoint extends CollectionEndpointAbstract<Resources\Settlemen
    */
   <<__Override>>
   protected function getResourceCollectionObject(
-  int $count,
-  Resources\Links $links
+    int $count,
+    Resources\Links $links
   ): Resources\SettlementCollection {
-  return new Resources\SettlementCollection($this->client, $count, $links);
+    return new Resources\SettlementCollection($this->client, $count, $links);
   }
 
   /**
@@ -36,35 +32,35 @@ class SettlementsEndpoint extends CollectionEndpointAbstract<Resources\Settlemen
    *
    * Will throw a ApiException if the settlement id is invalid or the resource cannot be found.
    */
-  public function get(
-  string $settlementId,
-  dict<arraykey, mixed> $parameters = dict[]
-  ): Resources\Settlement {
-  return $this->restRead($settlementId, $parameters);
+  public function getAsync(
+    string $settlementId,
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Awaitable<Resources\Settlement> {
+    return $this->restReadAsync($settlementId, $parameters);
   }
 
   /**
    * Retrieve the details of the current settlement that has not yet been paid out.
    */
-  public function next(): Resources\Settlement {
-  return $this->restRead('next', dict[]);
+  public function nextAsync(): Awaitable<Resources\Settlement> {
+    return $this->restReadAsync('next', dict[]);
   }
 
   /**
    * Retrieve the details of the open balance of the organization.
    */
-  public function open(): Resources\Settlement {
-  return $this->restRead('open', dict[]);
+  public function openAsync(): Awaitable<Resources\Settlement> {
+    return $this->restReadAsync('open', dict[]);
   }
 
   /**
    * Retrieves a collection of Settlements from Mollie.
    */
-  public function page(
-  ?string $from = null,
-  ?int $limit = null,
-  dict<arraykey, mixed> $parameters = dict[]
-  ): Resources\SettlementCollection {
-  return $this->restList($from, $limit, $parameters);
+  public function pageAsync(
+    ?string $from = null,
+    ?int $limit = null,
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Awaitable<Resources\SettlementCollection> {
+    return $this->restListAsync($from, $limit, $parameters);
   }
 }

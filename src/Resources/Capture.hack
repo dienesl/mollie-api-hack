@@ -1,6 +1,5 @@
 namespace Mollie\Api\Resources;
 
-use type Mollie\Api\Exceptions\ApiException;
 use function Mollie\Api\Functions\to_dict;
 
 class Capture extends BaseResource {

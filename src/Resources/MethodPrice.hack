@@ -37,7 +37,7 @@ class MethodPrice extends BaseResource {
   $this->fixed = to_dict($datas['fixed']) |> Amount::assert($$);
 
   $this->variable = (float)$datas['variable'];
-  
+
   if(C\contains_key($datas, 'feeRegion') && $datas['feeRegion'] !== null) {
     $this->feeRegion = (string)$datas['feeRegion'];
   }

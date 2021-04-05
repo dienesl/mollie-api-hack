@@ -1,9 +1,5 @@
 namespace Mollie\Api\Endpoints;
 
-use Mollie\Api\Resources\Order;
-use Mollie\Api\Resources\Payment;
-use Mollie\Api\Resources\PaymentCollection;
-
 use namespace Mollie\Api\Resources;
 
 class OrderPaymentEndpoint extends CollectionEndpointAbstract<Resources\Payment, Resources\PaymentCollection> {
@@ -11,7 +7,7 @@ class OrderPaymentEndpoint extends CollectionEndpointAbstract<Resources\Payment,
 
   <<__Override>>
   protected function setResourcePath(): void {
-  $this->resourcePath = 'orders_payments';
+    $this->resourcePath = 'orders_payments';
   }
 
   /**
@@ -20,7 +16,7 @@ class OrderPaymentEndpoint extends CollectionEndpointAbstract<Resources\Payment,
    */
   <<__Override>>
   protected function getResourceObject(): Resources\Payment {
-  return new Resources\Payment($this->client);
+    return new Resources\Payment($this->client);
   }
 
   /**
@@ -29,21 +25,21 @@ class OrderPaymentEndpoint extends CollectionEndpointAbstract<Resources\Payment,
    */
   <<__Override>>
   protected function getResourceCollectionObject(
-  int $count,
-  Resources\Links $links
+    int $count,
+    Resources\Links $links
   ): Resources\PaymentCollection {
-  return new Resources\PaymentCollection($this->client, $count, $links);
+    return new Resources\PaymentCollection($this->client, $count, $links);
   }
 
   /**
    * Creates a payment in Mollie for a specific order.
    */
-  public function createFor(
-  Resources\Order $order,
-  dict<arraykey, mixed> $data,
-  dict<arraykey, mixed> $filters
-  ): Resources\Payment {
-  return $this->createForId($order->id, $data, $filters);
+  public function createForAsync(
+    Resources\Order $order,
+    dict<arraykey, mixed> $data,
+    dict<arraykey, mixed> $filters
+  ): Awaitable<Resources\Payment> {
+    return $this->createForIdAsync($order->id, $data, $filters);
   }
 
   /**
@@ -51,13 +47,13 @@ class OrderPaymentEndpoint extends CollectionEndpointAbstract<Resources\Payment,
    *
    * @param array $data An array containing details on the order payment.
    */
-  public function createForId(
-  string $orderId,
-  dict<arraykey, mixed> $data,
-  dict<arraykey, mixed> $filters = dict[]
-  ): Resources\Payment {
-  $this->parentId = $orderId;
+  public function createForIdAsync(
+    string $orderId,
+    dict<arraykey, mixed> $data,
+    dict<arraykey, mixed> $filters = dict[]
+  ): Awaitable<Resources\Payment> {
+    $this->parentId = $orderId;
 
-  return $this->restCreate($data, $filters);
+    return $this->restCreateAsync($data, $filters);
   }
 }

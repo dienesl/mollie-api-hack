@@ -12,60 +12,68 @@ use function Mollie\Api\Functions\{
 class MethodEndpoint extends CollectionEndpointAbstract<Resources\Method, Resources\MethodCollection> {
   <<__Override>>
   protected function setResourcePath(): void {
-  $this->resourcePath = 'methods';
+    $this->resourcePath = 'methods';
   }
 
+  <<__Override>>
   protected function getResourceObject(): Resources\Method {
-  return new Resources\Method($this->client);
+    return new Resources\Method($this->client);
   }
 
   /**
    * Retrieve all active methods. In test mode, this includes pending methods. The results are not paginated.
    */
-  public function all(
-  dict<arraykey, mixed> $parameters = dict[]
-  ): Resources\MethodCollection {
-  return $this->allActive($parameters);
+  public function allAsync(
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Awaitable<Resources\MethodCollection> {
+    return $this->allActiveAsync($parameters);
   }
 
   /**
    * Retrieve all active methods for the organization. In test mode, this includes pending methods.
    * The results are not paginated.
    */
-  public function allActive(
-  dict<arraykey, mixed> $parameters = dict[]
-  ): Resources\MethodCollection {
-  return $this->restList(null, null, $parameters);
+  public function allActiveAsync(
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Awaitable<Resources\MethodCollection> {
+    return $this->restListAsync(null, null, $parameters);
   }
 
   /**
    * Retrieve all available methods for the organization, including activated and not yet activated methods. The
    * results are not paginated. Make sure to include the profileId parameter if using an OAuth Access Token.
    */
-  public function allAvailable(
-  dict<arraykey, mixed> $parameters = dict[]
-  ): Resources\MethodCollection {
-  $url = 'methods/all' . $this->buildQueryString($parameters);
+  public async function allAvailableAsync(
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Awaitable<Resources\MethodCollection> {
+    $url = 'methods/all' . $this->buildQueryString($parameters);
 
-  $result = $this->client->performHttpCall(HttpMethod::GET, $url);
+    $result = await $this->client->performHttpCallAsync(HttpMethod::GET, $url);
 
-  return Resources\ResourceFactory::createBaseResourceCollection(
-    $this->client,
-    Resources\Method::class,
-    Resources\MethodCollection::class,
-    to_vec_dict($result['_embedded']['methods'] ?? vec[]),
-    to_dict($result['_links'] ?? dict[]) |> Resources\Links::assert($$)
-  );
+    $embedded = $result['_embedded'];
+
+    if($embedded is KeyedContainer<_, _>) {
+      return Resources\ResourceFactory::createBaseResourceCollection(
+        $this->client,
+        Resources\Method::class,
+        Resources\MethodCollection::class,
+        to_vec_dict($embedded['methods'] ?? vec[]),
+        to_dict($result['_links'] ?? dict[]) |> Resources\Links::assert($$)
+      );
+    } else {
+      throw new ApiException('request doesn\'t contain _embedded');
+    }
   }
 
   /**
    * Get the collection object that is used by this API endpoint. Every API endpoint uses one type of collection object.
    */
-  protected function getResourceCollectionObject(
-  int $count,
-  Resources\Links $links
+  <<__Override>>
+    protected function getResourceCollectionObject(
+    int $count,
+    Resources\Links $links
   ): Resources\MethodCollection {
-  return new Resources\MethodCollection($count, $links);
+    return new Resources\MethodCollection($count, $links);
   }
 
   /**
@@ -73,14 +81,14 @@ class MethodEndpoint extends CollectionEndpointAbstract<Resources\Method, Resour
    *
    * Will throw a ApiException if the method id is invalid or the resource cannot be found.
    */
-  public function get(
-  string $methodId,
-  dict<arraykey, mixed> $parameters = dict[]
-  ): Resources\Method {
-  if(Str\is_empty($methodId)) {
-    throw new ApiException('Method ID is empty.');
-  }
+  public function getAsync(
+    string $methodId,
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Awaitable<Resources\Method> {
+    if(Str\is_empty($methodId)) {
+      throw new ApiException('Method ID is empty.');
+    }
 
-  return $this->restRead($methodId, $parameters);
+    return $this->restReadAsync($methodId, $parameters);
   }
 }
