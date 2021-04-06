@@ -35,11 +35,11 @@ class ProfileMethodEndpoint extends CollectionEndpointAbstract<Resources\Method,
   /**
    * Enable a method for the provided Profile ID.
    */
-  public function createForId(
+  public async function createForIdAsync(
     string $profileId,
     string $methodId,
     dict<arraykey, mixed> $data = dict[]
-  ): Resources\Method {
+  ): Awaitable<Resources\Method> {
     $this->parentId = $profileId;
     $resource = $this->getResourcePath() . '/' . urlencode($methodId);
 
@@ -48,7 +48,11 @@ class ProfileMethodEndpoint extends CollectionEndpointAbstract<Resources\Method,
       $body = json_encode($data);
     }
 
-    $result = $this->client->performHttpCallAsync(RestMethod::CREATE, $resource, $body);
+    $result = await $this->client->performHttpCallAsync(
+      RestMethod::CREATE,
+      $resource,
+      $body
+    );
 
     return Resources\ResourceFactory::createFromApiResult(
       to_dict($result),
@@ -59,22 +63,22 @@ class ProfileMethodEndpoint extends CollectionEndpointAbstract<Resources\Method,
   /**
    * Enable a method for the provided Profile object.
    */
-  public function createFor(
+  public function createForAsync(
     Resources\Profile $profile,
     string $methodId,
     dict<arraykey, mixed> $data = dict[]
-  ): Resources\Method {
-    return $this->createForId($profile->id, $methodId, $data);
+  ): Awaitable<Resources\Method> {
+    return $this->createForIdAsync($profile->id, $methodId, $data);
   }
 
   /**
    * Enable a method for the current profile.
    */
-  public function createForCurrentProfile(
+  public function createForCurrentProfileAsync(
     string $methodId,
     dict<arraykey, mixed> $data = dict[]
-  ): Resources\Method {
-    return $this->createForId('me', $methodId, $data);
+  ): Awaitable<Resources\Method> {
+    return $this->createForIdAsync('me', $methodId, $data);
   }
 
   /**

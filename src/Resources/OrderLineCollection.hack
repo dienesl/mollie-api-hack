@@ -3,7 +3,7 @@ namespace Mollie\Api\Resources;
 class OrderLineCollection extends BaseCollectionBridge<OrderLine> {
   <<__Override>>
   public function getCollectionResourceName(): ?string {
-  return null;
+    return null;
   }
 
   /**
@@ -11,14 +11,14 @@ class OrderLineCollection extends BaseCollectionBridge<OrderLine> {
    * Returns null if the order line cannot be found.
    */
   public function get(
-  string $lineId
+    string $lineId
   ): ?OrderLine {
-  foreach($this->values as $line) {
-    if($line->id === $lineId) {
-    return $line;
+    foreach($this->values as $line) {
+      if($line->id === $lineId) {
+        return $line;
+      }
     }
-  }
 
-  return null;
+    return null;
   }
 }

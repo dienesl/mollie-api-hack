@@ -36,7 +36,7 @@ class OrderEndpoint extends CollectionEndpointAbstract<Resources\Order, Resource
   /**
    * Creates a order in Mollie.
    */
-  public function createAsync(
+  public function createForAsync(
     dict<arraykey, mixed> $data = dict[],
     dict<arraykey, mixed> $filters = dict[]
   ): Awaitable<Resources\Order> {

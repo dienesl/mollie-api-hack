@@ -1,8 +1,10 @@
 namespace Mollie\Api\Resources;
 
 use namespace HH\Lib\C;
-use type Mollie\Api\MollieApiClient;
-use type Mollie\Api\Types\ProfileStatus;
+use type Mollie\Api\Types\{
+  HttpMethod,
+  ProfileStatus
+};
 use function Mollie\Api\Functions\{
   to_dict,
   to_vec_dict
@@ -57,162 +59,218 @@ class Profile extends BaseResource {
   public Links $links;
 
   public function isUnverified(): bool {
-  return $this->status === ProfileStatus::STATUS_UNVERIFIED;
+    return $this->status === ProfileStatus::STATUS_UNVERIFIED;
   }
 
   public function isVerified(): bool {
-  return $this->status === ProfileStatus::STATUS_VERIFIED;
+    return $this->status === ProfileStatus::STATUS_VERIFIED;
   }
 
   public function isBlocked(): bool {
-  return $this->status === ProfileStatus::STATUS_BLOCKED;
+    return $this->status === ProfileStatus::STATUS_BLOCKED;
   }
 
-  public function update(): Profile {
-  $selfLink = $this->links->self;
-  if($selfLink === null) {
-    return $this;
-  } else {
-    $body = json_encode(dict[
-    'name' => $this->name,
-    'website' => $this->website,
-    'email' => $this->email,
-    'phone' => $this->phone,
-    'categoryCode' => $this->categoryCode,
-    'mode' => $this->mode,
-    ]);
+  public async function updateAsync(): Awaitable<Profile> {
+    $selfLink = $this->links->self;
+    if($selfLink === null) {
+      return $this;
+    } else {
+      $body = json_encode(dict[
+        'name' => $this->name,
+        'website' => $this->website,
+        'email' => $this->email,
+        'phone' => $this->phone,
+        'categoryCode' => $this->categoryCode,
+        'mode' => $this->mode,
+      ]);
 
-    $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_PATCH, $selfLink->href, $body);
+      $result = await $this->client->performHttpCallToFullUrlAsync(
+        HttpMethod::PATCH,
+        $selfLink->href,
+        $body
+      );
 
-    return ResourceFactory::createFromApiResult(
-    $result,
-    new Profile($this->client)
-    );
-  }
+      return ResourceFactory::createFromApiResult(
+        $result,
+        new Profile($this->client)
+      );
+    }
   }
 
   /**
    * Retrieves all chargebacks associated with this profile
    */
-  public function chargebacks(): ChargebackCollection {
-  $chargebacksLink = $this->links->chargebacks;
-  if($chargebacksLink === null) {
-    return new ChargebackCollection($this->client, 0, new Links());
-  } else {
-    $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $chargebacksLink->href);
+  public async function chargebacksAsync(): Awaitable<ChargebackCollection> {
+    $chargebacksLink = $this->links->chargebacks;
+    if($chargebacksLink === null) {
+      return new ChargebackCollection($this->client, 0, new Links());
+    } else {
+      $result = await $this->client->performHttpCallToFullUrlAsync(
+        HttpMethod::GET,
+        $chargebacksLink->href
+      );
 
-    return ResourceFactory::createCursorResourceCollection(
-    $this->client,
-    Chargeback::class,
-    ChargebackCollection::class,
-    to_vec_dict($result['_embedded']['chargebacks'] ?? vec[]),
-    to_dict($result['_links'] ?? dict[]) |> Links::assert($$)
-    );
-  }
+      $embedded = $result['_embedded'] ?? null;
+      if($embedded is KeyedContainer<_, _>) {
+        $targetEmbedded = $embedded['chargebacks'] ?? null;
+        if(!($targetEmbedded is Traversable<_>)) {
+          $targetEmbedded = vec[];
+        }
+      } else {
+        $targetEmbedded = vec[];
+      }
+
+      return ResourceFactory::createCursorResourceCollection(
+        $this->client,
+        Chargeback::class,
+        ChargebackCollection::class,
+        to_vec_dict($targetEmbedded),
+        to_dict($result['_links'] ?? dict[]) |> Links::assert($$)
+      );
+    }
   }
 
   /**
    * Retrieves all methods activated on this profile
    */
-  public function methods(): MethodCollection {
-  $methodsLink = $this->links->methods;
-  if($methodsLink === null) {
-    return new MethodCollection(0, new Links());
-  } else {
-    $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $methodsLink->href);
+  public async function methodsAsync(): Awaitable<MethodCollection> {
+    $methodsLink = $this->links->methods;
+    if($methodsLink === null) {
+      return new MethodCollection(0, new Links());
+    } else {
+      $result = await $this->client->performHttpCallToFullUrlAsync(
+        HttpMethod::GET,
+        $methodsLink->href
+      );
 
-    // probably it is wrong in the origin source
-    //return ResourceFactory::createCursorResourceCollection(
-    return ResourceFactory::createBaseResourceCollection(
-    $this->client,
-    Method::class,
-    MethodCollection::class,
-    to_vec_dict($result['_embedded']['methods'] ?? vec[]),
-    to_dict($result['_links'] ?? dict[]) |> Links::assert($$)
-    );
-  }
+      $embedded = $result['_embedded'] ?? null;
+      if($embedded is KeyedContainer<_, _>) {
+        $targetEmbedded = $embedded['methods'] ?? null;
+        if(!($targetEmbedded is Traversable<_>)) {
+          $targetEmbedded = vec[];
+        }
+      } else {
+        $targetEmbedded = vec[];
+      }
+
+      // probably it is wrong in the origin source
+      //return ResourceFactory::createCursorResourceCollection(
+      return ResourceFactory::createBaseResourceCollection(
+        $this->client,
+        Method::class,
+        MethodCollection::class,
+        to_vec_dict($targetEmbedded),
+        to_dict($result['_links'] ?? dict[]) |> Links::assert($$)
+      );
+    }
   }
 
   /**
    * Enable a payment method for this profile.
    */
-  public function enableMethod(
-  string $methodId,
-  dict<arraykey, mixed> $data = dict[]
-  ): Method {
-  return $this->client->profileMethods->createFor($this, $methodId, $data);
+  public function enableMethodAsync(
+    string $methodId,
+    dict<arraykey, mixed> $data = dict[]
+  ): Awaitable<Method> {
+    return $this->client->profileMethods->createForAsync($this, $methodId, $data);
   }
 
   /**
    * Disable a payment method for this profile.
    */
-  public function disableMethod(
-  string $methodId,
-  dict<arraykey, mixed> $data = dict[]
-  ): Method {
-  return $this->client->profileMethods->deleteFor($this, $methodId, $data);
+  public function disableMethodAsync(
+    string $methodId,
+    dict<arraykey, mixed> $data = dict[]
+  ): Awaitable<?Method> {
+    return $this->client->profileMethods->deleteForAsync($this, $methodId, $data);
   }
 
   /**
    * Retrieves all payments associated with this profile
    */
-  public function payments(): PaymentCollection {
-  $paymentsLink = $this->links->payments;
-  if($paymentsLink === null) {
-    return new PaymentCollection($this->client, 0, new Links());
-  } else {
-    $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $paymentsLink->href);
+  public async function paymentsAsync(): Awaitable<PaymentCollection> {
+    $paymentsLink = $this->links->payments;
+    if($paymentsLink === null) {
+      return new PaymentCollection($this->client, 0, new Links());
+    } else {
+      $result = await $this->client->performHttpCallToFullUrlAsync(
+        HttpMethod::GET,
+        $paymentsLink->href
+      );
 
-    return ResourceFactory::createCursorResourceCollection(
-    $this->client,
-    Payment::class,
-    PaymentCollection::class,
-    to_vec_dict($result['_embedded']['methods'] ?? vec[]),
-    to_dict($result['_links'] ?? dict[]) |> Links::assert($$)
-    );
-  }
+      $embedded = $result['_embedded'] ?? null;
+      if($embedded is KeyedContainer<_, _>) {
+        $targetEmbedded = $embedded['methods'] ?? null;
+        if(!($targetEmbedded is Traversable<_>)) {
+          $targetEmbedded = vec[];
+        }
+      } else {
+        $targetEmbedded = vec[];
+      }
+
+      return ResourceFactory::createCursorResourceCollection(
+        $this->client,
+        Payment::class,
+        PaymentCollection::class,
+        to_vec_dict($targetEmbedded),
+        to_dict($result['_links'] ?? dict[]) |> Links::assert($$)
+      );
+    }
   }
 
-  public function refunds(): RefundCollection {
-  $refundsLink = $this->links->refunds;
-  if($refundsLink === null) {
-    return new RefundCollection($this->client, 0, new Links());
-  } else {
-    $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $refundsLink->href);
+  public async function refundsAsync(): Awaitable<RefundCollection> {
+    $refundsLink = $this->links->refunds;
+    if($refundsLink === null) {
+      return new RefundCollection($this->client, 0, new Links());
+    } else {
+      $result = await $this->client->performHttpCallToFullUrlAsync(
+        HttpMethod::GET,
+        $refundsLink->href
+      );
 
-    return ResourceFactory::createCursorResourceCollection(
-    $this->client,
-    Refund::class,
-    RefundCollection::class,
-    to_vec_dict($result['_embedded']['refunds'] ?? vec[]),
-    to_dict($result['_links'] ?? dict[]) |> Links::assert($$)
-    );
-  }
+      $embedded = $result['_embedded'] ?? null;
+      if($embedded is KeyedContainer<_, _>) {
+        $targetEmbedded = $embedded['refunds'] ?? null;
+        if(!($targetEmbedded is Traversable<_>)) {
+          $targetEmbedded = vec[];
+        }
+      } else {
+        $targetEmbedded = vec[];
+      }
+
+      return ResourceFactory::createCursorResourceCollection(
+        $this->client,
+        Refund::class,
+        RefundCollection::class,
+        to_vec_dict($targetEmbedded),
+        to_dict($result['_links'] ?? dict[]) |> Links::assert($$)
+      );
+    }
   }
 
   <<__Override>>
   public function assert(
-  dict<string, mixed> $datas
+    dict<string, mixed> $datas
   ): void {
-  $this->resource = (string)$datas['resource'];
-  $this->id = (string)$datas['id'];
-  $this->mode = (string)$datas['mode'];
-  $this->name = (string)$datas['name'];
-  $this->website = (string)$datas['website'];
-  $this->email = (string)$datas['email'];
-  $this->phone = (string)$datas['phone'];
+    $this->resource = (string)$datas['resource'];
+    $this->id = (string)$datas['id'];
+    $this->mode = (string)$datas['mode'];
+    $this->name = (string)$datas['name'];
+    $this->website = (string)$datas['website'];
+    $this->email = (string)$datas['email'];
+    $this->phone = (string)$datas['phone'];
 
-  $this->categoryCode = (int)$datas['categoryCode'];
+    $this->categoryCode = (int)$datas['categoryCode'];
 
-  $this->status = ProfileStatus::assert($datas['status']);
+    $this->status = ProfileStatus::assert($datas['status']);
 
-  if(C\contains($datas, 'review')) {
-    $review = to_dict($datas['review']);
-    $this->review = new Review((string)($review['status'] ?? ''));
-  }
+    if(C\contains($datas, 'review')) {
+      $review = to_dict($datas['review']);
+      $this->review = new Review((string)($review['status'] ?? ''));
+    }
 
-  $this->createdAt = (string)$datas['createdAt'];
+    $this->createdAt = (string)$datas['createdAt'];
 
-  $this->links = to_dict($datas['_links'] ?? dict[]) |> Links::assert($$);
+    $this->links = to_dict($datas['_links'] ?? dict[]) |> Links::assert($$);
   }
 }

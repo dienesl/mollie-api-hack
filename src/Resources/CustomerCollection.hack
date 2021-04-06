@@ -3,11 +3,11 @@ namespace Mollie\Api\Resources;
 class CustomerCollection extends CursorCollection<Customer> {
   <<__Override>>
   public function getCollectionResourceName(): string {
-  return 'customers';
+    return 'customers';
   }
 
   <<__Override>>
   protected function createResourceObject(): Customer {
-  return new Customer($this->client);
+    return new Customer($this->client);
   }
 }

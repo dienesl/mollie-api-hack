@@ -6,20 +6,20 @@ class CurrentProfile extends Profile {
    */
   <<__Override>>
   public function enableMethod(
-  string $methodId,
-  dict<arraykey, mixed> $data = dict[]
+    string $methodId,
+    dict<arraykey, mixed> $data = dict[]
   ): Method {
-  return $this->client->profileMethods->createForCurrentProfile($methodId, $data);
+    return $this->client->profileMethods->createForCurrentProfile($methodId, $data);
   }
 
   /**
    * Disable a payment method for this profile.
    */
   <<__Override>>
-  public function disableMethod(
-  string $methodId,
-  dict<arraykey, mixed> $data = dict[]
-  ): Method {
-  return $this->client->profileMethods->deleteForCurrentProfile($methodId, $data);
+  public function disableMethodAsync(
+    string $methodId,
+    dict<arraykey, mixed> $data = dict[]
+  ): Awaitable<?Method> {
+    return $this->client->profileMethods->deleteForCurrentProfileAsync($methodId, $data);
   }
 }

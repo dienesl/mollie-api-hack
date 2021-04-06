@@ -235,23 +235,11 @@ class MollieApiClient {
   ): Awaitable<dict<string, mixed>> {
     $url = $this->apiEndpoint . '/' . self::API_VERSION . '/' . $apiMethod;
 
-    return $this->performHttpCallToFullUrl($httpMethod, $url, $httpBody);
+    return $this->performHttpCallToFullUrlAsync($httpMethod, $url, $httpBody);
   }
 
   /**
    * Perform an http call to a full url. This method is used by the resource specific classes.
-   *
-   * @see $payments
-   * @see $isuers
-   *
-   * @param string $httpMethod
-   * @param string $url
-   * @param string|null|resource|StreamInterface $httpBody
-   *
-   * @return \stdClass|null
-   * @throws ApiException
-   *
-   * @codeCoverageIgnore
    */
   public async function performHttpCallToFullUrlAsync(
     Types\HttpMethod $httpMethod,

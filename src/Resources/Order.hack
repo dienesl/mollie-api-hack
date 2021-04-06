@@ -4,8 +4,10 @@ use namespace HH\Lib\{
   C,
   Dict
 };
-use type Mollie\Api\MollieApiClient;
-use type Mollie\Api\Types\OrderStatus;
+use type Mollie\Api\Types\{
+  HttpMethod,
+  OrderStatus
+};
 use function Mollie\Api\Functions\{
   to_dict,
   to_dict_with_vec_dict,
@@ -193,21 +195,21 @@ class Order extends BaseResource {
    * Is this order created?
    */
   public function isCreated(): bool {
-  return $this->status === OrderStatus::STATUS_CREATED;
+    return $this->status === OrderStatus::STATUS_CREATED;
   }
 
   /**
    * Is this order paid for?
    */
   public function isPaid(): bool {
-  return $this->status === OrderStatus::STATUS_PAID;
+    return $this->status === OrderStatus::STATUS_PAID;
   }
 
   /**
    * Is this order authorized?
    */
   public function isAuthorized(): bool {
-  return $this->status === OrderStatus::STATUS_AUTHORIZED;
+    return $this->status === OrderStatus::STATUS_AUTHORIZED;
   }
 
   /**
@@ -216,7 +218,7 @@ class Order extends BaseResource {
    * @return bool
    */
   public function isCanceled(): bool {
-  return $this->status === OrderStatus::STATUS_CANCELED;
+    return $this->status === OrderStatus::STATUS_CANCELED;
   }
 
   /**
@@ -225,35 +227,35 @@ class Order extends BaseResource {
    */
   <<__Deprecated('This function has been replaced at 2018-11-27', 10)>>
   public function isRefunded(): bool {
-  return $this->status === OrderStatus::STATUS_REFUNDED;
+    return $this->status === OrderStatus::STATUS_REFUNDED;
   }
 
   /**
    * Is this order shipping?
    */
   public function isShipping(): bool {
-  return $this->status === OrderStatus::STATUS_SHIPPING;
+    return $this->status === OrderStatus::STATUS_SHIPPING;
   }
 
   /**
    * Is this order completed?
    */
   public function isCompleted(): bool {
-  return $this->status === OrderStatus::STATUS_COMPLETED;
+    return $this->status === OrderStatus::STATUS_COMPLETED;
   }
 
   /**
    * Is this order expired?
    */
   public function isExpired(): bool {
-  return $this->status === OrderStatus::STATUS_EXPIRED;
+    return $this->status === OrderStatus::STATUS_EXPIRED;
   }
 
   /**
    * Is this order completed?
    */
   public function isPending(): bool {
-  return $this->status === OrderStatus::STATUS_PENDING;
+    return $this->status === OrderStatus::STATUS_PENDING;
   }
 
   /**
@@ -263,8 +265,8 @@ class Order extends BaseResource {
    * Will throw a ApiException if the order id is invalid or the resource cannot
    * be found.
    */
-  public function cancel(): Order {
-  return $this->client->orders->cancel($this->id, $this->getPresetOptions());
+  public function cancelAsync(): Awaitable<?Order> {
+    return $this->client->orders->cancelAsync($this->id, $this->getPresetOptions());
   }
 
   /**
@@ -272,164 +274,168 @@ class Order extends BaseResource {
    * The data array must contain a lines array.
    * You can pass an empty lines array if you want to cancel all eligible lines.
    * Returns null if successful.
-   *
-   * @param  array|null $data
-   * @return null
-   * @throws \Mollie\Api\Exceptions\ApiException
    */
-  public function cancelLines(
-  dict<arraykey, mixed> $data
-  ): void {
-  $this->client->orderLines->cancelFor($this, $data);
+  public async function cancelLinesAsync(
+    dict<arraykey, mixed> $data
+  ): Awaitable<void> {
+    await $this->client->orderLines->cancelForAsync($this, $data);
   }
 
   /**
    * Cancels all eligible lines for this order.
    * Returns null if successful.
-   *
-   * @param  array|null $data
-   * @return null
-   * @throws \Mollie\Api\Exceptions\ApiException
    */
-  public function cancelAllLines(
-  dict<arraykey, mixed> $data = dict[]
-  ): void {
-  $data['lines'] = dict[];
+  public async function cancelAllLinesAsync(
+    dict<arraykey, mixed> $data = dict[]
+  ): Awaitable<void> {
+    $data['lines'] = dict[];
 
-  $this->client->orderLines->cancelFor($this, $data);
+    await $this->client->orderLines->cancelForAsync($this, $data);
   }
 
   /**
    * Get the line value objects
    */
   public function lines(): OrderLineCollection {
-  return ResourceFactory::createBaseResourceCollection(
-    $this->client,
-    OrderLine::class,
-    OrderLineCollection::class,
-    to_vec_dict($this->lines),
-    new Links()
-  );
+    return ResourceFactory::createBaseResourceCollection(
+      $this->client,
+      OrderLine::class,
+      OrderLineCollection::class,
+      to_vec_dict($this->lines),
+      new Links()
+    );
   }
 
   /**
    * Create a shipment for some order lines. You can provide an empty array for the
    * "lines" option to include all unshipped lines for this order.
    */
-  public function createShipment(
-  dict<arraykey, mixed> $options
-  ): Shipment {
-  return $this->client->shipments->createFor($this, $this->withPresetOptions($options));
+  public function createShipmentAsync(
+    dict<arraykey, mixed> $options
+  ): Awaitable<Shipment> {
+    return $this->client->shipments->createForAsync($this, $this->withPresetOptions($options));
   }
 
   /**
    * Create a shipment for all unshipped order lines.
    */
-  public function shipAll(
-  dict<arraykey, mixed> $options = dict[]
-  ): Shipment {
-  $options['lines'] = dict[];
+  public function shipAllAsync(
+    dict<arraykey, mixed> $options = dict[]
+  ): Awaitable<Shipment> {
+    $options['lines'] = dict[];
 
-  return $this->createShipment($options);
+    return $this->createShipmentAsync($options);
   }
 
   /**
    * Retrieve a specific shipment for this order.
    */
-  public function getShipment(
-  string $shipmentId,
-  dict<arraykey, mixed> $parameters = dict[]
-  ): Shipment {
-  return $this->client->shipments->getFor($this, $shipmentId, $this->withPresetOptions($parameters));
+  public function getShipmentAsync(
+    string $shipmentId,
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Awaitable<Shipment> {
+    return $this->client->shipments->getForAsync($this, $shipmentId, $this->withPresetOptions($parameters));
   }
 
   /**
    * Get all shipments for this order.
    */
-  public function shipments(
-  dict<arraykey, mixed> $parameters = dict[]
-  ): ShipmentCollection {
-  return $this->client->shipments->listFor($this, $this->withPresetOptions($parameters));
+  public function shipmentsAsync(
+    dict<arraykey, mixed> $parameters = dict[]
+  ): Awaitable<ShipmentCollection> {
+    return $this->client->shipments->listForAsync($this, $this->withPresetOptions($parameters));
   }
 
   /**
    * Get the checkout URL where the customer can complete the payment.
    */
   public function getCheckoutUrl(): ?string {
-  return $this->links->checkout?->href;
+    return $this->links->checkout?->href;
   }
 
   /**
    * Refund specific order lines.
    */
-  public function refund(
-  dict<arraykey, mixed> $data
-  ): Refund {
-  return $this->client->orderRefunds->createFor($this, $this->withPresetOptions($data));
+  public function refundAsync(
+    dict<arraykey, mixed> $data
+  ): Awaitable<Refund> {
+    return $this->client->orderRefunds->createForAsync($this, $this->withPresetOptions($data));
   }
 
   /**
    * Refund all eligible order lines.
    */
-  public function refundAll(
-  dict<arraykey, mixed> $data = dict[]
-  ): Refund {
-  $data['lines'] = dict[];
+  public function refundAllAsync(
+    dict<arraykey, mixed> $data = dict[]
+  ): Awaitable<Refund> {
+    $data['lines'] = dict[];
 
-  return $this->refund($data);
+    return $this->refundAsync($data);
   }
 
   /**
    * Retrieves all refunds associated with this order
    */
-  public function refunds(): RefundCollection {
-  $refundsLink = $this->links->refunds;
-  if($refundsLink === null) {
-    return new RefundCollection($this->client, 0, new Links());
-  } else {
-    $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_GET, $refundsLink->href);
+  public async function refundsAsync(): Awaitable<RefundCollection> {
+    $refundsLink = $this->links->refunds;
+    if($refundsLink === null) {
+      return new RefundCollection($this->client, 0, new Links());
+    } else {
+      $result = await $this->client->performHttpCallToFullUrlAsync(HttpMethod::GET, $refundsLink->href);
 
-    return ResourceFactory::createCursorResourceCollection(
-    $this->client,
-    Refund::class,
-    RefundCollection::class,
-    to_vec_dict($result->embedded['refunds'] ?? vec[]),
-    $result->links
-    );
-  }
+      $embedded = $result['_embedded'];
+      if($embedded is KeyedContainer<_, _>) {
+        $targetEmbedded = $embedded['refunds'];
+        if(!($targetEmbedded is Traversable<_>)) {
+          $targetEmbedded = vec[];
+        }
+      } else {
+        $targetEmbedded = vec[];
+      }
+
+      return ResourceFactory::createCursorResourceCollection(
+        $this->client,
+        Refund::class,
+        RefundCollection::class,
+        to_vec_dict($targetEmbedded),
+        to_dict($result['_links'] ?? dict[]) |> Links::assert($$)
+      );
+    }
   }
 
   /**
    * Saves the order's updated billingAddress and/or shippingAddress.
    */
-  public function update(): Order {
-  $selfLink = $this->links->self;
-  if($selfLink === null) {
-    return $this;
-  } else {
-    $body = json_encode(dict[
-    'billingAddress' => $this->billingAddress,
-    'shippingAddress' => $this->shippingAddress,
-    'orderNumber' => $this->orderNumber,
-    'redirectUrl' => $this->redirectUrl,
-    'webhookUrl' => $this->webhookUrl,
-    ]);
+  public async function updateAsync(): Awaitable<Order> {
+    $selfLink = $this->links->self;
+    if($selfLink === null) {
+      return $this;
+    } else {
+      $body = json_encode(dict[
+        'billingAddress' => $this->billingAddress,
+        'shippingAddress' => $this->shippingAddress,
+        'orderNumber' => $this->orderNumber,
+        'redirectUrl' => $this->redirectUrl,
+        'webhookUrl' => $this->webhookUrl,
+      ]);
 
-    $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_PATCH, $selfLink->href, $body);
+      $result = $this->client->performHttpCallToFullUrlAsync(HttpMethod::PATCH, $selfLink->href, $body);
 
-    return ResourceFactory::createFromApiResult($result, new Order($this->client));
-  }
+      return ResourceFactory::createFromApiResult(
+        to_dict($result),
+        new Order($this->client)
+      );
+    }
   }
 
   /**
    * Create a new payment for this Order.
-   * TODO, what is $data here?
    */
-  public function createPayment(
-  mixed $data,
-  dict<arraykey, mixed> $filters = dict[]
-  ): Payment {
-  return $this->client->orderPayments->createFor($this, $data, $filters);
+  public function createPaymentAsync(
+    dict<arraykey, mixed> $data,
+    dict<arraykey, mixed> $filters = dict[]
+  ): Awaitable<Payment> {
+    return $this->client->orderPayments->createForAsync($this, $data, $filters);
   }
 
   /**
@@ -437,109 +443,109 @@ class Order extends BaseResource {
    * Requires the order to be retrieved using the embed payments parameter.
    */
   public function payments(): ?PaymentCollection {
-  if(!C\contains_key($this->embedded, 'payments')) {
-    return null;
-  }
+    if(!C\contains_key($this->embedded, 'payments')) {
+      return null;
+    }
 
-  return ResourceFactory::createCursorResourceCollection(
-    $this->client,
-    Payment::class,
-    PaymentCollection::class,
-    $this->embedded['payments'] ?? vec[],
-    new Links()
-  );
+    return ResourceFactory::createCursorResourceCollection(
+      $this->client,
+      Payment::class,
+      PaymentCollection::class,
+      $this->embedded['payments'] ?? vec[],
+      new Links()
+    );
   }
 
   /**
    * When accessed by oAuth we want to pass the testmode by default
    */
   private function getPresetOptions(): dict<arraykey, mixed> {
-  $options = dict[];
-  if($this->client->usesOAuth()) {
-    $options['testmode'] = $this->mode === 'test' ? true : false;
-  }
+    $options = dict[];
+    if($this->client->usesOAuth()) {
+      $options['testmode'] = $this->mode === 'test' ? true : false;
+    }
 
-  return $options;
+    return $options;
   }
 
   /**
    * Apply the preset options.
    */
   private function withPresetOptions(
-  dict<arraykey, mixed> $options
+    dict<arraykey, mixed> $options
   ): dict<arraykey, mixed> {
-  return Dict\merge($this->getPresetOptions(), $options);
+    return Dict\merge($this->getPresetOptions(), $options);
   }
 
   <<__Override>>
   public function assert(
-  dict<string, mixed> $datas
+    dict<string, mixed> $datas
   ): void {
-  $this->resource = (string)$datas['resource'];
-  $this->id = (string)$datas['id'];
-  $this->profileId = (string)$datas['profileId'];
-  $this->mode = (string)$datas['mode'];
+    $this->resource = (string)$datas['resource'];
+    $this->id = (string)$datas['id'];
+    $this->profileId = (string)$datas['profileId'];
+    $this->mode = (string)$datas['mode'];
 
-  $this->amount = to_dict($datas['amount']) |> Amount::assert($$);
-  $this->amountCaptured = to_dict($datas['amountCaptured']) |> Amount::assert($$);
-  $this->amountRefunded = to_dict($datas['amountRefunded']) |> Amount::assert($$);
+    $this->amount = to_dict($datas['amount']) |> Amount::assert($$);
+    $this->amountCaptured = to_dict($datas['amountCaptured']) |> Amount::assert($$);
+    $this->amountRefunded = to_dict($datas['amountRefunded']) |> Amount::assert($$);
 
-  $this->status = OrderStatus::assert((string)$datas['status']);
+    $this->status = OrderStatus::assert((string)$datas['status']);
 
-  $this->billingAddress = to_dict($datas['billingAddress']) |> Address::assert($$);
+    $this->billingAddress = to_dict($datas['billingAddress']) |> Address::assert($$);
 
-  if(C\contains_key($datas, 'consumerDateOfBirth')) {
-    $this->consumerDateOfBirth = (string)$datas['consumerDateOfBirth'];
-  }
+    if(C\contains_key($datas, 'consumerDateOfBirth')) {
+      $this->consumerDateOfBirth = (string)$datas['consumerDateOfBirth'];
+    }
 
-  $this->orderNumber = (string)$datas['orderNumber'];
+    $this->orderNumber = (string)$datas['orderNumber'];
 
-  $this->shippingAddress = to_dict($datas['shippingAddress']) |> Address::assert($$);
+    $this->shippingAddress = to_dict($datas['shippingAddress']) |> Address::assert($$);
 
-  if(C\contains_key($datas, 'method')) {
-    $this->method = (string)$datas['method'];
-  }
+    if(C\contains_key($datas, 'method')) {
+      $this->method = (string)$datas['method'];
+    }
 
-  $this->locale = (string)$datas['locale'];
+    $this->locale = (string)$datas['locale'];
 
-  $this->metadata = $datas['metadata'];
+    $this->metadata = $datas['metadata'];
 
-  $this->isCancelable = (bool)$datas['isCancelable'];
+    $this->isCancelable = (bool)$datas['isCancelable'];
 
-  if(C\contains_key($datas, 'webhookUrl')) {
-    $this->webhookUrl = (string)$datas['webhookUrl'];
-  }
+    if(C\contains_key($datas, 'webhookUrl')) {
+      $this->webhookUrl = (string)$datas['webhookUrl'];
+    }
 
-  $this->redirectUrl = (string)$datas['redirectUrl'];
+    $this->redirectUrl = (string)$datas['redirectUrl'];
 
-  if(C\contains_key($datas, 'createdAt')) {
-    $this->createdAt = (string)$datas['createdAt'];
-  }
+    if(C\contains_key($datas, 'createdAt')) {
+      $this->createdAt = (string)$datas['createdAt'];
+    }
 
-  if(C\contains_key($datas, 'expiresAt')) {
-    $this->expiresAt = (string)$datas['expiresAt'];
-  }
+    if(C\contains_key($datas, 'expiresAt')) {
+      $this->expiresAt = (string)$datas['expiresAt'];
+    }
 
-  if(C\contains_key($datas, 'expiredAt')) {
-    $this->expiredAt = (string)$datas['expiredAt'];
-  }
+    if(C\contains_key($datas, 'expiredAt')) {
+      $this->expiredAt = (string)$datas['expiredAt'];
+    }
 
-  if(C\contains_key($datas, 'paidAt')) {
-    $this->paidAt = (string)$datas['paidAt'];
-  }
+    if(C\contains_key($datas, 'paidAt')) {
+      $this->paidAt = (string)$datas['paidAt'];
+    }
 
-  if(C\contains_key($datas, 'authorizedAt')) {
-    $this->authorizedAt = (string)$datas['authorizedAt'];
-  }
+    if(C\contains_key($datas, 'authorizedAt')) {
+      $this->authorizedAt = (string)$datas['authorizedAt'];
+    }
 
-  if(C\contains_key($datas, 'canceledAt')) {
-    $this->canceledAt = (string)$datas['canceledAt'];
-  }
+    if(C\contains_key($datas, 'canceledAt')) {
+      $this->canceledAt = (string)$datas['canceledAt'];
+    }
 
-  $this->lines = $datas['lines'];
+    $this->lines = $datas['lines'];
 
-  $this->links = to_dict($datas['_links']) |> Links::assert($$);
+    $this->links = to_dict($datas['_links']) |> Links::assert($$);
 
-  $this->embedded = to_dict_with_vec_dict($datas['_embedded']);
+    $this->embedded = to_dict_with_vec_dict($datas['_embedded']);
   }
 }

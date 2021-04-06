@@ -5,10 +5,10 @@ use type Mollie\Api\MollieApiClient;
 <<__ConsistentConstruct>>
 abstract class BaseResource {
   public function __construct(
-  protected MollieApiClient $client
+    protected MollieApiClient $client
   ) {}
 
   abstract public function assert(
-  dict<string, mixed> $datas
+    dict<string, mixed> $datas
   ): void;
 }

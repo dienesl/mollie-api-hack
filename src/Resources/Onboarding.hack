@@ -42,18 +42,18 @@ class Onboarding extends BaseResource {
   }
 
   <<__Override>>
-  public function assert(
-  dict<string, mixed> $datas
+    public function assert(
+    dict<string, mixed> $datas
   ): void {
-  $this->resource = (string)$datas['resource'];
-  $this->name = (string)$datas['name'];
-  $this->signedUpAt = (string)$datas['signedUpAt'];
+    $this->resource = (string)$datas['resource'];
+    $this->name = (string)$datas['name'];
+    $this->signedUpAt = (string)$datas['signedUpAt'];
 
-  $this->status = OnboardingStatus::assert((string)$datas['signedUpAt']);
+    $this->status = OnboardingStatus::assert((string)$datas['signedUpAt']);
 
-  $this->canReceivePayments = (bool)$datas['canReceivePayments'];
-  $this->canReceiveSettlements = (bool)$datas['canReceiveSettlements'];
+    $this->canReceivePayments = (bool)$datas['canReceivePayments'];
+    $this->canReceiveSettlements = (bool)$datas['canReceiveSettlements'];
 
-  $this->links = to_dict($datas['_links']) |> Links::assert($$);
+    $this->links = to_dict($datas['_links']) |> Links::assert($$);
   }
 }

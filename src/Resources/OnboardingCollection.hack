@@ -3,11 +3,11 @@ namespace Mollie\Api\Resources;
 class OnboardingCollection extends CursorCollection<Onboarding> {
   <<__Override>>
   public function getCollectionResourceName(): string {
-  return 'onboarding';
+    return 'onboarding';
   }
 
   <<__Override>>
   protected function createResourceObject(): Onboarding {
-  return new Onboarding($this->client);
+    return new Onboarding($this->client);
   }
 }

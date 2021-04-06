@@ -71,51 +71,51 @@ class Method extends BaseResource {
    * Get the issuer value objects
    */
   public function issuers(): IssuerCollection {
-  return ResourceFactory::createBaseResourceCollection(
-    $this->client,
-    Issuer::class,
-    IssuerCollection::class,
-    to_vec_dict($this->issuers),
-    new Links()
-  );
+    return ResourceFactory::createBaseResourceCollection(
+      $this->client,
+      Issuer::class,
+      IssuerCollection::class,
+      to_vec_dict($this->issuers),
+      new Links()
+    );
   }
 
   /**
    * Get the method price value objects.
    */
   public function pricing(): MethodPriceCollection {
-  return ResourceFactory::createBaseResourceCollection(
-    $this->client,
-    MethodPrice::class,
-    MethodPriceCollection::class,
-    to_vec_dict($this->pricing),
-    new Links()
-  );
+    return ResourceFactory::createBaseResourceCollection(
+      $this->client,
+      MethodPrice::class,
+      MethodPriceCollection::class,
+      to_vec_dict($this->pricing),
+      new Links()
+    );
   }
 
   <<__Override>>
   public function assert(
-  dict<string, mixed> $datas
+    dict<string, mixed> $datas
   ): void {
-  $this->resource = (string)$datas['resource'];
-  $this->id = (string)$datas['id'];
-  $this->description = (string)$datas['description'];
+    $this->resource = (string)$datas['resource'];
+    $this->id = (string)$datas['id'];
+    $this->description = (string)$datas['description'];
 
-  $this->minimumAmount = to_dict($datas['minimumAmount']) |> Amount::assert($$);
-  $this->maximumAmount = to_dict($datas['maximumAmount']) |> Amount::assert($$);
+    $this->minimumAmount = to_dict($datas['minimumAmount']) |> Amount::assert($$);
+    $this->maximumAmount = to_dict($datas['maximumAmount']) |> Amount::assert($$);
 
-  $this->image = to_dict($datas['image']) |> Image::assert($$);
+    $this->image = to_dict($datas['image']) |> Image::assert($$);
 
-  if(C\contains_key($datas, 'issuers') && $datas['issuers'] !== null) {
-    $this->issuers = $datas['issuers'];
-  }
+    if(C\contains_key($datas, 'issuers') && $datas['issuers'] !== null) {
+      $this->issuers = $datas['issuers'];
+    }
 
-  if(C\contains_key($datas, 'pricing') && $datas['pricing'] !== null) {
-    $this->pricing = $datas['pricing'];
-  }
+    if(C\contains_key($datas, 'pricing') && $datas['pricing'] !== null) {
+      $this->pricing = $datas['pricing'];
+    }
 
-  $this->status = (string)$datas['status'];
+    $this->status = (string)$datas['status'];
 
-  $this->links = to_dict($datas['_links']) |> Links::assert($$);
+    $this->links = to_dict($datas['_links']) |> Links::assert($$);
   }
 }

@@ -30,16 +30,16 @@ class MethodPrice extends BaseResource {
 
   <<__Override>>
   public function assert(
-  dict<string, mixed> $datas
+    dict<string, mixed> $datas
   ): void {
-  $this->description = (string)$datas['description'];
+    $this->description = (string)$datas['description'];
 
-  $this->fixed = to_dict($datas['fixed']) |> Amount::assert($$);
+    $this->fixed = to_dict($datas['fixed']) |> Amount::assert($$);
 
-  $this->variable = (float)$datas['variable'];
+    $this->variable = (float)$datas['variable'];
 
-  if(C\contains_key($datas, 'feeRegion') && $datas['feeRegion'] !== null) {
-    $this->feeRegion = (string)$datas['feeRegion'];
-  }
+    if(C\contains_key($datas, 'feeRegion') && $datas['feeRegion'] !== null) {
+      $this->feeRegion = (string)$datas['feeRegion'];
+    }
   }
 }

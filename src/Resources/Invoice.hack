@@ -68,50 +68,50 @@ class Invoice extends BaseResource {
   public Links $links;
 
   public function isPaid(): bool {
-  return $this->status === InvoiceStatus::STATUS_PAID;
+    return $this->status === InvoiceStatus::STATUS_PAID;
   }
 
   public function isOpen(): bool {
-  return $this->status === InvoiceStatus::STATUS_OPEN;
+    return $this->status === InvoiceStatus::STATUS_OPEN;
   }
 
   public function isOverdue(): bool {
-  return $this->status === InvoiceStatus::STATUS_OVERDUE;
+    return $this->status === InvoiceStatus::STATUS_OVERDUE;
   }
 
   <<__Override>>
   public function assert(
-  dict<string, mixed> $datas
+    dict<string, mixed> $datas
   ): void {
-  $this->reference = (string)$datas['reference'];
-  $this->id = (string)$datas['id'];
-  $this->reference = (string)$datas['reference'];
-  $this->vatNumber = (string)$datas['vatNumber'];
+    $this->reference = (string)$datas['reference'];
+    $this->id = (string)$datas['id'];
+    $this->reference = (string)$datas['reference'];
+    $this->vatNumber = (string)$datas['vatNumber'];
 
-  $this->status = InvoiceStatus::assert((string)$datas['status']);
+    $this->status = InvoiceStatus::assert((string)$datas['status']);
 
-  $this->issuedAt = (string)$datas['issuedAt'];
+    $this->issuedAt = (string)$datas['issuedAt'];
 
-  if(C\contains_key($datas, 'paidAt')) {
-    $this->paidAt = (string)$datas['paidAt'];
-  }
-
-  if(C\contains_key($datas, 'dueAt')) {
-    $this->dueAt = (string)$datas['dueAt'];
-  }
-
-  $this->netAmount = to_dict($datas['netAmount']) |> Amount::assert($$);
-  $this->vatAmount = to_dict($datas['vatAmount']) |> Amount::assert($$);
-  $this->grossAmount = to_dict($datas['grossAmount']) |> Amount::assert($$);
-
-  $this->lines = vec[];
-  $lines = $datas['lines'];
-  if($lines is Traversable<_>) {
-    foreach($lines as $line) {
-    $this->lines[] = to_dict($line) |> Line::assert($$);
+    if(C\contains_key($datas, 'paidAt')) {
+      $this->paidAt = (string)$datas['paidAt'];
     }
-  }
 
-  $this->links = to_dict($datas['_links']) |> Links::assert($$);
+    if(C\contains_key($datas, 'dueAt')) {
+      $this->dueAt = (string)$datas['dueAt'];
+    }
+
+    $this->netAmount = to_dict($datas['netAmount']) |> Amount::assert($$);
+    $this->vatAmount = to_dict($datas['vatAmount']) |> Amount::assert($$);
+    $this->grossAmount = to_dict($datas['grossAmount']) |> Amount::assert($$);
+
+    $this->lines = vec[];
+    $lines = $datas['lines'];
+    if($lines is Traversable<_>) {
+      foreach($lines as $line) {
+        $this->lines[] = to_dict($line) |> Line::assert($$);
+      }
+    }
+
+    $this->links = to_dict($datas['_links']) |> Links::assert($$);
   }
 }
