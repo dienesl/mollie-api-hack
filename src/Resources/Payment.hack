@@ -206,8 +206,7 @@ class Payment extends BaseResource {
    * payment method will set $details->consumerName and $details->consumerAccount.
    * TODO https://docs.mollie.com/reference/v2/payments-api/get-payment
    */
-  <<__LateInit>>
-  public Details $details;
+  public ?Details $details;
 
   /**
    * Used to restrict the payment methods available to your customer to those from a single country.
@@ -731,7 +730,9 @@ class Payment extends BaseResource {
 
     $this->metadata = $datas['metadata'];
 
-    $this->details = to_dict($datas['details']) |> Details::assert($$);
+    if(C\contains_key($datas, 'details') && $datas['details'] !== null) {
+      $this->details = to_dict($datas['details']) |> Details::assert($$);
+    }
 
     if(C\contains_key($datas, 'restrictPaymentMethodsToCountry') && $datas['restrictPaymentMethodsToCountry'] !== null) {
       $this->restrictPaymentMethodsToCountry = (string)$datas['restrictPaymentMethodsToCountry'];

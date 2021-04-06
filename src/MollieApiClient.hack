@@ -1,6 +1,7 @@
 namespace Mollie\Api;
 
 use namespace HH\Lib\{
+  C,
   Dict,
   Regex,
   Str,
@@ -12,13 +13,15 @@ use namespace Mollie\Api\{
 use type Mollie\Api\Exceptions\ApiException;
 use function curl_init;
 use function curl_setopt;
+use function curl_getinfo;
 use function HH\Asio\curl_exec;
 use function json_decode;
 use const CURLOPT_CUSTOMREQUEST;
-use const CURLOPT_RETURNTRANSFER;
 use const CURLOPT_HTTPHEADER;
+use const CURLINFO_HTTP_CODE;
 use const CURLOPT_POST;
 use const CURLOPT_POSTFIELDS;
+use const CURLOPT_RETURNTRANSFER;
 
 class MollieApiClient {
   /**
@@ -120,7 +123,7 @@ class MollieApiClient {
 
   protected vec<string> $versionStrings = vec[];
 
-  protected ?int $lastHttpResponseStatusCode;
+  protected int $lastHttpResponseStatusCode = 0;
 
   public function __construct() {
     $this->payments = new Endpoints\PaymentEndpoint($this);
@@ -282,11 +285,19 @@ class MollieApiClient {
 
     $response = await curl_exec($ch);
 
-    if(Str\is_empty($response)) {
-      throw new ApiException('Did not receive API response.');
-    }
+    $this->lastHttpResponseStatusCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-    return $this->parseResponseBody($response);
+    if($this->lastHttpResponseStatusCode === self::HTTP_NO_CONTENT || Str\is_empty($response)) {
+      throw new ApiException('Did not receive API response.');
+    } else {
+      $responseDict = $this->parseResponseBody($response);
+
+      if($this->lastHttpResponseStatusCode >= 400) {
+        throw new ApiException($response, $this->lastHttpResponseStatusCode);
+      } else {
+        return $responseDict;
+      }
+    }
   }
 
   private function parseResponseBody(
@@ -296,8 +307,8 @@ class MollieApiClient {
 
     if($result === null) {
       throw new ApiException('Did not recive Api valid json.');
+    } else {
+      return dict($result);
     }
-
-    return dict($result);
   }
 }
