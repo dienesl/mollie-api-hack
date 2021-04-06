@@ -1,8 +1,8 @@
 namespace Mollie\Api\Resources;
 
 use type Mollie\Api\Types\{
+  HttpMethod,
   MandateStatus,
-  HttpMethod
 };
 use function Mollie\Api\Functions\to_dict;
 use function json_encode;
