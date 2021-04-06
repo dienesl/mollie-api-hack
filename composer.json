@@ -1,58 +1,21 @@
 {
-  "name": "dienesl/mollie-api-hack",
-  "description": "Mollie API client library for hack. Forked from https://github.com/mollie/mollie-api-php",
-  "keywords": [
-    "mollie",
-    "payment",
-    "service",
-    "ideal",
-    "creditcard",
-    "apple pay",
-    "mistercash",
-    "bancontact",
-    "sofort",
-    "sofortbanking",
-    "sepa",
-    "paypal",
-    "paysafecard",
-    "podiumcadeaukaart",
-    "przelewy24",
-    "banktransfer",
-    "direct debit",
-    "belfius",
-    "belfius direct net",
-    "refunds",
-    "api",
-    "payments",
-    "gateway",
-    "subscriptions",
-    "recurring",
-    "charges",
-    "kbc",
-    "cbc",
-    "gift cards",
-    "intersolve",
-    "fashioncheque",
-    "inghomepay",
-    "klarna",
-    "paylater",
-    "sliceit",
-    "hack",
-    "hhvm"
-  ],
-  "license": "BSD-2-Clause",
-  "authors": [
-    {
-      "name": "Laszlo Dienes"
-    }
-  ],
-  "require": {
-    "hhvm": "^4.100",
-    "hhvm/hhvm-autoload": "^3.2"
-  },
-  "require-dev": {
-    "hhvm/hhast": "^4.95",
-    "hhvm/hacktest": "^2.2",
-    "facebook/fbexpect": "^2.7"
-  }
+    "name": "dienesl/mollie-api-hack",
+    "description": "Mollie API client library for hack. Forked from https://github.com/mollie/mollie-api-php",
+    "type": "library",
+    "require": {
+        "hhvm": "^4.100"
+    },
+    "require-dev": {
+        "hhvm/hhvm-autoload": "^3.2",
+        "hhvm/hhast": "^4.95",
+        "hhvm/hacktest": "^2.2",
+        "facebook/fbexpect": "^2.7"
+    },
+    "license": "GNU",
+    "authors": [
+        {
+            "name": "Laszlo Dienes",
+            "email": "l.dienes@ingenia-it.de"
+        }
+    ]
 }
