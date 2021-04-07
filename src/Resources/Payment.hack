@@ -742,7 +742,9 @@ class Payment extends BaseResource {
 
     $this->embedded = to_dict_with_vec_dict($datas['_embedded'] ?? vec[]);
 
-    $this->isCancelable = (bool)$datas['isCancelable'];
+    if(C\contains_key($datas, 'isCancelable') && $datas['isCancelable'] !== null) {
+      $this->isCancelable = (bool)$datas['isCancelable'];
+    }
 
     if(C\contains_key($datas, 'amountCaptured') && $datas['amountCaptured'] !== null) {
       $this->amountCaptured = to_dict($datas['amountCaptured']) |> Amount::assert($$);
