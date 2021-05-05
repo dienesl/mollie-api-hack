@@ -69,11 +69,15 @@ class Customer extends BaseResource {
     }
   }
 
-  public function createPayment(
+  public function createPaymentAsync(
     dict<arraykey, mixed> $options = dict[],
     dict<arraykey, mixed> $filters = dict[]
-  ): Payment {
-    return $this->client->customerPayments->createFor($this, $this->withPresetOptions($options), $filters);
+  ): Awaitable<Payment> {
+    return $this->client->customerPayments->createForAsync(
+      $this,
+      $this->withPresetOptions($options),
+      $filters
+    );
   }
 
   /**

@@ -30,11 +30,11 @@ class CustomerEndpoint extends CollectionEndpointAbstract<Resources\Customer, Re
   /**
    * Creates a customer in Mollie.
    */
-  public function create(
+  public function createAsync(
     dict<arraykey, mixed> $data = dict[],
     dict<arraykey, mixed> $filters = dict[]
-  ): Resources\Customer {
-    return $this->restCreate($data, $filters);
+  ): Awaitable<Resources\Customer> {
+    return $this->restCreateAsync($data, $filters);
   }
 
   /**
@@ -42,11 +42,11 @@ class CustomerEndpoint extends CollectionEndpointAbstract<Resources\Customer, Re
    *
    * Will throw a ApiException if the customer id is invalid or the resource cannot be found.
    */
-  public function get(
+  public function getAsync(
     string $customerId,
     dict<arraykey, mixed> $parameters = dict[]
-  ): Resources\Customer {
-    return $this->restRead($customerId, $parameters);
+  ): Awaitable<Resources\Customer> {
+    return $this->restReadAsync($customerId, $parameters);
   }
 
   /**
@@ -55,11 +55,11 @@ class CustomerEndpoint extends CollectionEndpointAbstract<Resources\Customer, Re
    * Will throw a ApiException if the customer id is invalid or the resource cannot be found.
    * Returns with HTTP status No Content(204) if successful.
    */
-  public function delete(
+  public function deleteAsync(
     string $customerId,
     dict<arraykey, mixed> $data = dict[]
-  ): ?Resources\BaseResource {
-    return $this->restDelete($customerId, $data);
+  ): Awaitable<?Resources\BaseResource> {
+    return $this->restDeleteAsync($customerId, $data);
   }
 
   /**

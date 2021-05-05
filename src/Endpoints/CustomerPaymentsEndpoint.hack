@@ -30,25 +30,25 @@ class CustomerPaymentsEndpoint extends CollectionEndpointAbstract<Resources\Paym
   /**
    * Create a subscription for a Customer
    */
-  public function createFor(
+  public function createForAsync(
     Resources\Customer $customer,
     dict<arraykey, mixed> $options = dict[],
     dict<arraykey, mixed> $filters = dict[]
-  ): Resources\Payment {
-    return $this->createForId($customer->id, $options, $filters);
+  ): Awaitable<Resources\Payment> {
+    return $this->createForIdAsync($customer->id, $options, $filters);
   }
 
   /**
    * Create a subscription for a Customer ID
    */
-  public function createForId(
+  public function createForIdAsync(
     string $customerId,
     dict<arraykey, mixed> $options = dict[],
     dict<arraykey, mixed> $filters = dict[]
-  ): Resources\Payment {
+  ): Awaitable<Resources\Payment> {
     $this->parentId = $customerId;
 
-    return parent::restCreate($options, $filters);
+    return parent::restCreateAsync($options, $filters);
   }
 
   public function listForAsync(
@@ -57,7 +57,7 @@ class CustomerPaymentsEndpoint extends CollectionEndpointAbstract<Resources\Paym
     ?int $limit = null,
     dict<arraykey, mixed> $parameters = dict[]
   ): Awaitable<Resources\PaymentCollection> {
-    return $this->listForId($customer->id, $from, $limit, $parameters);
+    return $this->listForIdAsync($customer->id, $from, $limit, $parameters);
   }
 
   /**
@@ -71,6 +71,6 @@ class CustomerPaymentsEndpoint extends CollectionEndpointAbstract<Resources\Paym
   ): Awaitable<Resources\PaymentCollection> {
     $this->parentId = $customerId;
 
-    return parent::restList($from, $limit, $parameters);
+    return parent::restListAsync($from, $limit, $parameters);
   }
 }

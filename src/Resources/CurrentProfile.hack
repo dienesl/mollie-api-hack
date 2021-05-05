@@ -5,11 +5,11 @@ class CurrentProfile extends Profile {
    * Enable a payment method for this profile.
    */
   <<__Override>>
-  public function enableMethod(
+  public function enableMethodAsync(
     string $methodId,
     dict<arraykey, mixed> $data = dict[]
-  ): Method {
-    return $this->client->profileMethods->createForCurrentProfile($methodId, $data);
+  ): Awaitable<Method> {
+    return $this->client->profileMethods->createForCurrentProfileAsync($methodId, $data);
   }
 
   /**

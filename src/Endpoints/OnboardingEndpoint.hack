@@ -33,8 +33,8 @@ class OnboardingEndpoint extends EndpointAbstract<Resources\Onboarding> {
    *
    * Will throw a ApiException if the resource cannot be found.
    */
-  public function get(): Resources\Onboarding {
-    return $this->restRead('', dict[]);
+  public function getAsync(): Awaitable<Resources\Onboarding> {
+    return $this->restReadAsync('', dict[]);
   }
 
   /**
@@ -45,18 +45,18 @@ class OnboardingEndpoint extends EndpointAbstract<Resources\Onboarding> {
    *
    * Will throw a ApiException if the resource cannot be found.
    */
-  public function submit(
+  public function submitAsync(
     dict<arraykey, mixed> $parameters = dict[]
-  ): Resources\Onboarding {
-    return $this->restCreate($parameters, dict[]);
+  ): Awaitable<Resources\Onboarding> {
+    return $this->restCreateAsync($parameters, dict[]);
   }
 
   <<__Override>>
-  protected function restRead(
+  protected async function restReadAsync(
     string $_id,
     dict<arraykey, mixed> $filters
-  ): Resources\Onboarding {
-    $result = $this->client->performHttpCall(
+  ): Awaitable<Resources\Onboarding> {
+    $result = await $this->client->performHttpCallAsync(
       RestMethod::READ,
       $this->getResourcePath() . $this->buildQueryString($filters)
     );

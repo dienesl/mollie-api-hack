@@ -1,7 +1,6 @@
 namespace Mollie\Api;
 
 use namespace HH\Lib\{
-  C,
   Dict,
   Regex,
   Str,

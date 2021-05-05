@@ -30,11 +30,11 @@ class ChargebackEndpoint extends CollectionEndpointAbstract<Resources\Chargeback
   /**
    * Retrieves a collection of Chargebacks from Mollie.
    */
-  public function page(
+  public function pageAsync(
     ?string $from = null,
     ?int $limit = null,
     dict<arraykey, mixed> $parameters = dict[]
-  ): Resources\ChargebackCollection {
-    return $this->restList($from, $limit, $parameters);
+  ): Awaitable<Resources\ChargebackCollection> {
+    return $this->restListAsync($from, $limit, $parameters);
   }
 }
